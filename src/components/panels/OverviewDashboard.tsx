@@ -248,8 +248,8 @@ export function OverviewDashboard() {
               onChange={setMixTab}
             />
           </div>
-          <div className="chart-box">
-            <GenerationMixChart data={hourly} stacked={mixTab === 'stacked'} height={240} />
+          <div className="chart-box chart-box-legend">
+            <GenerationMixChart data={hourly} stacked={mixTab === 'stacked'} height={280} />
           </div>
         </section>
       </div>
@@ -259,8 +259,8 @@ export function OverviewDashboard() {
           <p className="kicker">Shape</p>
           <h2 className="page-h2">Load & generation</h2>
           <p className="sub">Net demand with solar and wind contribution.</p>
-          <div className="chart-box">
-            <LoadGenerationChart data={hourly} height={240} />
+          <div className="chart-box chart-box-legend">
+            <LoadGenerationChart data={hourly} height={260} />
           </div>
         </section>
         <section className="block">

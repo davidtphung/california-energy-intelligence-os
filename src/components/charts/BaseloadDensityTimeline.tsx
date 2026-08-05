@@ -10,12 +10,15 @@ import {
 } from '../../data/baseloadTimeline'
 import { useApp } from '../../context/AppContext'
 
-const VB = { w: 1100, h: 460 }
-const PAD = { l: 40, r: 40, t: 56, b: 96 }
-const RAIL_Y = 36
+const VB = { w: 1100, h: 480 }
+const PAD = { l: 40, r: 40, t: 52, b: 108 }
+const RAIL_Y = 32
+/** Fixed icon band under the top rail - never follows the curve, so icons never collide */
+const ICON_Y = RAIL_Y + 30
 const LINE_Y = VB.h - PAD.b
-const CHART_TOP = PAD.t + 36
-const CHART_BOT = LINE_Y - 32
+const CHART_TOP = PAD.t + 48
+const CHART_BOT = LINE_Y - 28
+const ICON_R = 15
 
 function xAt(p: number) {
   return PAD.l + p * (VB.w - PAD.l - PAD.r)
@@ -45,7 +48,7 @@ function buildArea(layer: BaseloadLayer) {
   return `${curve} L ${xAt(last.p).toFixed(1)} ${LINE_Y} L ${xAt(first.p).toFixed(1)} ${LINE_Y} Z`
 }
 
-/** Small glyph icons on the timeline (mars.design object vibe) */
+/** Small glyph icons on a fixed band (never on the curve - no collisions) */
 function GateIcon({
   type,
   x,
@@ -53,6 +56,7 @@ function GateIcon({
   ink,
   accent,
   active,
+  surface,
 }: {
   type: BaseloadGate['icon']
   x: number
@@ -60,62 +64,63 @@ function GateIcon({
   ink: string
   accent: string
   active: boolean
+  surface: string
 }) {
-  const s = active ? 1.08 : 1
+  const s = active ? 1.06 : 1
   const stroke = active ? accent : ink
   return (
-    <g transform={`translate(${x} ${y}) scale(${s})`} opacity={active ? 1 : 0.88}>
-      <circle r={18} fill="var(--surface)" stroke={stroke} strokeWidth={1.25} />
+    <g transform={`translate(${x} ${y}) scale(${s})`} opacity={active ? 1 : 0.9}>
+      <circle r={ICON_R} fill={surface} stroke={stroke} strokeWidth={active ? 1.6 : 1.2} />
       {type === 'atom' && (
         <>
-          <circle r={3} fill={stroke} />
-          <ellipse rx={12} ry={5} fill="none" stroke={stroke} strokeWidth={1.2} />
-          <ellipse rx={12} ry={5} fill="none" stroke={stroke} strokeWidth={1.2} transform="rotate(60)" />
-          <ellipse rx={12} ry={5} fill="none" stroke={stroke} strokeWidth={1.2} transform="rotate(120)" />
+          <circle r={2.4} fill={stroke} />
+          <ellipse rx={9} ry={4} fill="none" stroke={stroke} strokeWidth={1.1} />
+          <ellipse rx={9} ry={4} fill="none" stroke={stroke} strokeWidth={1.1} transform="rotate(60)" />
+          <ellipse rx={9} ry={4} fill="none" stroke={stroke} strokeWidth={1.1} transform="rotate(120)" />
         </>
       )}
       {type === 'flame' && (
         <path
-          d="M0 10 C-8 2 -6 -6 0 -12 C4 -4 8 2 0 10 Z"
+          d="M0 8 C-6 1 -5 -5 0 -10 C3 -3 6 1 0 8 Z"
           fill={active ? stroke : 'transparent'}
           stroke={stroke}
-          strokeWidth={1.2}
+          strokeWidth={1.15}
         />
       )}
       {type === 'geo' && (
         <>
-          <path d="M-10 8 L0 -10 L10 8 Z" fill="none" stroke={stroke} strokeWidth={1.3} />
-          <path d="M-5 8 L0 -2 L5 8" fill="none" stroke={stroke} strokeWidth={1.1} />
+          <path d="M-8 6 L0 -8 L8 6 Z" fill="none" stroke={stroke} strokeWidth={1.2} />
+          <path d="M-4 6 L0 -1 L4 6" fill="none" stroke={stroke} strokeWidth={1} />
         </>
       )}
       {type === 'water' && (
         <path
-          d="M0 -11 C6 -2 8 4 0 12 C-8 4 -6 -2 0 -11 Z"
+          d="M0 -9 C5 -1 6 3 0 10 C-6 3 -5 -1 0 -9 Z"
           fill="none"
           stroke={stroke}
-          strokeWidth={1.3}
+          strokeWidth={1.2}
         />
       )}
       {type === 'cell' && (
         <>
-          <rect x={-9} y={-7} width={18} height={14} rx={2} fill="none" stroke={stroke} strokeWidth={1.3} />
-          <line x1={-4} y1={-10} x2={-4} y2={-7} stroke={stroke} strokeWidth={1.3} />
-          <line x1={4} y1={-10} x2={4} y2={-7} stroke={stroke} strokeWidth={1.3} />
-          <line x1={-5} y1={0} x2={5} y2={0} stroke={stroke} strokeWidth={1.2} />
+          <rect x={-7} y={-5.5} width={14} height={11} rx={1.5} fill="none" stroke={stroke} strokeWidth={1.2} />
+          <line x1={-3} y1={-8} x2={-3} y2={-5.5} stroke={stroke} strokeWidth={1.2} />
+          <line x1={3} y1={-8} x2={3} y2={-5.5} stroke={stroke} strokeWidth={1.2} />
+          <line x1={-4} y1={0} x2={4} y2={0} stroke={stroke} strokeWidth={1.1} />
         </>
       )}
       {type === 'sun' && (
         <>
-          <circle r={5} fill="none" stroke={stroke} strokeWidth={1.3} />
+          <circle r={4} fill="none" stroke={stroke} strokeWidth={1.2} />
           {[0, 45, 90, 135, 180, 225, 270, 315].map((a) => (
             <line
               key={a}
               x1={0}
-              y1={-8}
+              y1={-6.5}
               x2={0}
-              y2={-12}
+              y2={-10}
               stroke={stroke}
-              strokeWidth={1.2}
+              strokeWidth={1.1}
               transform={`rotate(${a})`}
             />
           ))}
@@ -123,8 +128,8 @@ function GateIcon({
       )}
       {type === 'flag' && (
         <>
-          <line x1={-6} y1={-12} x2={-6} y2={12} stroke={stroke} strokeWidth={1.4} />
-          <path d="M-6 -12 L10 -8 L-6 -2 Z" fill={stroke} opacity={0.85} />
+          <line x1={-5} y1={-10} x2={-5} y2={10} stroke={stroke} strokeWidth={1.3} />
+          <path d="M-5 -10 L8 -7 L-5 -2 Z" fill={stroke} opacity={0.85} />
         </>
       )}
     </g>
@@ -295,21 +300,32 @@ export function BaseloadDensityTimeline() {
             filter={`url(#${uid}-soft)`}
           />
 
-          {/* Peak callouts - top label band only */}
+          {/* Peak callouts - only highlights, staggered top band (clear of icons) */}
           {BASELOAD_GATES.map((g, i) => {
+            if (!g.highlight && !g.peak) return null
+            // Show peak for all, but stagger heights so adjacent pills never stack
             const cx = xAt(g.p)
             const cy = yAt(baseloadCurveY(g, layer))
-            const peakY = CHART_TOP - 8 + (i % 2) * 4
-            const m = baseloadMetric(g, layer)
+            // Peak band sits between icons (ICON_Y+R) and curve top - staggered rows
+            const peakY = ICON_Y + ICON_R + 22 + (i % 2) * 18
+            const pillW = Math.min(96, Math.max(72, g.peak.length * 7.2))
             return (
               <g key={`peak-${g.id}`} className="btl-fade" style={{ animationDelay: `${0.3 + i * 0.05}s` }}>
-                <line x1={cx} x2={cx} y1={cy - 20} y2={peakY + 10} stroke={line} strokeWidth={1} />
+                <line
+                  x1={cx}
+                  x2={cx}
+                  y1={cy - 8}
+                  y2={peakY + 12}
+                  stroke={line}
+                  strokeWidth={1}
+                  opacity={0.7}
+                />
                 <rect
-                  x={cx - 52}
-                  y={peakY - 11}
-                  width={104}
-                  height={22}
-                  rx={5}
+                  x={cx - pillW / 2}
+                  y={peakY - 10}
+                  width={pillW}
+                  height={20}
+                  rx={4}
                   fill={surface}
                   stroke={g.highlight ? accent : line}
                 />
@@ -318,45 +334,34 @@ export function BaseloadDensityTimeline() {
                   y={peakY + 4}
                   textAnchor="middle"
                   fill={ink}
-                  fontSize={11}
+                  fontSize={10}
                   fontWeight={600}
                   fontFamily="ui-monospace, SFMono-Regular, Menlo, monospace"
                 >
                   {g.peak}
                 </text>
-                {/* tiny metric under peak pill for layer - still in top band */}
-                <text
-                  x={cx}
-                  y={peakY + 22}
-                  textAnchor="middle"
-                  fill={mute}
-                  fontSize={9}
-                  fontFamily="ui-monospace, SFMono-Regular, Menlo, monospace"
-                >
-                  {m.value}
-                  {m.unit === '%' ? '%' : m.unit === 'idx' ? '' : ''}
-                </text>
               </g>
             )
           })}
 
-          {/* Gates: icon objects, drops, years */}
+          {/* Gates: fixed-band icons, curve dots, baseline drops, year labels */}
           {BASELOAD_GATES.map((g, i) => {
             const cx = xAt(g.p)
             const cy = yAt(baseloadCurveY(g, layer))
             const isActive = g.id === activeId
             const isHover = g.id === hoverId
             const m = baseloadMetric(g, layer)
-            const iconY = cy - 36
             return (
               <g key={g.id} className="btl-fade" style={{ animationDelay: `${0.4 + i * 0.06}s` }}>
+                {/* Thin guide from fixed icon down through curve to baseline */}
                 <line
                   x1={cx}
                   x2={cx}
-                  y1={cy}
+                  y1={ICON_Y + ICON_R + 2}
                   y2={LINE_Y}
                   stroke={isActive || isHover ? accent : line}
-                  strokeWidth={isActive ? 1.5 : 1}
+                  strokeWidth={isActive ? 1.4 : 0.9}
+                  opacity={0.75}
                 />
                 <line
                   x1={cx}
@@ -366,26 +371,28 @@ export function BaseloadDensityTimeline() {
                   stroke={isActive ? ink : mute}
                   strokeWidth={isActive ? 1.5 : 1}
                 />
+                {/* Curve node only (small) - icons live on ICON_Y band */}
                 <circle
                   cx={cx}
                   cy={cy}
-                  r={isActive || isHover ? 5.5 : 4}
+                  r={isActive || isHover ? 5 : 3.5}
                   fill={isActive || isHover ? accent : surface}
                   stroke={ink}
-                  strokeWidth={1.4}
+                  strokeWidth={1.3}
                 />
                 <GateIcon
                   type={g.icon}
                   x={cx}
-                  y={iconY}
+                  y={ICON_Y}
                   ink={ink}
                   accent={accent}
                   active={isActive || isHover}
+                  surface={surface}
                 />
-                {/* Year - bottom band only */}
+                {/* Year + metric - exclusive bottom band */}
                 <text
                   x={cx}
-                  y={LINE_Y + 28}
+                  y={LINE_Y + 26}
                   textAnchor="middle"
                   fill={isActive ? ink : mute}
                   fontSize={13}
@@ -395,19 +402,19 @@ export function BaseloadDensityTimeline() {
                 </text>
                 <text
                   x={cx}
-                  y={LINE_Y + 46}
+                  y={LINE_Y + 44}
                   textAnchor="middle"
                   fill={mute}
                   fontSize={10}
                   fontFamily="ui-monospace, SFMono-Regular, Menlo, monospace"
                 >
                   {m.value}
-                  {layer === 'firm' ? '%' : ''}
+                  {layer === 'firm' ? '%' : layer === 'baseload' || layer === 'gas' ? '' : ''}
                 </text>
                 <rect
-                  x={cx - 32}
+                  x={cx - 36}
                   y={RAIL_Y}
-                  width={64}
+                  width={72}
                   height={LINE_Y - RAIL_Y + 56}
                   fill="transparent"
                   className="btl-hit"

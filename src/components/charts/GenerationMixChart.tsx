@@ -46,12 +46,14 @@ export function GenerationMixChart({ data, height = 300, stacked = true }: Props
   const tick = theme === 'dark' ? '#8a8478' : '#7a7468'
   const grid = theme === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'
 
+  const chartH = Math.max(height, stacked ? 280 : 260)
+
   if (stacked) {
     return (
-      <ResponsiveContainer width="100%" height={height}>
+      <ResponsiveContainer width="100%" height={chartH}>
         <AreaChart
           data={data}
-          margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+          margin={{ top: 8, right: 8, left: 0, bottom: 8 }}
           onClick={() => setDrilldown('generation-mix')}
         >
           <CartesianGrid strokeDasharray="3 3" stroke={grid} vertical={false} />
@@ -79,9 +81,11 @@ export function GenerationMixChart({ data, height = 300, stacked = true }: Props
             }}
           />
           <Legend
-            wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
+            verticalAlign="bottom"
+            align="center"
             iconType="circle"
             iconSize={8}
+            wrapperStyle={{ fontSize: 11, paddingTop: 10, width: '100%', lineHeight: '1.65' }}
           />
           {STACK.map((s) => (
             <Area
@@ -102,8 +106,8 @@ export function GenerationMixChart({ data, height = 300, stacked = true }: Props
   }
 
   return (
-    <ResponsiveContainer width="100%" height={height}>
-      <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+    <ResponsiveContainer width="100%" height={chartH}>
+      <AreaChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>
         <CartesianGrid strokeDasharray="3 3" stroke={grid} vertical={false} />
         <XAxis dataKey="hour" tick={{ fill: tick, fontSize: 10 }} axisLine={false} tickLine={false} />
         <YAxis tick={{ fill: tick, fontSize: 11 }} axisLine={false} tickLine={false} unit=" MW" width={56} />
@@ -115,7 +119,13 @@ export function GenerationMixChart({ data, height = 300, stacked = true }: Props
             fontSize: 12,
           }}
         />
-        <Legend wrapperStyle={{ fontSize: 11 }} />
+        <Legend
+          verticalAlign="bottom"
+          align="center"
+          iconType="plainline"
+          iconSize={12}
+          wrapperStyle={{ fontSize: 11, paddingTop: 10, width: '100%' }}
+        />
         <Area
           type="monotone"
           dataKey="load"

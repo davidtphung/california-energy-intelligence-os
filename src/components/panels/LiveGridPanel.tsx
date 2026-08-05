@@ -202,10 +202,10 @@ export function LiveGridPanel() {
         <section className="block">
           <p className="kicker">Demand</p>
           <h3 className="page-h2">Load · day / hour ahead</h3>
-          <div className="chart-box" style={{ height: 240 }}>
+          <div className="chart-box chart-box-legend" style={{ height: 280 }}>
             {demandSeries.length ? (
-              <ResponsiveContainer width="100%" height={240}>
-                <LineChart data={demandSeries} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+              <ResponsiveContainer width="100%" height={280}>
+                <LineChart data={demandSeries} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke={grid} vertical={false} />
                   <XAxis
                     dataKey="time"
@@ -227,7 +227,13 @@ export function LiveGridPanel() {
                     contentStyle={{ background: tipBg, border: `1px solid ${grid}`, borderRadius: 2, fontSize: 12 }}
                     formatter={(v) => [`${Number(v).toLocaleString()} MW`, '']}
                   />
-                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                  <Legend
+                    verticalAlign="bottom"
+                    align="center"
+                    iconType="plainline"
+                    iconSize={12}
+                    wrapperStyle={{ fontSize: 11, paddingTop: 10, width: '100%' }}
+                  />
                   <Line type="monotone" dataKey="current" name="Current" stroke="var(--highlight)" strokeWidth={1.75} dot={false} connectNulls />
                   <Line type="monotone" dataKey="hourAhead" name="Hour ahead" stroke="#0369a1" strokeWidth={1.25} dot={false} connectNulls />
                   <Line type="monotone" dataKey="dayAhead" name="Day ahead" stroke="#b45309" strokeWidth={1.25} dot={false} strokeDasharray="4 3" connectNulls />
@@ -242,10 +248,10 @@ export function LiveGridPanel() {
         <section className="block">
           <p className="kicker">Supply</p>
           <h3 className="page-h2">Fuel mix · today</h3>
-          <div className="chart-box" style={{ height: 240 }}>
+          <div className="chart-box chart-box-legend" style={{ height: 300 }}>
             {fuelSeries.length ? (
-              <ResponsiveContainer width="100%" height={240}>
-                <AreaChart data={fuelSeries} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+              <ResponsiveContainer width="100%" height={300}>
+                <AreaChart data={fuelSeries} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke={grid} vertical={false} />
                   <XAxis
                     dataKey="time"
@@ -266,7 +272,13 @@ export function LiveGridPanel() {
                     contentStyle={{ background: tipBg, border: `1px solid ${grid}`, borderRadius: 2, fontSize: 12 }}
                     formatter={(v) => [`${Number(v).toLocaleString()} MW`, '']}
                   />
-                  <Legend wrapperStyle={{ fontSize: 11 }} iconSize={8} />
+                  <Legend
+                    verticalAlign="bottom"
+                    align="center"
+                    iconType="circle"
+                    iconSize={8}
+                    wrapperStyle={{ fontSize: 11, paddingTop: 10, width: '100%', lineHeight: '1.6' }}
+                  />
                   <Area type="monotone" dataKey="solar" name="Solar" stackId="1" stroke="#b45309" fill="#b45309" fillOpacity={0.55} />
                   <Area type="monotone" dataKey="wind" name="Wind" stackId="1" stroke="#0369a1" fill="#0369a1" fillOpacity={0.5} />
                   <Area type="monotone" dataKey="hydro" name="Hydro" stackId="1" stroke="#0e7490" fill="#0e7490" fillOpacity={0.45} />

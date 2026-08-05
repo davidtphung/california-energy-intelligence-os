@@ -32,7 +32,7 @@ export function LoadGenerationChart({ data, height = 280 }: Props) {
     <ResponsiveContainer width="100%" height={height}>
       <LineChart
         data={data}
-        margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
+        margin={{ top: 8, right: 8, left: 0, bottom: 8 }}
         onClick={() => setDrilldown('load-generation')}
       >
         <CartesianGrid strokeDasharray="3 3" stroke={grid} vertical={false} />
@@ -59,7 +59,13 @@ export function LoadGenerationChart({ data, height = 280 }: Props) {
             fontSize: 12,
           }}
         />
-        <Legend wrapperStyle={{ fontSize: 11, paddingTop: 8 }} iconType="plainline" iconSize={12} />
+        <Legend
+          verticalAlign="bottom"
+          align="center"
+          wrapperStyle={{ fontSize: 11, paddingTop: 10, width: '100%', lineHeight: '1.6' }}
+          iconType="plainline"
+          iconSize={12}
+        />
         <Line type="monotone" dataKey="load" name="Load" stroke="#f43f5e" strokeWidth={2.5} dot={false} />
         <Line
           type="monotone"
