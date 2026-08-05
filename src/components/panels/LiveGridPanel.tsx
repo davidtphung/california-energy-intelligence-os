@@ -19,12 +19,12 @@ import { Button } from '../ui/Button'
 import { RefreshCw } from 'lucide-react'
 
 function fmtMw(n: number | null | undefined) {
-  if (n == null || !Number.isFinite(n)) return '—'
+  if (n == null || !Number.isFinite(n)) return '-'
   return `${Math.round(n).toLocaleString()} MW`
 }
 
 function fmtGw(n: number | null | undefined) {
-  if (n == null || !Number.isFinite(n)) return '—'
+  if (n == null || !Number.isFinite(n)) return '-'
   return `${(n / 1000).toFixed(2)} GW`
 }
 
@@ -95,7 +95,7 @@ export function LiveGridPanel() {
         <div className="metric" style={{ cursor: 'default' }}>
           <span className="metric-label">Current demand</span>
           <span className="metric-value">
-            {caiso?.currentDemandMw != null ? (caiso.currentDemandMw / 1000).toFixed(2) : '—'}
+            {caiso?.currentDemandMw != null ? (caiso.currentDemandMw / 1000).toFixed(2) : '-'}
             <span className="metric-unit">GW</span>
           </span>
           <span className="metric-hint">{fmtMw(caiso?.currentDemandMw)}</span>
@@ -103,7 +103,7 @@ export function LiveGridPanel() {
         <div className="metric" style={{ cursor: 'default' }}>
           <span className="metric-label">Today&apos;s peak</span>
           <span className="metric-value">
-            {caiso?.todaysPeakMw != null ? (caiso.todaysPeakMw / 1000).toFixed(2) : '—'}
+            {caiso?.todaysPeakMw != null ? (caiso.todaysPeakMw / 1000).toFixed(2) : '-'}
             <span className="metric-unit">GW</span>
           </span>
           <span className="metric-hint">{fmtMw(caiso?.todaysPeakMw)}</span>
@@ -111,7 +111,7 @@ export function LiveGridPanel() {
         <div className="metric" style={{ cursor: 'default' }}>
           <span className="metric-label">Clean share*</span>
           <span className="metric-value">
-            {clean != null ? clean.toFixed(1) : '—'}
+            {clean != null ? clean.toFixed(1) : '-'}
             <span className="metric-unit">%</span>
           </span>
           <span className="metric-hint">ex-batteries / ambiguous imports</span>
@@ -119,7 +119,7 @@ export function LiveGridPanel() {
         <div className="metric" style={{ cursor: 'default' }}>
           <span className="metric-label">CO₂ rate</span>
           <span className="metric-value">
-            {caiso?.co2 ? Math.round(caiso.co2.total).toLocaleString() : '—'}
+            {caiso?.co2 ? Math.round(caiso.co2.total).toLocaleString() : '-'}
             <span className="metric-unit">t/h</span>
           </span>
           <span className="metric-hint">{caiso?.co2?.time ? `at ${caiso.co2.time}` : 'CAISO co2.csv'}</span>
@@ -325,9 +325,9 @@ export function LiveGridPanel() {
                       {s.status}
                     </Badge>
                   </td>
-                  <td className="mono muted">{s.latencyMs != null ? `${s.latencyMs} ms` : '—'}</td>
+                  <td className="mono muted">{s.latencyMs != null ? `${s.latencyMs} ms` : '-'}</td>
                   <td className="muted" style={{ fontSize: '0.82rem' }}>
-                    {s.message ?? (s.records != null ? `${s.records} rows` : '—')}
+                    {s.message ?? (s.records != null ? `${s.records} rows` : '-')}
                   </td>
                 </tr>
               ))}

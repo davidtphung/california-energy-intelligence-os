@@ -4,11 +4,11 @@ A modern interactive web app for **California electricity research, planning, an
 
 ## Features
 
-1. **Overview dashboard** — capacity, generation mix, load, storage, imports/exports, emissions KPIs  
-2. **Scenario planner** — demand, solar/wind/storage buildout, retirements, hydro variability, imports, policy targets → 2030 / 2035 / 2045 outputs  
-3. **Research workspace** — CEC, CAISO, EIA, utility, and policy source library; notes; assumptions tracker; citations  
-4. **Data engineering** — entity model, pipeline status, quality checks, error log, last refresh  
-5. **Developer panel** — editable JSON config, metric definitions, API tables, CSV/JSON export  
+1. **Overview dashboard** - capacity, generation mix, load, storage, imports/exports, emissions KPIs  
+2. **Scenario planner** - demand, solar/wind/storage buildout, retirements, hydro variability, imports, policy targets → 2030 / 2035 / 2045 outputs  
+3. **Research workspace** - CEC, CAISO, EIA, utility, and policy source library; notes; assumptions tracker; citations  
+4. **Data engineering** - entity model, pipeline status, quality checks, error log, last refresh  
+5. **Developer panel** - editable JSON config, metric definitions, API tables, CSV/JSON export  
 
 ### UX
 
@@ -54,7 +54,7 @@ The Overview panel pulls **today’s CAISO grid data** (no API key) via a same-o
 | Net demand | `netdemand.csv` |
 | CO₂ | `co2.csv` |
 | Weather | Open-Meteo (Central Valley proxy) |
-| EIA CISO hourly | Optional — set `VITE_EIA_API_KEY` |
+| EIA CISO hourly | Optional - set `VITE_EIA_API_KEY` |
 
 Dev: Vite proxies `/api/live/caiso/*`. Prod: `vercel.json` rewrites to `www.caiso.com/outlook/current/*`.
 

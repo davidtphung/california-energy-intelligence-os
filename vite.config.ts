@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
     proxy: {
-      // Dev proxy — avoids browser CORS to CAISO Today's Outlook CSVs
+      // Dev proxy - avoids browser CORS to CAISO Today's Outlook CSVs
       '/api/live/caiso': {
         target: 'https://www.caiso.com',
         changeOrigin: true,

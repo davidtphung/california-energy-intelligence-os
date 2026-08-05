@@ -32,7 +32,7 @@ const TECHS: Technology[] = [
   'other',
 ]
 
-/** Installed capacity baselines (MW) — realistic CA-scale placeholders */
+/** Installed capacity baselines (MW) - realistic CA-scale placeholders */
 const BASE_CAPACITY_MW: Record<Technology, number> = {
   solar: 42_500,
   wind: 7_800,
@@ -347,7 +347,7 @@ export const SOURCES: Source[] = [
   },
   {
     id: 's3',
-    title: 'Electric Power Monthly — California',
+    title: 'Electric Power Monthly - California',
     organization: 'EIA',
     url: 'https://www.eia.gov/electricity/monthly/',
     year: 2025,
@@ -397,7 +397,7 @@ export const SOURCES: Source[] = [
   },
   {
     id: 's8',
-    title: 'Today\'s Outlook — Supply & Demand',
+    title: 'Today\'s Outlook - Supply & Demand',
     organization: 'CAISO',
     url: 'https://www.caiso.com/todaysoutlook',
     year: 2025,
@@ -421,7 +421,7 @@ export const NOTES: Note[] = [
   {
     id: 'n2',
     title: 'Hydro drought sensitivity',
-    body: '2021–2022 drought reduced hydro CF ~25–30%. Use hydroVariability 0.7 for stress cases aligned with CAISO summer assessments.',
+    body: '2021-2022 drought reduced hydro CF ~25-30%. Use hydroVariability 0.7 for stress cases aligned with CAISO summer assessments.',
     tags: ['hydro', 'drought', 'reliability'],
     linkedSourceIds: ['s2'],
     linkedAssumptionIds: ['a5'],
@@ -470,7 +470,7 @@ export const QUALITY_CHECKS: QualityCheck[] = [
   { id: 'q1', name: 'Load completeness', entity: 'load_hourly', status: 'pass', detail: '0 missing hours in last 30 days', lastRun: '2025-08-05T00:00:00Z' },
   { id: 'q2', name: 'Capacity vs generation CF bounds', entity: 'generation_hourly', status: 'pass', detail: 'All CF values within [0, 1.05]', lastRun: '2025-08-05T00:00:00Z' },
   { id: 'q3', name: 'Plant geo coverage', entity: 'plants', status: 'warn', detail: '1.3% of plants missing coordinates', lastRun: '2025-08-04T04:22:00Z' },
-  { id: 'q4', name: 'Transmission balance', entity: 'transmission_flows', status: 'fail', detail: 'Last RT pull failed — stale > 24h', lastRun: '2025-08-04T23:03:00Z' },
+  { id: 'q4', name: 'Transmission balance', entity: 'transmission_flows', status: 'fail', detail: 'Last RT pull failed - stale > 24h', lastRun: '2025-08-04T23:03:00Z' },
   { id: 'q5', name: 'Storage SoC range', entity: 'storage_hourly', status: 'pass', detail: 'SoC within [0, max_capacity]', lastRun: '2025-08-05T00:15:00Z' },
   { id: 'q6', name: 'Policy target uniqueness', entity: 'policy_targets', status: 'pass', detail: 'No duplicate (metric, year) pairs', lastRun: '2025-08-01T12:00:00Z' },
 ]

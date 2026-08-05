@@ -47,7 +47,7 @@ export function ScenarioPlanner() {
       <div className="intro fadein t1">
         <strong>Scenario</strong>
         <p>
-          Adjust global drivers — demand, buildout, retirements, hydro, imports, policy. Projected
+          Adjust global drivers - demand, buildout, retirements, hydro, imports, policy. Projected
           system metrics for 2030 / 2035 / 2045 update live. Editing a preset clones it so originals
           stay intact.
         </p>
@@ -293,7 +293,7 @@ export function ScenarioPlanner() {
         </table>
       </section>
 
-      <p className="footer-line">Scenario · what-if pathways · 2030–2045</p>
+      <p className="footer-line">Scenario · what-if pathways · 2030-2045</p>
     </div>
   )
 }

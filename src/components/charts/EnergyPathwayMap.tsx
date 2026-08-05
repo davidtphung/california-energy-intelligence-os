@@ -9,7 +9,7 @@ import {
 } from '../../data/energyPathway'
 import { useApp } from '../../context/AppContext'
 
-/** ViewBox geometry — labels live in reserved bands so they never collide */
+/** ViewBox geometry - labels live in reserved bands so they never collide */
 const VB = { w: 1000, h: 420 }
 const PAD = { l: 36, r: 36, t: 72, b: 88 }
 const RAIL_Y = 48
@@ -93,7 +93,7 @@ export function EnergyPathwayMap() {
           <p className="kicker">Pathway map</p>
           <h2 className="page-h2">California clean energy gates</h2>
           <p className="sub" style={{ marginBottom: 0 }}>
-            {layerMeta.hint}. Click a year — detail opens below. Labels sit in fixed bands so nothing
+            {layerMeta.hint}. Click a year - detail opens below. Labels sit in fixed bands so nothing
             overlaps.
           </p>
         </div>
@@ -191,7 +191,7 @@ export function EnergyPathwayMap() {
             filter={`url(#${uid}-glow)`}
           />
 
-          {/* Soft horizontal guides — no labels on guides to avoid clutter */}
+          {/* Soft horizontal guides - no labels on guides to avoid clutter */}
           {[0.25, 0.5, 0.75].map((n) => (
             <line
               key={n}
@@ -206,7 +206,7 @@ export function EnergyPathwayMap() {
             />
           ))}
 
-          {/* Peak callouts — reserved top band, staggered heights */}
+          {/* Peak callouts - reserved top band, staggered heights */}
           {PATHWAY_GATES.map((g, i) => {
             if (!g.peakCallout && !g.highlight) return null
             const m = gateMetric(g, layer)
@@ -289,7 +289,7 @@ export function EnergyPathwayMap() {
                   stroke={isActive || isHover ? accent : ink}
                   strokeWidth={1.5}
                 />
-                {/* Year — exclusive bottom label row */}
+                {/* Year - exclusive bottom label row */}
                 <text
                   x={cx}
                   y={LINE_Y + 28}
@@ -301,7 +301,7 @@ export function EnergyPathwayMap() {
                 >
                   {g.short}
                 </text>
-                {/* Metric under year — second bottom row, mono, never collides with peaks */}
+                {/* Metric under year - second bottom row, mono, never collides with peaks */}
                 <text
                   x={cx}
                   y={LINE_Y + 46}
@@ -351,7 +351,7 @@ export function EnergyPathwayMap() {
           />
         </svg>
 
-        {/* Floating tooltip — fixed position under stage, not over SVG labels */}
+        {/* Floating tooltip - fixed position under stage, not over SVG labels */}
         {hover && (
           <div className="ep-tip" role="tooltip">
             <span className="ep-tip-tag">{hover.year}</span>
@@ -364,7 +364,7 @@ export function EnergyPathwayMap() {
         )}
       </div>
 
-      {/* Detail depth panel — structured, not crowded on the chart */}
+      {/* Detail depth panel - structured, not crowded on the chart */}
       <div className="ep-detail" key={focus.id}>
         <div className="ep-detail-top">
           <div>
@@ -416,7 +416,7 @@ export function EnergyPathwayMap() {
           </div>
         </div>
 
-        {/* Mini stack bars — capacity composition at selected gate */}
+        {/* Mini stack bars - capacity composition at selected gate */}
         <div className="ep-stack" aria-hidden={false}>
           <p className="kicker">Capacity stack · {focus.year}</p>
           <div className="ep-stack-bar">

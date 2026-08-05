@@ -89,7 +89,7 @@ export interface ScenarioAssumptions {
   windBuildoutGw: number
   storageBuildoutGw: number
   gasRetirementsGw: number
-  hydroVariability: number // 0.7–1.3 multiplier
+  hydroVariability: number // 0.7-1.3 multiplier
   importLevelGw: number
   cleanEnergyTargetPct: number
   carbonPrice: number // $/ton

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-/** Lightweight section wrapper — paper layout, not card chrome */
+/** Lightweight section wrapper - paper layout, not card chrome */
 export function Card({
   children,
   title,

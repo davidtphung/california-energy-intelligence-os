@@ -86,8 +86,8 @@ export function DataEngineering() {
                       {s.status}
                     </Badge>
                   </td>
-                  <td className="mono muted">{s.latencyMs != null ? `${s.latencyMs} ms` : '—'}</td>
-                  <td className="muted">{s.message ?? '—'}</td>
+                  <td className="mono muted">{s.latencyMs != null ? `${s.latencyMs} ms` : '-'}</td>
+                  <td className="muted">{s.message ?? '-'}</td>
                 </tr>
               ))}
             </tbody>

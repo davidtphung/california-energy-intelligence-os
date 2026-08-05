@@ -1,4 +1,4 @@
-/** California clean-energy pathway — scenario-scale sample for the pathway map */
+/** California clean-energy pathway - scenario-scale sample for the pathway map */
 
 export type PathwayGateId =
   | 'now'
@@ -13,7 +13,7 @@ export type PathwayLayer = 'pathway' | 'capacity' | 'storage' | 'reliability'
 
 export interface PathwayGate {
   id: PathwayGateId
-  /** Position along timeline 0–1 */
+  /** Position along timeline 0-1 */
   p: number
   year: number
   label: string
@@ -89,7 +89,7 @@ export const PATHWAY_GATES: PathwayGate[] = [
     title: '60% RPS / SB 100 interim',
     gate: 'Statutory 60% renewable / clean trajectory; Diablo Canyon still in the stack under SB 846.',
     today: 'RPS compliance is on track in mid cases; transmission remains the soft constraint.',
-    slip: 'Missed interconnection queues move clean share 3–5 pts later.',
+    slip: 'Missed interconnection queues move clean share 3-5 pts later.',
     cleanPct: 68,
     peakGw: 54.8,
     capacityGw: 158,
@@ -175,8 +175,8 @@ export const PATHWAY_GATES: PathwayGate[] = [
     label: "'45",
     short: "'45",
     title: 'SB 100 destination',
-    gate: '100% clean retail sales — the statutory end state; residual firming is non-emitting.',
-    today: 'Pathway exists on paper; last 6–10 pts need firm clean + flexibility.',
+    gate: '100% clean retail sales - the statutory end state; residual firming is non-emitting.',
+    today: 'Pathway exists on paper; last 6-10 pts need firm clean + flexibility.',
     slip: 'The last decade is won or lost on transmission and firm capacity.',
     cleanPct: 100,
     peakGw: 70.2,
@@ -214,7 +214,7 @@ export function gateMetric(gate: PathwayGate, layer: PathwayLayer): { value: str
   }
 }
 
-/** Normalize 0–1 for curve height from layer metric */
+/** Normalize 0-1 for curve height from layer metric */
 export function gateCurveY(gate: PathwayGate, layer: PathwayLayer): number {
   switch (layer) {
     case 'capacity':

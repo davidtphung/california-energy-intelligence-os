@@ -13,7 +13,7 @@ import { cn } from '../../lib/utils'
 
 const NAV: { id: AppView; label: string; icon: typeof LayoutDashboard; desc: string }[] = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard, desc: 'System KPIs & charts' },
-  { id: 'scenarios', label: 'Scenario Planner', icon: GitBranch, desc: '2030–2045 pathways' },
+  { id: 'scenarios', label: 'Scenario Planner', icon: GitBranch, desc: '2030-2045 pathways' },
   { id: 'research', label: 'Research', icon: BookOpen, desc: 'Sources, notes, citations' },
   { id: 'data-engineering', label: 'Data Engineering', icon: Database, desc: 'Pipelines & quality' },
   { id: 'developer', label: 'Developer', icon: Code2, desc: 'Config, metrics, export' },

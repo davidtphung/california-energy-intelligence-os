@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* CEI OS — jacob.energy–inspired: paper, ink, quiet motion */
+/* CEI OS - jacob.energy-inspired: paper, ink, quiet motion */
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 
@@ -12,7 +12,7 @@
 :root {
   --radius: 2px;
   --ease: 0.15s ease;
-  --page: 44rem; /* ~704px — reading column */
+  --page: 44rem; /* ~704px - reading column */
   --page-wide: 52rem;
 }
 
@@ -124,7 +124,7 @@ a:hover {
   opacity: 0.7;
 }
 
-/* —— Shell: left nav + content (jacob.energy structure) —— */
+/* - -  Shell: left nav + content (jacob.energy structure) - -  */
 .wrapper {
   display: grid;
   grid-template-columns: 11.5rem minmax(0, 1fr);
@@ -301,7 +301,7 @@ a:hover {
   color: var(--highlight);
 }
 
-/* —— Main content —— */
+/* - -  Main content - -  */
 .main {
   min-width: 0;
   padding: 2.75rem 1.5rem 4rem;
@@ -423,7 +423,7 @@ hr,
   }
 }
 
-/* Metrics strip — table-like, not card bloat */
+/* Metrics strip - table-like, not card bloat */
 .metric-strip {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -494,7 +494,7 @@ hr,
   color: var(--mute-2);
 }
 
-/* Panels / blocks — flat, paper */
+/* Panels / blocks - flat, paper */
 .block {
   margin-bottom: 1.75rem;
 }
@@ -699,7 +699,7 @@ hr,
   margin: 0.15rem 0;
 }
 
-/* Buttons — text-forward */
+/* Buttons - text-forward */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -757,7 +757,7 @@ hr,
   align-items: center;
 }
 
-/* Segmented — underline tabs */
+/* Segmented - underline tabs */
 .segmented {
   display: flex;
   flex-wrap: wrap;
@@ -1066,7 +1066,7 @@ hr,
   gap: 0.95rem;
 }
 
-/* —— Energy pathway map (mars.design timeline craft) —— */
+/* - -  Energy pathway map (mars.design timeline craft) - -  */
 .ep {
   margin: 0.25rem 0 1.75rem;
 }

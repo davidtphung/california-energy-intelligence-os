@@ -38,7 +38,7 @@ export function ResearchWorkspace() {
       <div className="intro fadein t1">
         <strong>Research</strong>
         <p>
-          Source library, notes, assumptions, and citations — CEC, CAISO, EIA, utility filings, and
+          Source library, notes, assumptions, and citations - CEC, CAISO, EIA, utility filings, and
           policy documents in one quiet list.
         </p>
       </div>
@@ -247,8 +247,8 @@ export function ResearchWorkspace() {
                           {a.confidence}
                         </Badge>
                       </td>
-                      <td className="muted">{src?.organization ?? '—'}</td>
-                      <td className="muted">{a.notes ?? '—'}</td>
+                      <td className="muted">{src?.organization ?? '-'}</td>
+                      <td className="muted">{a.notes ?? '-'}</td>
                     </tr>
                   )
                 })}

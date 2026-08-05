@@ -360,7 +360,7 @@ async function fetchEia(sources: SourceStatus[]) {
       fetchedAt: new Date().toISOString(),
     })
     return {
-      note: 'Optional — add VITE_EIA_API_KEY to enable EIA Open Data for CISO hourly demand.',
+      note: 'Optional - add VITE_EIA_API_KEY to enable EIA Open Data for CISO hourly demand.',
     }
   }
   const url = `${base}&api_key=${encodeURIComponent(key)}`
@@ -424,7 +424,7 @@ export async function fetchAllLiveSources(): Promise<LiveBundle> {
       organization: 'CEC',
       url: 'https://www.energy.ca.gov/data-reports/reports/integrated-energy-policy-report',
       status: 'skipped',
-      message: 'Annual/biennial reports — not a live feed',
+      message: 'Annual/biennial reports - not a live feed',
       fetchedAt,
     },
     {
@@ -433,7 +433,7 @@ export async function fetchAllLiveSources(): Promise<LiveBundle> {
       organization: 'CAISO',
       url: 'https://oasis.caiso.com/',
       status: 'skipped',
-      message: 'Zip/XML market reports — wire via backend job for LMP/ATC',
+      message: 'Zip/XML market reports - wire via backend job for LMP/ATC',
       fetchedAt,
     },
     {
@@ -442,7 +442,7 @@ export async function fetchAllLiveSources(): Promise<LiveBundle> {
       organization: 'CPUC',
       url: 'https://www.cpuc.ca.gov/',
       status: 'skipped',
-      message: 'Filings / proceedings — research workspace',
+      message: 'Filings / proceedings - research workspace',
       fetchedAt,
     }
   )
@@ -503,7 +503,7 @@ export function cleanShareFromFuel(fuel: NonNullable<CaisoLiveSnapshot['fuel']>)
     fuel.smallHydro +
     fuel.largeHydro +
     fuel.nuclear
-  // Batteries are energy-shifting; imports ambiguous — exclude from clean calc
+  // Batteries are energy-shifting; imports ambiguous - exclude from clean calc
   const total = clean + fuel.naturalGas + fuel.coal + Math.max(0, fuel.other) + Math.max(0, fuel.imports)
   if (total <= 0) return 0
   return Math.round((clean / total) * 1000) / 10

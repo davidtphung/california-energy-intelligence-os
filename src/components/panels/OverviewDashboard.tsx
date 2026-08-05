@@ -202,7 +202,7 @@ export function OverviewDashboard() {
         <section className="block">
           <p className="kicker">Capacity</p>
           <h2 className="page-h2">By technology</h2>
-          <p className="sub">Nameplate GW — click a bar to drill down.</p>
+          <p className="sub">Nameplate GW - click a bar to drill down.</p>
           <div className="chart-box">
             <CapacityBarChart data={capacity} height={240} />
           </div>
@@ -292,7 +292,7 @@ export function OverviewDashboard() {
                 <tr key={t.id}>
                   <th scope="row">{t.year}</th>
                   <td>
-                    {t.name} — {t.targetValue}
+                    {t.name} - {t.targetValue}
                     {t.unit}
                     <div className="mono muted" style={{ marginTop: 2 }}>
                       {t.source}
@@ -346,7 +346,7 @@ export function OverviewDashboard() {
       </section>
 
       <p className="footer-line">
-        Overview · mock CEC / CAISO / EIA–scale values ·{' '}
+        Overview · mock CEC / CAISO / EIA-scale values ·{' '}
         <a href="#scenario" onClick={() => setView('scenarios')}>
           Scenario
         </a>{' '}
