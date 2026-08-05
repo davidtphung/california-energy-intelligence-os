@@ -92,7 +92,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           ))}
           <li style={{ marginTop: '0.85rem', opacity: 0.65 }}>
             <a href="https://x.com/davidtphung" target="_blank" rel="noopener noreferrer">
-              Twitter
+              X
             </a>
           </li>
           <li style={{ opacity: 0.65 }}>
