@@ -79,7 +79,7 @@ export function EnergyPathwayMap() {
   const mute = theme === 'dark' ? '#8a8478' : '#7a7468'
   const line = theme === 'dark' ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.14)'
   const accent = theme === 'dark' ? '#86efac' : '#1a5f3a'
-  const surface = theme === 'dark' ? '#1c1a17' : '#e4e0d7'
+  const surface = theme === 'dark' ? '#1c1a17' : '#ffffff'
 
   const selectGate = (g: PathwayGate) => {
     setActiveId(g.id)

@@ -19,9 +19,9 @@
 /* Light: warm paper (jacob.energy lineage) */
 html[data-theme="light"] {
   color-scheme: light;
-  --bg: #cfcbc2;
-  --bg-soft: #d7d3ca;
-  --surface: #e4e0d7;
+  --bg: #ffffff;
+  --bg-soft: #fafafa;
+  --surface: #ffffff;
   --ink: #2e2b23;
   --ink-2: #524c3e;
   --mute: #7a7468;
