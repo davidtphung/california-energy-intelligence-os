@@ -7,6 +7,7 @@
 
 import type { PortfolioKind, PortfolioSector, Technology } from '../types'
 import { US_STATES, type USStateEnergy } from './usStates'
+import { buildUsHydroPortfolios } from './usHydroPlants'
 
 export interface PortfolioAsset {
   id: string
@@ -549,10 +550,11 @@ export function buildStateFleetPortfolio(s: USStateEnergy): EnergyPortfolio {
 
 const CA_DETAILED: EnergyPortfolio[] = CA_PORTFOLIO_SEEDS.map(tagCalifornia)
 
-/** CA detail LSEs + one fleet portfolio for every other state / PR */
+/** CA detail LSEs + state fleets + national major hydro operator fleets */
 export const PORTFOLIOS: EnergyPortfolio[] = [
   ...CA_DETAILED,
   ...US_STATES.filter((s) => s.abbr !== 'CA').map(buildStateFleetPortfolio),
+  ...buildUsHydroPortfolios(),
 ]
 
 export const CA_FLEET_PORTFOLIO: EnergyPortfolio = buildStateFleetPortfolio(

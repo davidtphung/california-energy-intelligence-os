@@ -10,6 +10,13 @@ import {
   type EnergyPortfolio,
   type PortfolioAsset,
 } from '../../data/portfolios'
+import {
+  US_HYDRO_PLANTS,
+  hydroByOperator,
+  hydroByState,
+  hydroTotals,
+  type UsHydroPlant,
+} from '../../data/usHydroPlants'
 import { US_STATES } from '../../data/usStates'
 import { PortfolioLocationMap } from '../charts/PortfolioLocationMap'
 import { Badge } from '../ui/Badge'
@@ -41,7 +48,11 @@ export function PortfoliosPanel() {
   const filteredPortfolios = useMemo(() => {
     return PORTFOLIOS.filter((p) => {
       if (kindFilter !== 'all' && p.kind !== kindFilter) return false
-      if (stateFilter !== 'all' && p.stateAbbr !== stateFilter) return false
+      if (stateFilter !== 'all') {
+        const inState =
+          p.stateAbbr === stateFilter || p.assets.some((a) => a.stateAbbr === stateFilter)
+        if (!inState) return false
+      }
       const q = query.toLowerCase()
       if (!q) return true
       return (
@@ -51,11 +62,36 @@ export function PortfoliosPanel() {
         p.stateAbbr.toLowerCase().includes(q) ||
         p.notes.toLowerCase().includes(q) ||
         p.assets.some(
-          (a) => a.name.toLowerCase().includes(q) || a.county.toLowerCase().includes(q)
+          (a) =>
+            a.name.toLowerCase().includes(q) ||
+            a.county.toLowerCase().includes(q) ||
+            a.stateAbbr.toLowerCase().includes(q)
         )
       )
     })
   }, [kindFilter, stateFilter, query])
+
+  const hydroAll = useMemo(() => hydroTotals(), [])
+  const hydroStateRows = useMemo(() => hydroByState(), [])
+  const hydroOps = useMemo(() => hydroByOperator().slice(0, 12), [])
+
+  const filteredHydro = useMemo(() => {
+    let list = [...US_HYDRO_PLANTS]
+    if (stateFilter !== 'all') list = list.filter((p) => p.stateAbbr === stateFilter)
+    const q = query.toLowerCase()
+    if (q) {
+      list = list.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.operator.toLowerCase().includes(q) ||
+          p.river.toLowerCase().includes(q) ||
+          p.stateName.toLowerCase().includes(q) ||
+          p.stateAbbr.toLowerCase().includes(q)
+      )
+    }
+    if (techFilter !== 'all' && techFilter !== 'hydro') return [] as UsHydroPlant[]
+    return list.sort((a, b) => b.capacityMw - a.capacityMw)
+  }, [stateFilter, query, techFilter])
 
   const selectedPortfolio: EnergyPortfolio | null =
     selectedPortfolioId === 'all'
@@ -103,11 +139,12 @@ export function PortfoliosPanel() {
   return (
     <div id="portfolios" className="fadein t1">
       <div className="intro">
-        <strong>Portfolios · all states</strong>
+        <strong>Portfolios · states and US hydro</strong>
         <p>
-          Energy portfolios across all 50 states and Puerto Rico. California has detailed IOU, CCA,
-          muni, and generator samples; every other state has a representative fleet built from
-          capacity totals. Click a state to filter, or open the full state energy page.
+          Energy portfolios across all states and territories, plus a mapped catalog of major
+          American hydro plants (conventional and pumped storage) from Grand Coulee and Hoover to
+          Niagara, Bath County, and TVA. California keeps detailed LSEs; click a state or filter
+          Hydro to focus the map.
         </p>
       </div>
 
@@ -123,20 +160,66 @@ export function PortfoliosPanel() {
           <span className="metric-hint">in current filter</span>
         </div>
         <div className="metric" style={{ cursor: 'default' }}>
-          <span className="metric-label">Mapped assets</span>
-          <span className="metric-value">{totals.count}</span>
-          <span className="metric-hint">plants · fleets · nodes</span>
+          <span className="metric-label">US hydro plants</span>
+          <span className="metric-value">{hydroAll.count}</span>
+          <span className="metric-hint">
+            {hydroAll.capacityGw.toFixed(0)} GW · {hydroAll.states} states ·{' '}
+            {hydroAll.pumpedGw.toFixed(0)} GW pumped
+          </span>
         </div>
         <div className="metric" style={{ cursor: 'default' }}>
-          <span className="metric-label">Nameplate</span>
-          <span className="metric-value">
-            {(totals.capacityMw / 1000).toFixed(0)}
-            <span className="metric-unit">GW</span>
-          </span>
+          <span className="metric-label">Mapped assets</span>
+          <span className="metric-value">{totals.count}</span>
           <span className="metric-hint">
-            {(totals.outputMw / 1000).toFixed(0)} GW sample output
+            {(totals.capacityMw / 1000).toFixed(0)} GW nameplate in filter
           </span>
         </div>
+      </div>
+
+      <div className="btn-row" style={{ marginBottom: '0.85rem' }}>
+        <Button
+          size="sm"
+          onClick={() => {
+            setTechFilter('hydro')
+            setKindFilter('all')
+            setSelectedPortfolioId('all')
+            setSelectedAsset(null)
+          }}
+        >
+          Show hydro only
+        </Button>
+        <Button
+          size="sm"
+          onClick={() => {
+            setTechFilter('all')
+            setQuery('Grand Coulee')
+          }}
+        >
+          Find Grand Coulee
+        </Button>
+        <Button
+          size="sm"
+          onClick={() =>
+            exportCsv(
+              US_HYDRO_PLANTS.map((p) => ({
+                name: p.name,
+                state: p.stateAbbr,
+                capacity_mw: p.capacityMw,
+                output_mw: p.outputMw,
+                operator: p.operator,
+                river: p.river,
+                kind: p.kind,
+                online_year: p.onlineYear,
+                lat: p.latitude,
+                lon: p.longitude,
+              })),
+              'us-hydro-plants.csv'
+            )
+          }
+          icon={<Download className="h-3.5 w-3.5" />}
+        >
+          Hydro CSV
+        </Button>
       </div>
 
       {/* State picker - every state */}
@@ -477,6 +560,126 @@ export function PortfoliosPanel() {
 
       <hr className="rule" />
 
+      {/* National hydro catalog */}
+      <section className="block" id="us-hydro">
+        <p className="kicker">Hydro · United States</p>
+        <h2 className="page-h2">Major American hydro plants</h2>
+        <p className="sub">
+          {hydroAll.count} large conventional and pumped-storage plants ·{' '}
+          {hydroAll.capacityGw.toFixed(1)} GW nameplate sample across {hydroAll.states} states ·{' '}
+          {hydroAll.pumpedGw.toFixed(1)} GW pumped storage. Includes Grand Coulee, Hoover, Chief
+          Joseph, Niagara, Bath County, Ludington, Raccoon Mountain, and Missouri mainstem dams.
+          EIA-scale samples for map UX.
+        </p>
+
+        <div className="grid-2" style={{ marginBottom: '1rem' }}>
+          <div>
+            <p className="kicker">By state (top capacity)</p>
+            <ol className="ov-rank-list">
+              {hydroStateRows.slice(0, 10).map((s, i) => (
+                <li key={s.stateAbbr}>
+                  <button
+                    type="button"
+                    className="ov-rank-btn"
+                    onClick={() => {
+                      pickState(s.stateAbbr)
+                      setTechFilter('hydro')
+                    }}
+                  >
+                    <span className="mono muted">{i + 1}</span>
+                    <span className="ov-rank-name">
+                      <strong>{s.stateAbbr}</strong> {s.stateName}
+                    </span>
+                    <span className="mono">
+                      {(s.capacityMw / 1000).toFixed(1)} GW · {s.count}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ol>
+          </div>
+          <div>
+            <p className="kicker">By operator (top capacity)</p>
+            <ol className="ov-rank-list">
+              {hydroOps.map((o, i) => (
+                <li key={o.operator}>
+                  <button
+                    type="button"
+                    className="ov-rank-btn"
+                    onClick={() => {
+                      setQuery(o.operator)
+                      setTechFilter('hydro')
+                    }}
+                  >
+                    <span className="mono muted">{i + 1}</span>
+                    <span className="ov-rank-name">
+                      <strong>{o.operator}</strong>
+                    </span>
+                    <span className="mono">
+                      {(o.capacityMw / 1000).toFixed(1)} GW · {o.count}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+
+        <div className="table-wrap">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Plant</th>
+                <th>State</th>
+                <th>Operator</th>
+                <th>River</th>
+                <th>Kind</th>
+                <th style={{ textAlign: 'right' }}>MW cap</th>
+                <th style={{ textAlign: 'right' }}>MW out</th>
+                <th>Online</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredHydro.map((p) => (
+                <tr
+                  key={p.id}
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => {
+                    pickState(p.stateAbbr)
+                    setTechFilter('hydro')
+                    setQuery(p.name)
+                    const match = allAssets(PORTFOLIOS).find((a) => a.id === p.id)
+                    if (match) {
+                      setSelectedAsset(match)
+                      setSelectedPortfolioId(match.portfolioId)
+                      setDrilldown(`asset:${p.id}`)
+                    }
+                  }}
+                >
+                  <td style={{ fontWeight: 600, color: 'var(--highlight)' }}>{p.name}</td>
+                  <td className="mono">{p.stateAbbr}</td>
+                  <td className="muted">{p.operator}</td>
+                  <td className="muted">{p.river}</td>
+                  <td>
+                    <Badge>{p.kind}</Badge>
+                  </td>
+                  <td className="num">{p.capacityMw.toLocaleString()}</td>
+                  <td className="num">{p.outputMw.toLocaleString()}</td>
+                  <td className="mono muted">{p.onlineYear}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {filteredHydro.length === 0 && (
+          <p className="muted" style={{ marginTop: 8 }}>
+            No hydro plants match the current filters. Clear tech filter or search.
+          </p>
+        )}
+      </section>
+
+      <hr className="rule" />
+
       {/* Per-state directory */}
       <section className="block">
         <p className="kicker">Directory</p>
@@ -645,8 +848,8 @@ export function PortfoliosPanel() {
       </section>
 
       <p className="footer-line">
-        Portfolios · 50 states + PR · CA detail LSEs · other states from EIA-scale capacity totals ·
-        replace with CEC QFER / EIA-860 / LSE IRP feeds
+        Portfolios · states + territories · major US hydro ({hydroAll.count} plants,{' '}
+        {hydroAll.capacityGw.toFixed(0)} GW) · CA detail LSEs · EIA-860-scale samples
       </p>
     </div>
   )
