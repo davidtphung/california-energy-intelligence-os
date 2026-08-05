@@ -33,28 +33,22 @@ export function ConsistencyPanel() {
         </p>
       </div>
 
-      <div className="metric-strip">
+      <div className="metric-strip consistency-metrics">
         <div className="metric" style={{ cursor: 'default' }}>
           <span className="metric-label">Most consistent</span>
-          <span className="metric-value" style={{ fontSize: '1.15rem' }}>
-            {ranked[0].label}
-          </span>
+          <span className="metric-value">{ranked[0].label}</span>
           <span className="metric-hint">{ranked[0].consistencyScore} / 100</span>
         </div>
         <div className="metric" style={{ cursor: 'default' }}>
           <span className="metric-label">Least consistent</span>
-          <span className="metric-value" style={{ fontSize: '1.15rem' }}>
-            {ranked[ranked.length - 1].label}
-          </span>
+          <span className="metric-value">{ranked[ranked.length - 1].label}</span>
           <span className="metric-hint">
             inconsistency {ranked[ranked.length - 1].inconsistencyScore}
           </span>
         </div>
         <div className="metric" style={{ cursor: 'default' }}>
           <span className="metric-label">Selected</span>
-          <span className="metric-value" style={{ fontSize: '1.15rem' }}>
-            {row.label}
-          </span>
+          <span className="metric-value">{row.label}</span>
           <span className="metric-hint">{row.band} consistency</span>
         </div>
         <div className="metric" style={{ cursor: 'default' }}>
@@ -70,7 +64,7 @@ export function ConsistencyPanel() {
         </div>
       </div>
 
-      <div className="grid-2" style={{ alignItems: 'start' }}>
+      <div className="consistency-split">
         <section className="block">
           <div className="block-head">
             <div>
