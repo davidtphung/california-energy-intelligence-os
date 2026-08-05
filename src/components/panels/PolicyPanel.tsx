@@ -12,6 +12,7 @@ import {
   type PolicyStatus,
   type PolicyTheme,
 } from '../../data/energyPolicies'
+import { ALL_JURISDICTION_ABBRS, jurisdictionCoverage } from '../../data/jurisdictionPolicies'
 import { Badge } from '../ui/Badge'
 import { Select } from '../ui/Select'
 import { Input } from '../ui/Input'
@@ -78,24 +79,38 @@ export function PolicyPanel() {
     setDrilldown(`policy:${p.id}`)
   }
 
+  const coverage = useMemo(() => jurisdictionCoverage(ENERGY_POLICIES), [])
+
   const stateOptions = useMemo(() => {
-    const abbrs = [
-      ...new Set(ENERGY_POLICIES.map((p) => p.stateAbbr).filter(Boolean) as string[]),
-    ].sort()
-    return abbrs.map((a) => {
+    return ALL_JURISDICTION_ABBRS.map((a) => {
       const st = US_STATES.find((s) => s.abbr === a)
-      return { value: a, label: `${a} · ${st?.name ?? a}` }
+      const name =
+        st?.name ??
+        ({
+          DC: 'District of Columbia',
+          GU: 'Guam',
+          VI: 'U.S. Virgin Islands',
+          AS: 'American Samoa',
+          MP: 'Northern Mariana Islands',
+        } as Record<string, string>)[a] ??
+        a
+      return { value: a, label: `${a} · ${name}` }
     })
   }, [])
+
+  const nameFor = (abbr: string) =>
+    US_STATES.find((s) => s.abbr === abbr)?.name ??
+    stateOptions.find((s) => s.value === abbr)?.label.replace(/^[A-Z]{2} · /, '') ??
+    abbr
 
   return (
     <div id="policy" className="fadein t1">
       <div className="intro">
-        <strong>Energy policy · federal, state, and local</strong>
+        <strong>Energy policy · federal, state, local, and territories</strong>
         <p>
-          A navigable catalog of US energy policy from early electrification through today:
-          federal statutes and FERC orders, state portfolio standards and market redesigns, and
-          local building, CCA, and municipal utility rules. Educational sample - not legal advice.
+          Federal statutes and FERC orders, plus a keystone policy for every US state, the District
+          of Columbia, Puerto Rico, Guam, the U.S. Virgin Islands, American Samoa, and the Northern
+          Mariana Islands - historical through current. Educational sample - not legal advice.
         </p>
       </div>
 
@@ -106,18 +121,18 @@ export function PolicyPanel() {
           <span className="metric-hint">of {allStats.count} in catalog</span>
         </div>
         <div className="metric" style={{ cursor: 'default' }}>
-          <span className="metric-label">Federal</span>
-          <span className="metric-value">{stats.byLevel.federal}</span>
+          <span className="metric-label">Jurisdictions</span>
+          <span className="metric-value">{coverage.covered.length}</span>
           <span className="metric-hint">
-            state {stats.byLevel.state} · local {stats.byLevel.local}
+            of {ALL_JURISDICTION_ABBRS.length} states + DC + territories
           </span>
         </div>
         <div className="metric" style={{ cursor: 'default' }}>
-          <span className="metric-label">Active now</span>
-          <span className="metric-value">{stats.byStatus.active}</span>
-          <span className="metric-hint">
-            historical {stats.byStatus.historical} · superseded {stats.byStatus.superseded}
+          <span className="metric-label">Federal / state / local</span>
+          <span className="metric-value" style={{ fontSize: '1rem' }}>
+            {stats.byLevel.federal}/{stats.byLevel.state}/{stats.byLevel.local}
           </span>
+          <span className="metric-hint">active {stats.byStatus.active}</span>
         </div>
         <div className="metric" style={{ cursor: 'default' }}>
           <span className="metric-label">Year span</span>
@@ -127,6 +142,49 @@ export function PolicyPanel() {
           <span className="metric-hint">filtered set</span>
         </div>
       </div>
+
+      <section className="block">
+        <p className="kicker">Jurisdictions</p>
+        <h2 className="page-h2">All states and territories</h2>
+        <p className="sub">
+          Click any abbr to filter policies for that jurisdiction. Coverage:{' '}
+          {coverage.covered.length}/{ALL_JURISDICTION_ABBRS.length}.
+        </p>
+        <div className="state-abbr-grid">
+          <button
+            type="button"
+            className={`state-abbr-btn${stateAbbr === 'all' ? ' is-on' : ''}`}
+            onClick={() => setStateAbbr('all')}
+            title="All jurisdictions"
+          >
+            ALL
+          </button>
+          {ALL_JURISDICTION_ABBRS.map((abbr) => (
+            <button
+              key={abbr}
+              type="button"
+              className={`state-abbr-btn${stateAbbr === abbr ? ' is-on' : ''}`}
+              onClick={() => setStateAbbr(abbr)}
+              title={nameFor(abbr)}
+            >
+              {abbr}
+            </button>
+          ))}
+        </div>
+        {stateAbbr !== 'all' && (
+          <div className="btn-row" style={{ marginTop: 10 }}>
+            <Badge variant="info">{nameFor(stateAbbr)}</Badge>
+            {US_STATES.some((s) => s.abbr === stateAbbr) && (
+              <Button size="sm" onClick={() => openStateDetail(stateAbbr)}>
+                Open {stateAbbr} energy page
+              </Button>
+            )}
+            <Button size="sm" onClick={() => setStateAbbr('all')}>
+              Clear filter
+            </Button>
+          </div>
+        )}
+      </section>
 
       <div className="filters">
         <Input
@@ -401,8 +459,8 @@ export function PolicyPanel() {
       </section>
 
       <p className="footer-line">
-        Policy · federal · state · local · {allStats.yearMin}-{allStats.yearMax} sample catalog ·
-        pair with Research and USA state pages for deeper context
+        Policy · federal · state · local · all {ALL_JURISDICTION_ABBRS.length} jurisdictions ·{' '}
+        {allStats.yearMin}-{allStats.yearMax} sample catalog · pair with Research and USA pages
       </p>
     </div>
   )

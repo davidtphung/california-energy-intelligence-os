@@ -1,6 +1,6 @@
 /**
- * All 50 US states energy catalog (EIA-scale sample figures for UX).
- * Replace with EIA API / state IRP feeds in production.
+ * US states + major territories energy catalog (EIA-scale sample figures for UX).
+ * Includes 50 states, DC, PR, GU, VI, AS, MP. Replace with EIA API / IRP feeds in production.
  */
 
 export type USRegion =
@@ -13,6 +13,8 @@ export type USRegion =
   | 'Mountain'
   | 'Alaska / Hawaii'
   | 'Caribbean'
+  | 'Pacific Territories'
+  | 'Capital'
 
 export type GridOperator =
   | 'CAISO'
@@ -110,6 +112,11 @@ export const US_STATES: USStateEnergy[] = [
   { fips: '55', abbr: 'WI', name: 'Wisconsin', region: 'Midwest', grid: 'MISO', lon: -89.8, lat: 44.5, capacityGw: 20, generationTwh: 62, peakGw: 14, cleanPct: 32, primary: 'Gas', secondary: 'Coal', nuclearGw: 1.2, solarGw: 1.5, windGw: 1.0, gasGw: 8, coalGw: 5, hydroGw: 0.5, storageGw: 0.1, note: 'MISO; nuclear + thermal mix.' },
   { fips: '56', abbr: 'WY', name: 'Wyoming', region: 'Mountain', grid: 'WECC (non-CAISO)', lon: -107.5, lat: 43.0, capacityGw: 12, generationTwh: 48, peakGw: 2.5, cleanPct: 28, primary: 'Coal', secondary: 'Wind', nuclearGw: 0, solarGw: 0.2, windGw: 2.5, gasGw: 1, coalGw: 6.5, hydroGw: 0.3, storageGw: 0.05, note: 'Coal exporter; wind growth for West.' },
   { fips: '72', abbr: 'PR', name: 'Puerto Rico', region: 'Caribbean', grid: 'Multiple / other', lon: -66.5, lat: 18.22, capacityGw: 5.8, generationTwh: 18, peakGw: 3.0, cleanPct: 8, primary: 'Oil / residual', secondary: 'Gas', nuclearGw: 0, solarGw: 0.7, windGw: 0.15, gasGw: 1.2, coalGw: 0.5, hydroGw: 0.1, storageGw: 0.15, note: 'PREPA / LUMA island grid; heavy oil and distillate legacy; solar + storage recovery build after Maria and grid reforms.' },
+  { fips: '11', abbr: 'DC', name: 'District of Columbia', region: 'Capital', grid: 'PJM', lon: -77.04, lat: 38.91, capacityGw: 0.2, generationTwh: 0.2, peakGw: 2.2, cleanPct: 75, primary: 'Imports', secondary: 'Solar', nuclearGw: 0, solarGw: 0.12, windGw: 0, gasGw: 0.05, coalGw: 0, hydroGw: 0, storageGw: 0.02, note: 'Almost fully import-dependent in PJM; aggressive local clean and building standards.' },
+  { fips: '66', abbr: 'GU', name: 'Guam', region: 'Pacific Territories', grid: 'Multiple / other', lon: 144.79, lat: 13.44, capacityGw: 0.55, generationTwh: 1.8, peakGw: 0.28, cleanPct: 12, primary: 'Oil', secondary: 'Solar', nuclearGw: 0, solarGw: 0.08, windGw: 0, gasGw: 0, coalGw: 0, hydroGw: 0, storageGw: 0.04, note: 'Island GPA system; oil-fired legacy with solar and storage build.' },
+  { fips: '78', abbr: 'VI', name: 'U.S. Virgin Islands', region: 'Caribbean', grid: 'Multiple / other', lon: -64.9, lat: 18.34, capacityGw: 0.32, generationTwh: 0.9, peakGw: 0.12, cleanPct: 15, primary: 'Oil', secondary: 'Solar', nuclearGw: 0, solarGw: 0.05, windGw: 0, gasGw: 0, coalGw: 0, hydroGw: 0, storageGw: 0.02, note: 'WAPA island grids; high fuel cost; solar and storage growth.' },
+  { fips: '60', abbr: 'AS', name: 'American Samoa', region: 'Pacific Territories', grid: 'Multiple / other', lon: -170.7, lat: -14.3, capacityGw: 0.05, generationTwh: 0.15, peakGw: 0.03, cleanPct: 10, primary: 'Diesel', secondary: 'Solar', nuclearGw: 0, solarGw: 0.01, windGw: 0, gasGw: 0, coalGw: 0, hydroGw: 0, storageGw: 0.005, note: 'Remote Pacific diesel systems; solar pilots via ASPA.' },
+  { fips: '69', abbr: 'MP', name: 'Northern Mariana Islands', region: 'Pacific Territories', grid: 'Multiple / other', lon: 145.75, lat: 15.2, capacityGw: 0.1, generationTwh: 0.3, peakGw: 0.05, cleanPct: 8, primary: 'Diesel', secondary: 'Solar', nuclearGw: 0, solarGw: 0.015, windGw: 0, gasGw: 0, coalGw: 0, hydroGw: 0, storageGw: 0.01, note: 'CNMI CUC diesel grids; typhoon resilience and solar goals.' },
 ]
 
 export const US_REGIONS: USRegion[] = [
@@ -122,6 +129,8 @@ export const US_REGIONS: USRegion[] = [
   'Mountain',
   'Alaska / Hawaii',
   'Caribbean',
+  'Pacific Territories',
+  'Capital',
 ]
 
 export const GRID_OPS: GridOperator[] = [

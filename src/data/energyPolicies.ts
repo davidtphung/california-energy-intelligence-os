@@ -1,7 +1,10 @@
 /**
  * US energy policy catalog: federal, state, and local - historical through current.
+ * Includes a keystone policy for every state, DC, and major territories.
  * Educational sample for navigation; not legal advice. Wire to CRS, NCSL, DSIRE in production.
  */
+
+import { buildJurisdictionKeystonePolicies } from './jurisdictionPolicies'
 
 export type PolicyLevel = 'federal' | 'state' | 'local'
 export type PolicyStatus = 'historical' | 'superseded' | 'active' | 'proposed'
@@ -86,7 +89,7 @@ export const POLICY_THEMES: { id: PolicyTheme; label: string }[] = [
   { id: 'transport', label: 'Transport' },
 ]
 
-export const ENERGY_POLICIES: EnergyPolicy[] = [
+const ENERGY_POLICIES_CORE: EnergyPolicy[] = [
   // - - Federal · early - -
   {
     id: 'fed-1882-pearl',
@@ -1565,6 +1568,12 @@ export const ENERGY_POLICIES: EnergyPolicy[] = [
     instruments: ['TERA', 'grants', 'sovereign regulation'],
     cite: 'EPAct tribal provisions / DOE Office of Indian Energy',
   },
+]
+
+/** Core catalog + one keystone per state / DC / territory (56 jurisdictions) */
+export const ENERGY_POLICIES: EnergyPolicy[] = [
+  ...ENERGY_POLICIES_CORE,
+  ...buildJurisdictionKeystonePolicies(),
 ]
 
 export function policyStats(list: EnergyPolicy[] = ENERGY_POLICIES) {
