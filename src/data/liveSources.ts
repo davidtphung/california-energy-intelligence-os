@@ -74,7 +74,21 @@ export interface CaisoLiveSnapshot {
   } | null
   series: {
     demand: { time: string; current: number | null; dayAhead: number | null; hourAhead: number | null }[]
-    fuel: { time: string; solar: number; wind: number; gas: number; hydro: number; nuclear: number; batteries: number; imports: number }[]
+    fuel: {
+      time: string
+      solar: number
+      wind: number
+      gas: number
+      coal: number
+      hydro: number
+      nuclear: number
+      geothermal: number
+      biomass: number
+      biogas: number
+      batteries: number
+      imports: number
+      other: number
+    }[]
   }
 }
 
@@ -188,10 +202,15 @@ function parseFuel(text: string) {
       solar: num(r.Solar) ?? 0,
       wind: num(r.Wind) ?? 0,
       gas: num(r['Natural Gas']) ?? 0,
+      coal: num(r.Coal) ?? 0,
       hydro: (num(r['Large Hydro']) ?? 0) + (num(r['Small hydro']) ?? 0),
       nuclear: num(r.Nuclear) ?? 0,
+      geothermal: num(r.Geothermal) ?? 0,
+      biomass: num(r.Biomass) ?? 0,
+      biogas: num(r.Biogas) ?? 0,
       batteries: num(r.Batteries) ?? 0,
       imports: num(r.Imports) ?? 0,
+      other: num(r.Other) ?? 0,
     }))
   return { fuel, series, records: rows.length }
 }

@@ -5,6 +5,7 @@ export type Technology =
   | 'wind'
   | 'hydro'
   | 'natural_gas'
+  | 'coal'
   | 'nuclear'
   | 'geothermal'
   | 'biomass'

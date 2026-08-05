@@ -21,23 +21,25 @@ import type {
 import { seededRandom, TECH_LABELS } from '../lib/utils'
 
 const TECHS: Technology[] = [
-  'solar',
-  'wind',
-  'hydro',
+  'coal',
   'natural_gas',
   'nuclear',
+  'hydro',
   'geothermal',
   'biomass',
+  'wind',
+  'solar',
   'battery',
   'other',
 ]
 
-/** Installed capacity baselines (MW) - realistic CA-scale placeholders */
+/** Installed capacity baselines (MW) - realistic CA-scale placeholders (all sources) */
 const BASE_CAPACITY_MW: Record<Technology, number> = {
   solar: 42_500,
   wind: 7_800,
   hydro: 14_200,
   natural_gas: 38_000,
+  coal: 120,
   nuclear: 2_250,
   geothermal: 2_700,
   biomass: 1_100,
@@ -93,6 +95,7 @@ export function getGenerationBySource(filters: Filters): GenerationBySource[] {
     wind: 0.35,
     hydro: 0.42,
     natural_gas: 0.38,
+    coal: 0.2,
     nuclear: 0.92,
     geothermal: 0.75,
     biomass: 0.55,
@@ -121,7 +124,13 @@ export function getHourlySeries(filters: Filters) {
     const hydro = 5_200 + rand() * 400
     const nuclear = 2_200
     const geo = 2_000
-    const gas = Math.max(2_000, loadBase - solar - wind - hydro - nuclear - geo + 3_000)
+    const biomass = 600 + rand() * 100
+    const coal = 40 + rand() * 20
+    const other = 200 + rand() * 80
+    const gas = Math.max(
+      2_000,
+      loadBase - solar - wind - hydro - nuclear - geo - biomass - coal - other + 3_000
+    )
     const battery = h >= 17 && h <= 21 ? 4_500 * ((h - 16) / 5) : h >= 10 && h <= 15 ? -3_000 : 0
     data.push({
       hour: `${String(h).padStart(2, '0')}:00`,
@@ -131,9 +140,14 @@ export function getHourlySeries(filters: Filters) {
       hydro: Math.round(hydro),
       nuclear: Math.round(nuclear),
       natural_gas: Math.round(gas),
+      coal: Math.round(coal),
       geothermal: Math.round(geo),
+      biomass: Math.round(biomass),
       battery: Math.round(battery),
-      totalGen: Math.round(solar + wind + hydro + nuclear + gas + geo),
+      other: Math.round(other),
+      totalGen: Math.round(
+        solar + wind + hydro + nuclear + gas + geo + biomass + coal + other + Math.max(0, battery)
+      ),
     })
   }
   return data

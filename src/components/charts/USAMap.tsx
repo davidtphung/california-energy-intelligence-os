@@ -9,6 +9,10 @@ export type USAMapMetric =
   | 'cleanPct'
   | 'solarGw'
   | 'windGw'
+  | 'gasGw'
+  | 'coalGw'
+  | 'nuclearGw'
+  | 'hydroGw'
   | 'cf'
 
 interface Props {
@@ -96,6 +100,14 @@ function metricLabel(metric: USAMapMetric): string {
       return 'Solar (GW)'
     case 'windGw':
       return 'Wind (GW)'
+    case 'gasGw':
+      return 'Natural gas (GW)'
+    case 'coalGw':
+      return 'Coal (GW)'
+    case 'nuclearGw':
+      return 'Nuclear (GW)'
+    case 'hydroGw':
+      return 'Hydro (GW)'
     case 'cf':
       return 'Approx. capacity factor (%)'
   }
@@ -107,6 +119,10 @@ function formatMetric(metric: USAMapMetric, v: number): string {
     case 'peakGw':
     case 'solarGw':
     case 'windGw':
+    case 'gasGw':
+    case 'coalGw':
+    case 'nuclearGw':
+    case 'hydroGw':
       return `${v.toFixed(v >= 10 ? 0 : 1)} GW`
     case 'generationTwh':
       return `${v.toFixed(v >= 20 ? 0 : 1)} TWh`

@@ -229,18 +229,61 @@ export function gridTotals(grid: GridOperator) {
   return totals(US_STATES.filter((s) => s.grid === grid))
 }
 
-export function fuelStack(s: USStateEnergy) {
+/** Full capacity mix for a state (all fuels, including fossil) */
+export function fuelStack(s: USStateEnergy, opts?: { includeZero?: boolean }) {
   const parts = [
-    { key: 'Nuclear', gw: s.nuclearGw, color: '#7c3aed' },
-    { key: 'Solar', gw: s.solarGw, color: '#b45309' },
-    { key: 'Wind', gw: s.windGw, color: '#0369a1' },
-    { key: 'Hydro', gw: s.hydroGw, color: '#0e7490' },
-    { key: 'Gas', gw: s.gasGw, color: '#78716c' },
-    { key: 'Coal', gw: s.coalGw, color: '#44403c' },
-    { key: 'Storage', gw: s.storageGw, color: '#166534' },
+    { key: 'Coal', gw: s.coalGw, color: '#44403c', clean: false },
+    { key: 'Gas', gw: s.gasGw, color: '#78716c', clean: false },
+    { key: 'Nuclear', gw: s.nuclearGw, color: '#7c3aed', clean: true },
+    { key: 'Hydro', gw: s.hydroGw, color: '#0e7490', clean: true },
+    { key: 'Wind', gw: s.windGw, color: '#0369a1', clean: true },
+    { key: 'Solar', gw: s.solarGw, color: '#b45309', clean: true },
+    { key: 'Storage', gw: s.storageGw, color: '#166534', clean: true },
   ]
   const sum = parts.reduce((a, p) => a + p.gw, 0) || 1
-  return parts
-    .filter((p) => p.gw > 0)
-    .map((p) => ({ ...p, pct: (p.gw / sum) * 100 }))
+  const list = opts?.includeZero ? parts : parts.filter((p) => p.gw > 0)
+  return list.map((p) => ({ ...p, pct: (p.gw / sum) * 100 }))
+}
+
+/** National rollup of nameplate by source across all jurisdictions */
+export function nationalFuelMix(states = US_STATES) {
+  const mix = {
+    coalGw: 0,
+    gasGw: 0,
+    nuclearGw: 0,
+    hydroGw: 0,
+    windGw: 0,
+    solarGw: 0,
+    storageGw: 0,
+  }
+  for (const s of states) {
+    mix.coalGw += s.coalGw
+    mix.gasGw += s.gasGw
+    mix.nuclearGw += s.nuclearGw
+    mix.hydroGw += s.hydroGw
+    mix.windGw += s.windGw
+    mix.solarGw += s.solarGw
+    mix.storageGw += s.storageGw
+  }
+  const total =
+    mix.coalGw +
+    mix.gasGw +
+    mix.nuclearGw +
+    mix.hydroGw +
+    mix.windGw +
+    mix.solarGw +
+    mix.storageGw
+  const rows = [
+    { key: 'Coal', gw: mix.coalGw, color: '#44403c', clean: false },
+    { key: 'Natural gas', gw: mix.gasGw, color: '#78716c', clean: false },
+    { key: 'Nuclear', gw: mix.nuclearGw, color: '#7c3aed', clean: true },
+    { key: 'Hydro', gw: mix.hydroGw, color: '#0e7490', clean: true },
+    { key: 'Wind', gw: mix.windGw, color: '#0369a1', clean: true },
+    { key: 'Solar', gw: mix.solarGw, color: '#b45309', clean: true },
+    { key: 'Storage', gw: mix.storageGw, color: '#166534', clean: true },
+  ].map((r) => ({
+    ...r,
+    pct: total > 0 ? (r.gw / total) * 100 : 0,
+  }))
+  return { ...mix, totalGw: total, rows }
 }

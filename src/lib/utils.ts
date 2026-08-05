@@ -10,6 +10,7 @@ export const TECH_COLORS: Record<Technology, string> = {
   wind: '#38bdf8',
   hydro: '#0ea5e9',
   natural_gas: '#94a3b8',
+  coal: '#44403c',
   nuclear: '#a78bfa',
   geothermal: '#f97316',
   biomass: '#84cc16',
@@ -22,12 +23,27 @@ export const TECH_LABELS: Record<Technology, string> = {
   wind: 'Wind',
   hydro: 'Hydro',
   natural_gas: 'Natural Gas',
+  coal: 'Coal',
   nuclear: 'Nuclear',
   geothermal: 'Geothermal',
   biomass: 'Biomass',
   battery: 'Battery Storage',
-  other: 'Other',
+  other: 'Other / oil',
 }
+
+/** Display order for full-mix charts and legends (all sources, not clean-only) */
+export const TECH_ORDER: Technology[] = [
+  'coal',
+  'natural_gas',
+  'nuclear',
+  'hydro',
+  'geothermal',
+  'biomass',
+  'wind',
+  'solar',
+  'battery',
+  'other',
+]
 
 export function formatNumber(n: number, digits = 1): string {
   if (Math.abs(n) >= 1_000_000) return `${(n / 1_000_000).toFixed(digits)}M`

@@ -143,12 +143,16 @@ export function StatesCatalogPanel() {
           onChange={(e) => setMetric(e.target.value as USAMapMetric)}
           options={[
             { value: 'generationTwh', label: 'Generation TWh' },
-            { value: 'cf', label: 'Capacity factor' },
-            { value: 'peakGw', label: 'Peak load GW' },
-            { value: 'cleanPct', label: 'Clean %' },
+            { value: 'capacityGw', label: 'Total capacity GW' },
+            { value: 'gasGw', label: 'Natural gas GW' },
+            { value: 'coalGw', label: 'Coal GW' },
+            { value: 'nuclearGw', label: 'Nuclear GW' },
+            { value: 'hydroGw', label: 'Hydro GW' },
             { value: 'solarGw', label: 'Solar GW' },
             { value: 'windGw', label: 'Wind GW' },
-            { value: 'capacityGw', label: 'Capacity (color too)' },
+            { value: 'peakGw', label: 'Peak load GW' },
+            { value: 'cleanPct', label: 'Clean %' },
+            { value: 'cf', label: 'Capacity factor' },
           ]}
         />
         <Select

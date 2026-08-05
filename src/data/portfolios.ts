@@ -74,6 +74,7 @@ export const TECH_MAP_COLOR: Record<Technology, string> = {
   wind: '#0369a1',
   hydro: '#0e7490',
   natural_gas: '#78716c',
+  coal: '#292524',
   nuclear: '#7c3aed',
   geothermal: '#c2410c',
   biomass: '#65a30d',
@@ -448,6 +449,7 @@ const TECH_OFFSETS: Record<Technology, { dLat: number; dLon: number }> = {
   wind: { dLat: 0.45, dLon: 0.35 },
   hydro: { dLat: 0.55, dLon: -0.45 },
   natural_gas: { dLat: -0.15, dLon: -0.35 },
+  coal: { dLat: 0.25, dLon: 0.2 },
   geothermal: { dLat: -0.4, dLon: -0.15 },
   biomass: { dLat: 0.2, dLon: 0.55 },
   battery: { dLat: -0.5, dLon: 0.15 },
@@ -458,32 +460,37 @@ function techOutputMw(capMw: number, tech: Technology, cleanPct: number): number
   const cf =
     tech === 'nuclear'
       ? 0.9
-      : tech === 'natural_gas'
-        ? 0.35
-        : tech === 'hydro'
-          ? 0.4
-          : tech === 'geothermal'
-            ? 0.75
-            : tech === 'wind'
-              ? 0.35
-              : tech === 'solar'
-                ? 0.28
-                : tech === 'battery'
-                  ? -0.25
-                  : 0.35
+      : tech === 'coal'
+        ? 0.48
+        : tech === 'natural_gas'
+          ? 0.35
+          : tech === 'hydro'
+            ? 0.4
+            : tech === 'geothermal'
+              ? 0.75
+              : tech === 'wind'
+                ? 0.35
+                : tech === 'solar'
+                  ? 0.28
+                  : tech === 'biomass'
+                    ? 0.5
+                    : tech === 'battery'
+                      ? -0.25
+                      : 0.35
   const cleanBoost = tech === 'solar' || tech === 'wind' ? 1 + cleanPct / 200 : 1
   return Math.round(capMw * cf * cleanBoost)
 }
 
 /** One representative fleet portfolio per state from EIA-scale state totals */
 export function buildStateFleetPortfolio(s: USStateEnergy): EnergyPortfolio {
+  // Full mix: fossil + nuclear + hydro + renewables + storage (not clean-only)
   const slices: { tech: Technology; gw: number; label: string }[] = [
-    { tech: 'nuclear', gw: s.nuclearGw, label: 'Nuclear fleet' },
-    { tech: 'solar', gw: s.solarGw, label: 'Solar fleet' },
-    { tech: 'wind', gw: s.windGw, label: 'Wind fleet' },
-    { tech: 'hydro', gw: s.hydroGw, label: 'Hydro fleet' },
+    { tech: 'coal', gw: s.coalGw, label: 'Coal fleet' },
     { tech: 'natural_gas', gw: s.gasGw, label: 'Gas fleet' },
-    { tech: 'other', gw: s.coalGw, label: 'Coal / thermal fleet' },
+    { tech: 'nuclear', gw: s.nuclearGw, label: 'Nuclear fleet' },
+    { tech: 'hydro', gw: s.hydroGw, label: 'Hydro fleet' },
+    { tech: 'wind', gw: s.windGw, label: 'Wind fleet' },
+    { tech: 'solar', gw: s.solarGw, label: 'Solar fleet' },
     { tech: 'battery', gw: s.storageGw, label: 'Storage fleet' },
   ]
 
@@ -498,7 +505,7 @@ export function buildStateFleetPortfolio(s: USStateEnergy): EnergyPortfolio {
         name: `${s.name} ${x.label}`,
         technology: tech,
         capacityMw: capMw,
-        outputMw: techOutputMw(capMw, tech === 'other' ? 'natural_gas' : tech, s.cleanPct),
+        outputMw: techOutputMw(capMw, tech, s.cleanPct),
         latitude: s.lat + off.dLat,
         longitude: s.lon + off.dLon,
         region: s.region,

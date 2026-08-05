@@ -129,47 +129,41 @@ export function LiveGridPanel() {
       {fuel && (
         <table className="list-table" style={{ marginBottom: '1.1rem' }}>
           <tbody>
-            <tr>
-              <th scope="row">Solar</th>
-              <td className="mono" style={{ color: 'var(--highlight)' }}>
-                {fmtMw(fuel.solar)} · {fmtGw(fuel.solar)}
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">Wind</th>
-              <td className="mono">{fmtMw(fuel.wind)}</td>
-            </tr>
-            <tr>
-              <th scope="row">Natural gas</th>
-              <td className="mono">{fmtMw(fuel.naturalGas)}</td>
-            </tr>
-            <tr>
-              <th scope="row">Hydro (large + small)</th>
-              <td className="mono">{fmtMw(fuel.largeHydro + fuel.smallHydro)}</td>
-            </tr>
-            <tr>
-              <th scope="row">Nuclear</th>
-              <td className="mono">{fmtMw(fuel.nuclear)}</td>
-            </tr>
-            <tr>
-              <th scope="row">Batteries</th>
-              <td className="mono">
-                {fmtMw(fuel.batteries)}{' '}
-                <span className="muted">
-                  ({fuel.batteries < 0 ? 'charging' : fuel.batteries > 0 ? 'discharging' : 'flat'})
-                </span>
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">Imports</th>
-              <td className="mono">{fmtMw(fuel.imports)}</td>
-            </tr>
-            <tr>
-              <th scope="row">Geo / bio / biogas</th>
-              <td className="mono">
-                {fmtMw(fuel.geothermal)} geo · {fmtMw(fuel.biomass + fuel.biogas)} bio
-              </td>
-            </tr>
+            {(
+              [
+                ['Natural gas', fuel.naturalGas, false],
+                ['Coal', fuel.coal, false],
+                ['Nuclear', fuel.nuclear, true],
+                ['Large hydro', fuel.largeHydro, true],
+                ['Small hydro', fuel.smallHydro, true],
+                ['Geothermal', fuel.geothermal, true],
+                ['Biomass', fuel.biomass, true],
+                ['Biogas', fuel.biogas, true],
+                ['Wind', fuel.wind, true],
+                ['Solar', fuel.solar, true],
+                ['Batteries', fuel.batteries, true],
+                ['Imports', fuel.imports, false],
+                ['Other', fuel.other, false],
+              ] as const
+            ).map(([label, mw, highlight]) => (
+              <tr key={label}>
+                <th scope="row">{label}</th>
+                <td className="mono" style={highlight ? { color: 'var(--highlight)' } : undefined}>
+                  {fmtMw(mw)}
+                  {label === 'Batteries' && (
+                    <span className="muted">
+                      {' '}
+                      (
+                      {mw < 0 ? 'charging' : mw > 0 ? 'discharging' : 'flat'}
+                      )
+                    </span>
+                  )}
+                  <span className="muted" style={{ marginLeft: 8 }}>
+                    {fmtGw(Math.abs(mw))}
+                  </span>
+                </td>
+              </tr>
+            ))}
             {caiso?.storage && (
               <tr>
                 <th scope="row">Storage telemetry</th>
@@ -247,10 +241,10 @@ export function LiveGridPanel() {
 
         <section className="block">
           <p className="kicker">Supply</p>
-          <h3 className="page-h2">Fuel mix · today</h3>
-          <div className="chart-box chart-box-legend" style={{ height: 300 }}>
+          <h3 className="page-h2">All fuels · today</h3>
+          <div className="chart-box chart-box-legend" style={{ height: 340 }}>
             {fuelSeries.length ? (
-              <ResponsiveContainer width="100%" height={300}>
+              <ResponsiveContainer width="100%" height={340}>
                 <AreaChart data={fuelSeries} margin={{ top: 8, right: 8, left: 0, bottom: 8 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke={grid} vertical={false} />
                   <XAxis
@@ -279,12 +273,18 @@ export function LiveGridPanel() {
                     iconSize={8}
                     wrapperStyle={{ fontSize: 11, paddingTop: 10, width: '100%', lineHeight: '1.6' }}
                   />
-                  <Area type="monotone" dataKey="solar" name="Solar" stackId="1" stroke="#b45309" fill="#b45309" fillOpacity={0.55} />
-                  <Area type="monotone" dataKey="wind" name="Wind" stackId="1" stroke="#0369a1" fill="#0369a1" fillOpacity={0.5} />
+                  <Area type="monotone" dataKey="coal" name="Coal" stackId="1" stroke="#44403c" fill="#44403c" fillOpacity={0.55} />
+                  <Area type="monotone" dataKey="gas" name="Gas" stackId="1" stroke="#78716c" fill="#78716c" fillOpacity={0.5} />
+                  <Area type="monotone" dataKey="nuclear" name="Nuclear" stackId="1" stroke="#7c3aed" fill="#7c3aed" fillOpacity={0.45} />
                   <Area type="monotone" dataKey="hydro" name="Hydro" stackId="1" stroke="#0e7490" fill="#0e7490" fillOpacity={0.45} />
-                  <Area type="monotone" dataKey="nuclear" name="Nuclear" stackId="1" stroke="#7c3aed" fill="#7c3aed" fillOpacity={0.4} />
-                  <Area type="monotone" dataKey="gas" name="Gas" stackId="1" stroke="#78716c" fill="#78716c" fillOpacity={0.45} />
+                  <Area type="monotone" dataKey="geothermal" name="Geothermal" stackId="1" stroke="#c2410c" fill="#c2410c" fillOpacity={0.4} />
+                  <Area type="monotone" dataKey="biomass" name="Biomass" stackId="1" stroke="#65a30d" fill="#65a30d" fillOpacity={0.4} />
+                  <Area type="monotone" dataKey="biogas" name="Biogas" stackId="1" stroke="#4d7c0f" fill="#4d7c0f" fillOpacity={0.35} />
+                  <Area type="monotone" dataKey="wind" name="Wind" stackId="1" stroke="#0369a1" fill="#0369a1" fillOpacity={0.5} />
+                  <Area type="monotone" dataKey="solar" name="Solar" stackId="1" stroke="#b45309" fill="#b45309" fillOpacity={0.55} />
+                  <Area type="monotone" dataKey="batteries" name="Batteries" stackId="1" stroke="#15803d" fill="#15803d" fillOpacity={0.4} />
                   <Area type="monotone" dataKey="imports" name="Imports" stackId="1" stroke="#a8a29e" fill="#a8a29e" fillOpacity={0.35} />
+                  <Area type="monotone" dataKey="other" name="Other" stackId="1" stroke="#57534e" fill="#57534e" fillOpacity={0.35} />
                 </AreaChart>
               </ResponsiveContainer>
             ) : (

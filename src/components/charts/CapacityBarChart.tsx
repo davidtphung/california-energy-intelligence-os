@@ -22,6 +22,7 @@ const SHORT: Record<string, string> = {
   wind: 'Wind',
   hydro: 'Hydro',
   natural_gas: 'Gas',
+  coal: 'Coal',
   nuclear: 'Nuke',
   geothermal: 'Geo',
   biomass: 'Bio',

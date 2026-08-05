@@ -8,7 +8,7 @@ import {
   YAxis,
   Legend,
 } from 'recharts'
-import { TECH_COLORS } from '../../lib/utils'
+import { TECH_COLORS, TECH_LABELS } from '../../lib/utils'
 import { useApp } from '../../context/AppContext'
 import type { Technology } from '../../types'
 
@@ -19,20 +19,27 @@ interface HourlyPoint {
   hydro: number
   nuclear: number
   natural_gas: number
+  coal?: number
   geothermal: number
+  biomass?: number
   battery: number
+  other?: number
   load: number
   totalGen: number
 }
 
+/** Full fuel stack: fossil + nuclear + hydro + renewables + storage */
 const STACK: { key: Technology; name: string }[] = [
-  { key: 'solar', name: 'Solar' },
-  { key: 'wind', name: 'Wind' },
-  { key: 'hydro', name: 'Hydro' },
-  { key: 'nuclear', name: 'Nuclear' },
-  { key: 'geothermal', name: 'Geothermal' },
+  { key: 'coal', name: TECH_LABELS.coal },
   { key: 'natural_gas', name: 'Gas' },
+  { key: 'nuclear', name: TECH_LABELS.nuclear },
+  { key: 'hydro', name: TECH_LABELS.hydro },
+  { key: 'geothermal', name: TECH_LABELS.geothermal },
+  { key: 'biomass', name: TECH_LABELS.biomass },
+  { key: 'wind', name: TECH_LABELS.wind },
+  { key: 'solar', name: 'Solar' },
   { key: 'battery', name: 'Battery' },
+  { key: 'other', name: TECH_LABELS.other },
 ]
 
 interface Props {

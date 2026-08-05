@@ -144,15 +144,17 @@ export function StateDetailPanel() {
       <div className="grid-2" style={{ alignItems: 'start' }}>
         <section className="block">
           <p className="kicker">Fleet</p>
-          <h2 className="page-h2">Capacity by technology</h2>
-          <p className="sub">Nameplate sample GW. Bars sum to reported technology mix.</p>
+          <h2 className="page-h2">All energy sources</h2>
+          <p className="sub">
+            Full nameplate mix: coal, gas, nuclear, hydro, wind, solar, and storage (not clean-only).
+          </p>
           <div className="state-stack-bar" aria-hidden>
             {stack.map((p) => (
               <div
                 key={p.key}
                 className="state-stack-seg"
-                style={{ width: `${p.pct}%`, background: p.color }}
-                title={`${p.key}: ${p.gw} GW`}
+                style={{ width: `${Math.max(p.pct, p.gw > 0 ? 0.4 : 0)}%`, background: p.color }}
+                title={`${p.key}: ${p.gw} GW (${p.pct.toFixed(1)}%)`}
               />
             ))}
           </div>
@@ -161,11 +163,20 @@ export function StateDetailPanel() {
               <span key={p.key}>
                 <i style={{ background: p.color }} />
                 {p.key} {p.gw} GW
+                <span className="muted"> ({p.pct.toFixed(0)}%)</span>
               </span>
             ))}
           </div>
           <table className="list-table" style={{ marginTop: '1rem' }}>
             <tbody>
+              <tr>
+                <th scope="row">Coal</th>
+                <td className="mono">{state.coalGw} GW</td>
+              </tr>
+              <tr>
+                <th scope="row">Natural gas</th>
+                <td className="mono">{state.gasGw} GW</td>
+              </tr>
               <tr>
                 <th scope="row">Nuclear</th>
                 <td className="mono">
@@ -173,10 +184,8 @@ export function StateDetailPanel() {
                 </td>
               </tr>
               <tr>
-                <th scope="row">Solar</th>
-                <td className="mono">
-                  {state.solarGw} GW · rank #{ranks.solar.rank}
-                </td>
+                <th scope="row">Hydro</th>
+                <td className="mono">{state.hydroGw} GW</td>
               </tr>
               <tr>
                 <th scope="row">Wind</th>
@@ -185,13 +194,9 @@ export function StateDetailPanel() {
                 </td>
               </tr>
               <tr>
-                <th scope="row">Hydro</th>
-                <td className="mono">{state.hydroGw} GW</td>
-              </tr>
-              <tr>
-                <th scope="row">Gas / coal</th>
+                <th scope="row">Solar</th>
                 <td className="mono">
-                  {state.gasGw} / {state.coalGw} GW
+                  {state.solarGw} GW · rank #{ranks.solar.rank}
                 </td>
               </tr>
               <tr>
@@ -204,6 +209,12 @@ export function StateDetailPanel() {
                 <th scope="row">Annual gen</th>
                 <td className="mono">
                   {state.generationTwh} TWh · rank #{ranks.gen.rank}
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Primary / secondary</th>
+                <td>
+                  {state.primary} · {state.secondary}
                 </td>
               </tr>
             </tbody>

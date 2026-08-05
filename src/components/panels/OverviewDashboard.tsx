@@ -6,6 +6,7 @@ import {
   totals,
   regionTotals,
   gridTotals,
+  nationalFuelMix,
   type USRegion,
 } from '../../data/usStates'
 import { tradeTotals, withTrade } from '../../data/energyTrade'
@@ -51,6 +52,19 @@ export function OverviewDashboard() {
     () => [...US_STATES].sort((a, b) => b.storageGw - a.storageGw).slice(0, 6),
     []
   )
+  const topGas = useMemo(
+    () => [...US_STATES].sort((a, b) => b.gasGw - a.gasGw).slice(0, 6),
+    []
+  )
+  const topCoal = useMemo(
+    () => [...US_STATES].sort((a, b) => b.coalGw - a.coalGw).slice(0, 6),
+    []
+  )
+  const topNuclear = useMemo(
+    () => [...US_STATES].sort((a, b) => b.nuclearGw - a.nuclearGw).slice(0, 6),
+    []
+  )
+  const nationalMix = useMemo(() => nationalFuelMix(US_STATES), [])
 
   const regionRows = useMemo(
     () =>
@@ -149,12 +163,16 @@ export function OverviewDashboard() {
               onChange={(e) => setMetric(e.target.value as USAMapMetric)}
               options={[
                 { value: 'generationTwh', label: 'Generation TWh' },
-                { value: 'cf', label: 'Capacity factor' },
-                { value: 'peakGw', label: 'Peak load GW' },
-                { value: 'cleanPct', label: 'Clean %' },
+                { value: 'capacityGw', label: 'Total capacity GW' },
+                { value: 'gasGw', label: 'Natural gas GW' },
+                { value: 'coalGw', label: 'Coal GW' },
+                { value: 'nuclearGw', label: 'Nuclear GW' },
+                { value: 'hydroGw', label: 'Hydro GW' },
                 { value: 'solarGw', label: 'Solar GW' },
                 { value: 'windGw', label: 'Wind GW' },
-                { value: 'capacityGw', label: 'Capacity (color too)' },
+                { value: 'peakGw', label: 'Peak load GW' },
+                { value: 'cleanPct', label: 'Clean %' },
+                { value: 'cf', label: 'Capacity factor' },
               ]}
             />
             <Select
@@ -186,6 +204,59 @@ export function OverviewDashboard() {
               {s.abbr}
             </button>
           ))}
+        </div>
+      </section>
+
+      <hr className="rule" />
+
+      {/* Full national fuel mix */}
+      <section className="block fadein t3">
+        <p className="kicker">Sources</p>
+        <h2 className="page-h2">All energy sources · national capacity</h2>
+        <p className="sub">
+          Nameplate sample across jurisdictions: coal, gas, nuclear, hydro, wind, solar, and storage
+          (not clean-only). Total mapped stack {nationalMix.totalGw.toFixed(0)} GW.
+        </p>
+        <div className="state-stack-bar" style={{ height: 14, marginBottom: 10 }} aria-hidden>
+          {nationalMix.rows.map((r) => (
+            <div
+              key={r.key}
+              className="state-stack-seg"
+              style={{ width: `${r.pct}%`, background: r.color }}
+              title={`${r.key}: ${r.gw.toFixed(0)} GW (${r.pct.toFixed(1)}%)`}
+            />
+          ))}
+        </div>
+        <div className="state-stack-legend" style={{ marginBottom: '1rem' }}>
+          {nationalMix.rows.map((r) => (
+            <span key={r.key}>
+              <i style={{ background: r.color }} />
+              {r.key} {r.gw.toFixed(0)} GW
+              <span className="muted"> ({r.pct.toFixed(0)}%)</span>
+            </span>
+          ))}
+        </div>
+        <div className="table-wrap">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Source</th>
+                <th style={{ textAlign: 'right' }}>GW</th>
+                <th style={{ textAlign: 'right' }}>Share</th>
+                <th>Class</th>
+              </tr>
+            </thead>
+            <tbody>
+              {nationalMix.rows.map((r) => (
+                <tr key={r.key}>
+                  <td style={{ fontWeight: 600, color: 'var(--highlight)' }}>{r.key}</td>
+                  <td className="num">{r.gw.toFixed(1)}</td>
+                  <td className="num">{r.pct.toFixed(1)}%</td>
+                  <td className="muted">{r.clean ? 'clean / non-emitting' : 'fossil'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </section>
 
@@ -279,6 +350,60 @@ export function OverviewDashboard() {
                     <strong>{s.abbr}</strong> {s.name}
                   </span>
                   <span className="mono">{s.cleanPct}%</span>
+                </button>
+              </li>
+            ))}
+          </ol>
+        </section>
+      </div>
+
+      <div className="grid-3">
+        <section className="block">
+          <p className="kicker">Coal</p>
+          <h2 className="page-h2">Top fleets</h2>
+          <ol className="ov-rank-list">
+            {topCoal.map((s, i) => (
+              <li key={s.abbr}>
+                <button type="button" className="ov-rank-btn" onClick={() => onState(s.abbr)}>
+                  <span className="mono muted">{i + 1}</span>
+                  <span className="ov-rank-name">
+                    <strong>{s.abbr}</strong>
+                  </span>
+                  <span className="mono">{s.coalGw} GW</span>
+                </button>
+              </li>
+            ))}
+          </ol>
+        </section>
+        <section className="block">
+          <p className="kicker">Natural gas</p>
+          <h2 className="page-h2">Top fleets</h2>
+          <ol className="ov-rank-list">
+            {topGas.map((s, i) => (
+              <li key={s.abbr}>
+                <button type="button" className="ov-rank-btn" onClick={() => onState(s.abbr)}>
+                  <span className="mono muted">{i + 1}</span>
+                  <span className="ov-rank-name">
+                    <strong>{s.abbr}</strong>
+                  </span>
+                  <span className="mono">{s.gasGw} GW</span>
+                </button>
+              </li>
+            ))}
+          </ol>
+        </section>
+        <section className="block">
+          <p className="kicker">Nuclear</p>
+          <h2 className="page-h2">Top fleets</h2>
+          <ol className="ov-rank-list">
+            {topNuclear.map((s, i) => (
+              <li key={s.abbr}>
+                <button type="button" className="ov-rank-btn" onClick={() => onState(s.abbr)}>
+                  <span className="mono muted">{i + 1}</span>
+                  <span className="ov-rank-name">
+                    <strong>{s.abbr}</strong>
+                  </span>
+                  <span className="mono">{s.nuclearGw} GW</span>
                 </button>
               </li>
             ))}
