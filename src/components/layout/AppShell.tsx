@@ -13,6 +13,7 @@ import { exportJson } from '../../lib/utils'
 const NAV: { id: AppView; label: string; hash: string }[] = [
   { id: 'overview', label: 'Overview', hash: 'overview' },
   { id: 'portfolios', label: 'Portfolios', hash: 'portfolios' },
+  { id: 'consistency', label: 'Consistency', hash: 'consistency' },
   { id: 'scenarios', label: 'Scenario', hash: 'scenario' },
   { id: 'research', label: 'Research', hash: 'research' },
   { id: 'data-engineering', label: 'Data', hash: 'data' },

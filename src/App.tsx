@@ -2,6 +2,7 @@ import { AppProvider, useApp } from './context/AppContext'
 import { AppShell } from './components/layout/AppShell'
 import { OverviewDashboard } from './components/panels/OverviewDashboard'
 import { PortfoliosPanel } from './components/panels/PortfoliosPanel'
+import { ConsistencyPanel } from './components/panels/ConsistencyPanel'
 import { ScenarioPlanner } from './components/panels/ScenarioPlanner'
 import { ResearchWorkspace } from './components/panels/ResearchWorkspace'
 import { DataEngineering } from './components/panels/DataEngineering'
@@ -15,6 +16,8 @@ function ViewRouter() {
       return <OverviewDashboard />
     case 'portfolios':
       return <PortfoliosPanel />
+    case 'consistency':
+      return <ConsistencyPanel />
     case 'scenarios':
       return <ScenarioPlanner />
     case 'research':
