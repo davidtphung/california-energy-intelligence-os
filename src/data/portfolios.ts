@@ -35,7 +35,7 @@ export interface EnergyPortfolio {
   assets: PortfolioAsset[]
 }
 
-/** Simple equirectangular project CA bbox → SVG */
+/** Simple equirectangular project CA bbox to SVG */
 export const CA_BBOX = {
   minLon: -124.5,
   maxLon: -114.1,

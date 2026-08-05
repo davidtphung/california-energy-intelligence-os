@@ -24,7 +24,7 @@ export function FlowView({ flows }: Props) {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, width: '100%' }}>
               <span style={{ fontSize: '0.82rem', fontWeight: 500, color: 'var(--highlight)' }}>
-                {flow.fromRegion} → {flow.toRegion}
+                {flow.fromRegion} to {flow.toRegion}
               </span>
               <span className="mono" style={{ color: 'var(--highlight)' }}>
                 {(flow.mw / 1000).toFixed(1)} GW

@@ -311,7 +311,7 @@ export function PortfoliosPanel() {
               {selectedPortfolio.website && (
                 <p style={{ marginTop: 8 }}>
                   <a href={selectedPortfolio.website} target="_blank" rel="noopener noreferrer">
-                    Open portfolio site →
+                    Open portfolio site
                   </a>
                 </p>
               )}

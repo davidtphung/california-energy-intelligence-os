@@ -137,7 +137,7 @@ export function ResearchWorkspace() {
               <p className="lede">{selectedSource.summary}</p>
               <p>
                 <a href={selectedSource.url} target="_blank" rel="noopener noreferrer">
-                  Open source →
+                  Open source
                 </a>
               </p>
               <pre className="code-block" style={{ marginTop: '0.85rem' }}>

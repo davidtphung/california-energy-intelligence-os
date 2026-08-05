@@ -121,7 +121,7 @@ export function OverviewDashboard() {
                 window.history.replaceState(null, '', '#scenario')
               }}
             >
-              Open scenario →
+              Open scenario
             </button>
             {drilldown && (
               <button type="button" className="btn btn-ghost btn-sm" onClick={() => setDrilldown(null)}>

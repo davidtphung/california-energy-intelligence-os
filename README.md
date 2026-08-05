@@ -5,7 +5,7 @@ A modern interactive web app for **California electricity research, planning, an
 ## Features
 
 1. **Overview dashboard** - capacity, generation mix, load, storage, imports/exports, emissions KPIs  
-2. **Scenario planner** - demand, solar/wind/storage buildout, retirements, hydro variability, imports, policy targets → 2030 / 2035 / 2045 outputs  
+2. **Scenario planner** - demand, solar/wind/storage buildout, retirements, hydro variability, imports, policy targets (2030 / 2035 / 2045 outputs)  
 3. **Research workspace** - CEC, CAISO, EIA, utility, and policy source library; notes; assumptions tracker; citations  
 4. **Data engineering** - entity model, pipeline status, quality checks, error log, last refresh  
 5. **Developer panel** - editable JSON config, metric definitions, API tables, CSV/JSON export  
@@ -46,7 +46,7 @@ The Overview panel pulls **today’s CAISO grid data** (no API key) via a same-o
 
 | Feed | Path |
 |------|------|
-| System status | `/api/live/caiso/systemstatus.csv` → CAISO Outlook |
+| System status | `/api/live/caiso/systemstatus.csv` (CAISO Outlook) |
 | Demand | `demand.csv` |
 | Fuel mix | `fuelsource.csv` |
 | Storage | `storage.csv` |

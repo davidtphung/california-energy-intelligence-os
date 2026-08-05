@@ -7,7 +7,7 @@ interface Props {
   onSelect: (tech: string) => void
 }
 
-/** Horizontal dual bars: consistency (left→right green) vs inconsistency */
+/** Horizontal dual bars: inconsistency then consistency share */
 export function ConsistencyChart({ active, onSelect }: Props) {
   const rows = [...SOURCE_CONSISTENCY].sort((a, b) => b.consistencyScore - a.consistencyScore)
 
