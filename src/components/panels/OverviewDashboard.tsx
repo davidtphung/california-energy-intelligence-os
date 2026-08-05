@@ -43,11 +43,7 @@ export function OverviewDashboard() {
         <strong>California Energy Intelligence OS</strong>
         <p>
           Live CAISO grid telemetry for today, plus research and scenario tools for California
-          electricity systems. Built by{' '}
-          <a href="https://x.com/davidtphung" target="_blank" rel="noopener noreferrer">
-            David T Phung
-          </a>
-          .
+          electricity systems.
         </p>
       </div>
 

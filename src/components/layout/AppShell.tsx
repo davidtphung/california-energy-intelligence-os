@@ -93,20 +93,6 @@ export function AppShell({ children }: { children: ReactNode }) {
               </button>
             </li>
           ))}
-          <li style={{ marginTop: '0.85rem', opacity: 0.65 }}>
-            <a href="https://x.com/davidtphung" target="_blank" rel="noopener noreferrer">
-              X
-            </a>
-          </li>
-          <li style={{ opacity: 0.65 }}>
-            <a
-              href="https://github.com/davidtphung/california-energy-intelligence-os"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              GitHub
-            </a>
-          </li>
         </ul>
 
         <div className="menu-actions">
@@ -131,12 +117,25 @@ export function AppShell({ children }: { children: ReactNode }) {
           <br />
           sample grid data
         </div>
+
+        <div className="rail-credit">
+          Built by{' '}
+          <a href="https://x.com/davidtphung" target="_blank" rel="noopener noreferrer">
+            David T Phung
+          </a>
+        </div>
       </nav>
 
-      <div>
+      <div className="main-column">
         <main id="main-content" className="main" tabIndex={-1}>
           <div className="content">{children}</div>
         </main>
+        <footer className="site-credit">
+          Built by{' '}
+          <a href="https://x.com/davidtphung" target="_blank" rel="noopener noreferrer">
+            David T Phung
+          </a>
+        </footer>
       </div>
     </div>
   )
