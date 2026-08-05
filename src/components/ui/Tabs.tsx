@@ -16,24 +16,19 @@ interface TabsProps {
 export function Tabs({ tabs, active, onChange, className }: TabsProps) {
   return (
     <div role="tablist" className={cn('segmented', className)}>
-      {tabs.map((tab) => {
-        const isActive = tab.id === active
-        return (
-          <button
-            key={tab.id}
-            role="tab"
-            type="button"
-            aria-selected={isActive}
-            onClick={() => onChange(tab.id)}
-            className={cn('seg', isActive && 'active')}
-          >
-            {tab.label}
-            {tab.count != null && (
-              <span style={{ marginLeft: 6, opacity: 0.7 }}>{tab.count}</span>
-            )}
-          </button>
-        )
-      })}
+      {tabs.map((tab) => (
+        <button
+          key={tab.id}
+          role="tab"
+          type="button"
+          aria-selected={tab.id === active}
+          onClick={() => onChange(tab.id)}
+          className={cn('seg', tab.id === active && 'active')}
+        >
+          {tab.label}
+          {tab.count != null ? ` · ${tab.count}` : ''}
+        </button>
+      ))}
     </div>
   )
 }

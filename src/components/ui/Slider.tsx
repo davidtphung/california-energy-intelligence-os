@@ -1,5 +1,3 @@
-import { cn } from '../../lib/utils'
-
 interface SliderProps {
   label: string
   value: number
@@ -22,10 +20,10 @@ export function Slider({
   className,
 }: SliderProps) {
   return (
-    <div className={cn('field', className)}>
+    <div className={`field ${className ?? ''}`}>
       <div className="field-head">
         <label>{label}</label>
-        <output className="mono">
+        <output>
           {value}
           {unit ? ` ${unit}` : ''}
         </output>

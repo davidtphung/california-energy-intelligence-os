@@ -1,75 +1,38 @@
-import type { ReactNode, CSSProperties } from 'react'
-import { cn } from '../../lib/utils'
+import type { ReactNode } from 'react'
 
-interface CardProps {
-  children: ReactNode
-  className?: string
-  title?: string
-  subtitle?: string
-  label?: string
-  action?: ReactNode
-  padding?: boolean
-  onClick?: () => void
-  interactive?: boolean
-  tray?: boolean
-  solid?: boolean
-  style?: CSSProperties
-}
-
+/** Lightweight section wrapper — paper layout, not card chrome */
 export function Card({
   children,
-  className,
   title,
   subtitle,
   label,
   action,
-  onClick,
-  interactive,
-  tray,
-  solid,
-  style,
-}: CardProps) {
-  const head =
-    label || title || action ? (
-      <header className="panel-head">
-        <div className="min-w-0">
-          {label && <p className="section-label">{label}</p>}
-          {title && <h2 className="page-h2">{title}</h2>}
-          {subtitle && <p className="status-line">{subtitle}</p>}
-        </div>
-        {action && <div className="btn-row">{action}</div>}
-      </header>
-    ) : null
-
-  if (onClick) {
-    return (
-      <button
-        type="button"
-        className={cn(
-          tray ? 'tray panel' : solid ? 'card-solid block' : 'card panel',
-          interactive && 'stat-glow',
-          'stat-card',
-          className
-        )}
-        style={{ textAlign: 'left', ...style }}
-        onClick={onClick}
-      >
-        {head}
-        {children}
-      </button>
-    )
-  }
-
+  className,
+}: {
+  children: ReactNode
+  title?: string
+  subtitle?: string
+  label?: string
+  action?: ReactNode
+  className?: string
+  padding?: boolean
+  tray?: boolean
+  solid?: boolean
+  interactive?: boolean
+  onClick?: () => void
+}) {
   return (
-    <section
-      className={cn(
-        tray ? 'tray panel' : solid ? 'card-solid block' : 'card panel',
-        interactive && 'stat-glow',
-        className
+    <section className={`block ${className ?? ''}`}>
+      {(label || title || action) && (
+        <div className="block-head">
+          <div>
+            {label && <p className="kicker">{label}</p>}
+            {title && <h2 className="page-h2">{title}</h2>}
+            {subtitle && <p className="sub" style={{ marginBottom: 0 }}>{subtitle}</p>}
+          </div>
+          {action}
+        </div>
       )}
-      style={style}
-    >
-      {head}
       {children}
     </section>
   )

@@ -5,21 +5,7 @@ import { Badge } from '../ui/Badge'
 import { Tabs } from '../ui/Tabs'
 import { Input } from '../ui/Input'
 import { Button } from '../ui/Button'
-import { ExternalLink, Plus } from 'lucide-react'
 import type { Source } from '../../types'
-
-const ORG_VARIANT: Record<
-  Source['organization'],
-  'info' | 'success' | 'warning' | 'violet' | 'default'
-> = {
-  CEC: 'info',
-  CAISO: 'success',
-  EIA: 'warning',
-  CPUC: 'violet',
-  Utility: 'default',
-  Policy: 'info',
-  Other: 'default',
-}
 
 export function ResearchWorkspace() {
   const { notes, addNote } = useApp()
@@ -38,8 +24,7 @@ export function ResearchWorkspace() {
         s.title.toLowerCase().includes(q) ||
         s.summary.toLowerCase().includes(q) ||
         s.tags.some((t) => t.toLowerCase().includes(q))
-      const matchOrg = orgFilter === 'all' || s.organization === orgFilter
-      return matchQ && matchOrg
+      return matchQ && (orgFilter === 'all' || s.organization === orgFilter)
     })
   }, [query, orgFilter])
 
@@ -49,42 +34,39 @@ export function ResearchWorkspace() {
   }, [notes, selectedSource])
 
   return (
-    <div className="animate-in stack">
-      <section className="hero">
-        <p className="section-label">Catalog</p>
-        <h1 className="page-title gradient-text">Research workspace</h1>
-        <p className="lede">
-          Source library, notes, assumptions tracker, and citations for California energy research.
+    <div id="research">
+      <div className="intro fadein t1">
+        <strong>Research</strong>
+        <p>
+          Source library, notes, assumptions, and citations — CEC, CAISO, EIA, utility filings, and
+          policy documents in one quiet list.
         </p>
-        <Tabs
-          tabs={[
-            { id: 'sources', label: 'Sources', count: SOURCES.length },
-            { id: 'notes', label: 'Notes', count: notes.length },
-            { id: 'assumptions', label: 'Assumptions', count: ASSUMPTIONS.length },
-            { id: 'citations', label: 'Citations' },
-          ]}
-          active={tab}
-          onChange={setTab}
-        />
-      </section>
+      </div>
+
+      <Tabs
+        tabs={[
+          { id: 'sources', label: 'Sources', count: SOURCES.length },
+          { id: 'notes', label: 'Notes', count: notes.length },
+          { id: 'assumptions', label: 'Assumptions', count: ASSUMPTIONS.length },
+          { id: 'citations', label: 'Citations' },
+        ]}
+        active={tab}
+        onChange={setTab}
+      />
 
       {tab === 'sources' && (
-        <section className="tray panel">
-          <div className="filter-bar">
+        <div className="fadein t2">
+          <div className="filters">
             <Input
-              placeholder="Search sources…"
+              placeholder="Search…"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               aria-label="Search sources"
               style={{ minWidth: '12rem' }}
             />
-            <label className="field" style={{ minWidth: '8rem' }}>
-              <span className="section-label tight">Org</span>
-              <select
-                className="select"
-                value={orgFilter}
-                onChange={(e) => setOrgFilter(e.target.value)}
-              >
+            <label className="field">
+              <span>Org</span>
+              <select value={orgFilter} onChange={(e) => setOrgFilter(e.target.value)}>
                 <option value="all">All</option>
                 {['CEC', 'CAISO', 'EIA', 'CPUC', 'Utility', 'Policy'].map((o) => (
                   <option key={o} value={o}>
@@ -95,69 +77,83 @@ export function ResearchWorkspace() {
             </label>
           </div>
 
-          <div className="grid-2">
-            <div className="stack" style={{ gap: '0.5rem', maxHeight: '28rem', overflowY: 'auto' }}>
+          <table className="list-table">
+            <tbody>
               {filteredSources.map((s) => (
-                <button
-                  key={s.id}
-                  type="button"
-                  className={`card block${selectedSource?.id === s.id ? ' stat-glow' : ''}`}
-                  style={{
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    borderColor:
-                      selectedSource?.id === s.id ? 'var(--accent-border)' : undefined,
-                  }}
-                  onClick={() => setSelectedSource(s)}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-                    <strong style={{ fontSize: '0.88rem' }}>{s.title}</strong>
-                    <Badge variant={ORG_VARIANT[s.organization]}>{s.organization}</Badge>
-                  </div>
-                  <p className="muted" style={{ margin: '0.35rem 0 0', fontSize: '0.78rem' }}>
-                    {s.summary}
-                  </p>
-                </button>
+                <tr key={s.id}>
+                  <th scope="row">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedSource(s)}
+                      style={{
+                        background: 'none',
+                        border: 0,
+                        padding: 0,
+                        font: 'inherit',
+                        fontWeight: 600,
+                        color:
+                          selectedSource?.id === s.id ? 'var(--highlight)' : 'var(--ink-2)',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                      }}
+                    >
+                      {s.organization}
+                    </button>
+                  </th>
+                  <td>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedSource(s)}
+                      style={{
+                        background: 'none',
+                        border: 0,
+                        padding: 0,
+                        font: 'inherit',
+                        color: 'var(--highlight)',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        fontWeight: 500,
+                      }}
+                    >
+                      {s.title}
+                    </button>
+                    <div className="muted" style={{ fontSize: '0.82rem', marginTop: 2 }}>
+                      {s.summary}
+                    </div>
+                  </td>
+                </tr>
               ))}
-            </div>
+            </tbody>
+          </table>
 
-            <div className="card-solid block">
-              {selectedSource ? (
-                <>
-                  <p className="section-label">
-                    {selectedSource.organization} · {selectedSource.year} · {selectedSource.type}
-                  </p>
-                  <h2 className="page-h2">{selectedSource.title}</h2>
-                  <p className="sub">{selectedSource.summary}</p>
-                  <a
-                    href={selectedSource.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-sm"
-                    style={{ display: 'inline-flex', marginBottom: '1rem' }}
-                  >
-                    Open source <ExternalLink className="h-3 w-3" />
-                  </a>
-                  <p className="section-label">Citation</p>
-                  <blockquote className="code-block" style={{ whiteSpace: 'normal' }}>
-                    {selectedSource.organization}. ({selectedSource.year}).{' '}
-                    <em>{selectedSource.title}</em>. {selectedSource.url}
-                  </blockquote>
-                </>
-              ) : (
-                <p className="muted">Select a source.</p>
-              )}
-            </div>
-          </div>
-        </section>
+          {selectedSource && (
+            <>
+              <hr className="rule-lite" />
+              <p className="kicker">Selected</p>
+              <h2 className="page-h2">{selectedSource.title}</h2>
+              <p className="sub">
+                {selectedSource.organization} · {selectedSource.year} · {selectedSource.type}
+              </p>
+              <p className="lede">{selectedSource.summary}</p>
+              <p>
+                <a href={selectedSource.url} target="_blank" rel="noopener noreferrer">
+                  Open source →
+                </a>
+              </p>
+              <pre className="code-block" style={{ marginTop: '0.85rem' }}>
+                {selectedSource.organization}. ({selectedSource.year}). {selectedSource.title}.{' '}
+                {selectedSource.url}
+              </pre>
+            </>
+          )}
+        </div>
       )}
 
       {tab === 'notes' && (
-        <div className="grid-2">
-          <section className="tray panel">
-            <p className="section-label">Compose</p>
-            <h2 className="page-h2">Add note</h2>
-            <div className="stack" style={{ gap: '0.75rem', marginTop: '0.75rem' }}>
+        <div className="grid-2 fadein t2">
+          <div>
+            <p className="kicker">Compose</p>
+            <div className="stack" style={{ gap: '0.75rem' }}>
               <Input
                 label="Title"
                 value={noteTitle}
@@ -165,17 +161,16 @@ export function ResearchWorkspace() {
                 placeholder="Finding…"
               />
               <label className="field">
-                <span className="section-label tight">Body</span>
+                <span>Body</span>
                 <textarea
                   value={noteBody}
                   onChange={(e) => setNoteBody(e.target.value)}
                   rows={5}
-                  placeholder="Detail, caveats, next steps…"
+                  placeholder="Detail, caveats…"
                 />
               </label>
               <Button
                 variant="primary"
-                icon={<Plus className="h-3.5 w-3.5" />}
                 disabled={!noteTitle.trim() || !noteBody.trim()}
                 onClick={() => {
                   addNote({
@@ -192,31 +187,31 @@ export function ResearchWorkspace() {
                 Save note
               </Button>
             </div>
-          </section>
-          <div className="stack">
-            {notes.map((n) => (
-              <section key={n.id} className="card panel">
-                <p className="section-label">{new Date(n.updatedAt).toLocaleDateString()}</p>
-                <h2 className="page-h2">{n.title}</h2>
-                <p className="sub" style={{ marginBottom: '0.75rem' }}>
-                  {n.body}
-                </p>
-                <div className="chip-row">
-                  {n.tags.map((t) => (
-                    <Badge key={t}>{t}</Badge>
-                  ))}
-                </div>
-              </section>
-            ))}
+          </div>
+          <div>
+            <ul className="idea-list">
+              {notes.map((n) => (
+                <li key={n.id} style={{ marginBottom: '1rem' }}>
+                  <strong style={{ color: 'var(--highlight)' }}>{n.title}</strong>
+                  <p className="sub" style={{ margin: '0.25rem 0 0.4rem' }}>
+                    {n.body}
+                  </p>
+                  <div className="chip-row">
+                    {n.tags.map((t) => (
+                      <Badge key={t}>{t}</Badge>
+                    ))}
+                  </div>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
       )}
 
       {tab === 'assumptions' && (
-        <section className="tray panel">
-          <p className="section-label">Traceability</p>
-          <h2 className="page-h2">Assumptions tracker</h2>
-          <p className="sub">Parameters with confidence and source links.</p>
+        <div className="fadein t2">
+          <p className="kicker">Traceability</p>
+          <h2 className="page-h2">Assumptions</h2>
           <div className="table-wrap">
             <table className="data-table">
               <thead>
@@ -234,7 +229,7 @@ export function ResearchWorkspace() {
                   const src = SOURCES.find((s) => s.id === a.sourceId)
                   return (
                     <tr key={a.id}>
-                      <td className="mono" style={{ color: 'var(--text)' }}>
+                      <td className="mono" style={{ color: 'var(--highlight)' }}>
                         {a.key}
                       </td>
                       <td className="num">{a.value}</td>
@@ -253,35 +248,34 @@ export function ResearchWorkspace() {
                         </Badge>
                       </td>
                       <td className="muted">{src?.organization ?? '—'}</td>
-                      <td className="muted" style={{ maxWidth: 200 }}>
-                        {a.notes ?? '—'}
-                      </td>
+                      <td className="muted">{a.notes ?? '—'}</td>
                     </tr>
                   )
                 })}
               </tbody>
             </table>
           </div>
-        </section>
+        </div>
       )}
 
       {tab === 'citations' && (
-        <section className="tray panel">
-          <p className="section-label">Bibliography</p>
-          <h2 className="page-h2">Citations</h2>
-          <ol style={{ margin: 0, paddingLeft: '1.25rem', color: 'var(--text-2)' }}>
+        <div className="fadein t2">
+          <p className="kicker">Bibliography</p>
+          <ol style={{ margin: 0, paddingLeft: '1.15rem', color: 'var(--ink-2)' }}>
             {citations.map((s) => (
-              <li key={s.id} style={{ marginBottom: '0.85rem', fontSize: '0.9rem' }}>
-                <strong style={{ color: 'var(--text)' }}>{s.organization}</strong> ({s.year}).{' '}
+              <li key={s.id} style={{ marginBottom: '0.75rem', fontSize: '0.9rem' }}>
+                <strong style={{ color: 'var(--highlight)' }}>{s.organization}</strong> ({s.year}).{' '}
                 <em>{s.title}</em>.{' '}
-                <a href={s.url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }}>
+                <a href={s.url} target="_blank" rel="noopener noreferrer">
                   {s.url}
                 </a>
               </li>
             ))}
           </ol>
-        </section>
+        </div>
       )}
+
+      <p className="footer-line">Research · sources · notes · assumptions</p>
     </div>
   )
 }

@@ -67,7 +67,7 @@ export function ScenarioCompareTable({ scenarios, year, activeId, onSelect }: Pr
                       key={s.id}
                       className="num"
                       style={{
-                        color: isBest ? 'var(--success)' : undefined,
+                        color: isBest ? 'var(--ok)' : undefined,
                         fontWeight: isBest ? 600 : undefined,
                       }}
                     >

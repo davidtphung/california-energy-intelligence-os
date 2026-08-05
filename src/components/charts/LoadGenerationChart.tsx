@@ -25,8 +25,8 @@ interface Props {
 
 export function LoadGenerationChart({ data, height = 280 }: Props) {
   const { setDrilldown, theme } = useApp()
-  const tick = theme === 'dark' ? '#ffffff73' : '#5c6b7f'
-  const grid = theme === 'dark' ? '#ffffff14' : '#0b12201f'
+  const tick = theme === 'dark' ? '#8a8478' : '#7a7468'
+  const grid = theme === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'
 
   return (
     <ResponsiveContainer width="100%" height={height}>
@@ -46,9 +46,9 @@ export function LoadGenerationChart({ data, height = 280 }: Props) {
         />
         <Tooltip
           contentStyle={{
-            background: theme === 'dark' ? '#0a0a0a' : '#fff',
+            background: theme === 'dark' ? '#1c1a17' : '#e4e0d7',
             border: `1px solid ${grid}`,
-            borderRadius: 10,
+            borderRadius: 2,
             fontSize: 12,
           }}
         />

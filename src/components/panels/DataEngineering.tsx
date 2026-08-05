@@ -6,8 +6,7 @@ import {
   QUALITY_CHECKS,
 } from '../../data/mockData'
 import { Badge } from '../ui/Badge'
-import type { PipelineStatus, QualityCheck } from '../../types'
-import { CheckCircle2, AlertTriangle, XCircle, Loader2, Clock } from 'lucide-react'
+import type { PipelineStatus } from '../../types'
 import { formatDistanceToNow } from 'date-fns'
 
 function statusBadge(status: PipelineStatus) {
@@ -15,113 +14,87 @@ function statusBadge(status: PipelineStatus) {
     PipelineStatus,
     { variant: 'success' | 'warning' | 'danger' | 'info' | 'default'; label: string }
   > = {
-    success: { variant: 'success', label: 'Success' },
-    running: { variant: 'info', label: 'Running' },
-    failed: { variant: 'danger', label: 'Failed' },
-    queued: { variant: 'default', label: 'Queued' },
-    warning: { variant: 'warning', label: 'Warning' },
+    success: { variant: 'success', label: 'ok' },
+    running: { variant: 'info', label: 'running' },
+    failed: { variant: 'danger', label: 'failed' },
+    queued: { variant: 'default', label: 'queued' },
+    warning: { variant: 'warning', label: 'warn' },
   }
   const m = map[status]
   return <Badge variant={m.variant}>{m.label}</Badge>
-}
-
-function qcIcon(status: QualityCheck['status']) {
-  if (status === 'pass') return <CheckCircle2 className="h-4 w-4" style={{ color: 'var(--success)' }} />
-  if (status === 'warn') return <AlertTriangle className="h-4 w-4" style={{ color: 'var(--warn)' }} />
-  return <XCircle className="h-4 w-4" style={{ color: 'var(--danger)' }} />
 }
 
 export function DataEngineering() {
   const lastRefresh = formatDistanceToNow(new Date(LAST_REFRESH), { addSuffix: true })
 
   return (
-    <div className="animate-in stack">
-      <section className="hero">
-        <p className="section-label">Pipelines</p>
-        <h1 className="page-title gradient-text">Data engineering</h1>
-        <p className="lede">
-          Entity model, pipeline health, quality checks, and error log. Last refresh {lastRefresh}.
+    <div id="data">
+      <div className="intro fadein t1">
+        <strong>Data</strong>
+        <p>
+          Pipeline health, entity model, quality checks, and error log. Last refresh {lastRefresh}.
         </p>
-      </section>
-
-      <div className="grid-3">
-        {PIPELINE_RUNS.map((run) => (
-          <div key={run.id} className="card panel">
-            <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-              <code className="mono" style={{ color: 'var(--text)', fontSize: '0.8rem' }}>
-                {run.name}
-              </code>
-              {statusBadge(run.status)}
-            </div>
-            <p className="muted" style={{ margin: '0.5rem 0 0', fontSize: '0.8rem' }}>
-              {run.recordsProcessed.toLocaleString()} records
-              {run.errorCount > 0 && ` · ${run.errorCount} issues`}
-            </p>
-            {run.message && (
-              <p className="muted" style={{ margin: '0.35rem 0 0', fontSize: '0.75rem' }}>
-                {run.message}
-              </p>
-            )}
-            <p className="mono muted" style={{ margin: '0.65rem 0 0', display: 'flex', alignItems: 'center', gap: 6 }}>
-              {run.status === 'running' ? (
-                <Loader2 className="h-3 w-3" style={{ animation: 'spin 1s linear infinite' }} />
-              ) : (
-                <Clock className="h-3 w-3" />
-              )}
-              {new Date(run.startedAt).toLocaleString()}
-            </p>
-          </div>
-        ))}
       </div>
 
-      <div className="grid-2">
-        <section className="tray panel">
-          <p className="section-label">Schema</p>
-          <h2 className="page-h2">Data model</h2>
-          <p className="sub">Entity catalog — ready for API wiring.</p>
-          <div className="stack" style={{ gap: '0.4rem' }}>
-            {DATA_MODEL.map((entity) => (
-              <details key={entity.entity} className="card-solid block">
-                <summary
-                  style={{
-                    cursor: 'pointer',
-                    listStyle: 'none',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    gap: 8,
-                    fontSize: '0.88rem',
-                    fontWeight: 600,
-                  }}
-                >
-                  <code className="mono" style={{ color: 'var(--accent)' }}>
-                    {entity.entity}
+      <section className="block fadein t2">
+        <p className="kicker">Pipelines</p>
+        <table className="list-table">
+          <tbody>
+            {PIPELINE_RUNS.map((run) => (
+              <tr key={run.id}>
+                <th scope="row">
+                  <code className="mono" style={{ color: 'var(--highlight)' }}>
+                    {run.name}
                   </code>
-                  <span className="mono muted">
-                    {entity.rows.toLocaleString()} · {entity.pk}
+                </th>
+                <td>
+                  {statusBadge(run.status)}{' '}
+                  <span className="muted">
+                    · {run.recordsProcessed.toLocaleString()} records
+                    {run.errorCount > 0 ? ` · ${run.errorCount} issues` : ''}
+                    {run.message ? ` · ${run.message}` : ''}
                   </span>
-                </summary>
-                <div className="chip-row" style={{ marginTop: '0.65rem' }}>
-                  {entity.fields.map((f) => (
-                    <span key={f} className="badge">
-                      {f}
-                    </span>
-                  ))}
-                </div>
-              </details>
+                </td>
+              </tr>
             ))}
-          </div>
+          </tbody>
+        </table>
+      </section>
+
+      <hr className="rule" />
+
+      <div className="grid-2 fadein t3">
+        <section className="block">
+          <p className="kicker">Schema</p>
+          <h2 className="page-h2">Data model</h2>
+          <table className="list-table">
+            <tbody>
+              {DATA_MODEL.map((e) => (
+                <tr key={e.entity}>
+                  <th scope="row">
+                    <code className="mono">{e.entity}</code>
+                  </th>
+                  <td className="mono muted">
+                    {e.rows.toLocaleString()} rows · pk {e.pk}
+                    <div style={{ marginTop: 4, opacity: 0.85 }}>
+                      {e.fields.slice(0, 6).join(', ')}
+                      {e.fields.length > 6 ? '…' : ''}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </section>
 
-        <section className="tray panel">
-          <p className="section-label">Validation</p>
+        <section className="block">
+          <p className="kicker">Validation</p>
           <h2 className="page-h2">Quality checks</h2>
-          <div className="stack" style={{ gap: '0.5rem', marginTop: '0.5rem' }}>
-            {QUALITY_CHECKS.map((q) => (
-              <div key={q.id} className="card-solid block" style={{ display: 'flex', gap: 10 }}>
-                <span style={{ marginTop: 2 }}>{qcIcon(q.status)}</span>
-                <div style={{ minWidth: 0, flex: 1 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-                    <strong style={{ fontSize: '0.88rem' }}>{q.name}</strong>
+          <table className="list-table">
+            <tbody>
+              {QUALITY_CHECKS.map((q) => (
+                <tr key={q.id}>
+                  <th scope="row">
                     <Badge
                       variant={
                         q.status === 'pass' ? 'success' : q.status === 'warn' ? 'warning' : 'danger'
@@ -129,23 +102,26 @@ export function DataEngineering() {
                     >
                       {q.status}
                     </Badge>
-                  </div>
-                  <p className="muted" style={{ margin: '0.25rem 0 0', fontSize: '0.78rem' }}>
-                    {q.detail}
-                  </p>
-                  <p className="mono muted" style={{ margin: '0.35rem 0 0' }}>
-                    {q.entity}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
+                  </th>
+                  <td>
+                    <strong style={{ color: 'var(--highlight)', fontWeight: 600 }}>{q.name}</strong>
+                    <div className="muted" style={{ fontSize: '0.82rem' }}>
+                      {q.detail}
+                    </div>
+                    <div className="mono muted">{q.entity}</div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </section>
       </div>
 
-      <section className="tray panel">
-        <p className="section-label">Logs</p>
-        <h2 className="page-h2">Error log</h2>
+      <hr className="rule" />
+
+      <section className="block">
+        <p className="kicker">Logs</p>
+        <h2 className="page-h2">Errors</h2>
         <div className="table-wrap">
           <table className="data-table">
             <thead>
@@ -179,6 +155,8 @@ export function DataEngineering() {
           </table>
         </div>
       </section>
+
+      <p className="footer-line">Data engineering · pipelines · quality</p>
     </div>
   )
 }

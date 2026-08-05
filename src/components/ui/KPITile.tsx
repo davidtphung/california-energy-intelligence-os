@@ -1,17 +1,4 @@
 import type { ReactNode } from 'react'
-import { cn } from '../../lib/utils'
-
-interface KPITileProps {
-  label: string
-  value: string | number
-  unit?: string
-  delta?: number
-  deltaLabel?: string
-  icon?: ReactNode
-  accent?: 'sky' | 'emerald' | 'amber' | 'violet' | 'rose' | 'slate'
-  onClick?: () => void
-  className?: string
-}
 
 export function KPITile({
   label,
@@ -20,23 +7,28 @@ export function KPITile({
   delta,
   deltaLabel,
   onClick,
-  className,
-}: KPITileProps) {
+}: {
+  label: string
+  value: string | number
+  unit?: string
+  delta?: number
+  deltaLabel?: string
+  icon?: ReactNode
+  accent?: string
+  onClick?: () => void
+  className?: string
+}) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn('card stat-card stat-glow', className)}
-    >
-      <span className="section-label">{label}</span>
-      <span className="stat-value mono">
+    <button type="button" className="metric" onClick={onClick}>
+      <span className="metric-label">{label}</span>
+      <span className="metric-value">
         {value}
-        {unit && <span className="stat-unit">{unit}</span>}
+        {unit && <span className="metric-unit">{unit}</span>}
       </span>
       {(delta != null || deltaLabel) && (
-        <span className="stat-delta">
+        <span className="metric-hint">
           {delta != null && (
-            <span style={{ color: delta > 0 ? 'var(--success)' : delta < 0 ? 'var(--danger)' : undefined }}>
+            <span>
               {delta > 0 ? '+' : ''}
               {delta}%
             </span>

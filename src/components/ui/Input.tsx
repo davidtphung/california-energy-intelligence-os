@@ -1,4 +1,3 @@
-import { cn } from '../../lib/utils'
 import type { InputHTMLAttributes } from 'react'
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -10,8 +9,8 @@ export function Input({ label, hint, className, id, ...props }: InputProps) {
   const inputId = id ?? label?.toLowerCase().replace(/\s+/g, '-')
   return (
     <label className="field">
-      {label && <span className="section-label tight">{label}</span>}
-      <input id={inputId} className={cn('input', className)} {...props} />
+      {label && <span>{label}</span>}
+      <input id={inputId} className={className} {...props} />
       {hint && <span className="mono muted">{hint}</span>}
     </label>
   )

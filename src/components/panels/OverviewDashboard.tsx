@@ -22,7 +22,7 @@ import { TECH_LABELS, formatNumber } from '../../lib/utils'
 import type { Technology, CARegion } from '../../types'
 
 export function OverviewDashboard() {
-  const { filters, setFilters, setDrilldown, drilldown } = useApp()
+  const { filters, setFilters, setDrilldown, drilldown, setView } = useApp()
   const [mixTab, setMixTab] = useState('stacked')
 
   const kpis = useMemo(() => getKPIs(filters), [filters])
@@ -33,73 +33,86 @@ export function OverviewDashboard() {
   const regional = useMemo(() => getRegionalCapacity(filters), [filters])
 
   return (
-    <div className="animate-in stack">
-      <section className="hero">
-        <p className="section-label">California · Electricity · Systems</p>
-        <h1 className="page-title gradient-text">Read the grid at a glance</h1>
-        <p className="lede">
-          Capacity, generation mix, load, storage, and intertie flows with realistic sample data.
-          Filter by year, tech, or region — click any chart to drill down.
+    <div>
+      <div className="intro fadein t1">
+        <strong>California Energy Intelligence OS</strong>
+        <p>
+          A quiet workspace for reading California electricity systems — capacity, generation,
+          load, storage, and policy paths. Built for research and planning; sample data first,
+          API-ready later. Built by{' '}
+          <a href="https://x.com/davidtphung" target="_blank" rel="noopener noreferrer">
+            David T Phung
+          </a>
+          .
         </p>
+      </div>
 
-        <div className="stat-row" style={{ marginBottom: '0.25rem' }}>
-          <button type="button" className="card stat-card stat-glow" onClick={() => setDrilldown('kpi:peak-load')}>
-            <span className="section-label">Peak load</span>
-            <span className="stat-value mono">
-              {kpis.peakLoadGw}
-              <span className="stat-unit">GW</span>
-            </span>
-            <span className="stat-delta">+2.1% vs prior year</span>
-          </button>
-          <button type="button" className="card stat-card stat-glow" onClick={() => setDrilldown('kpi:clean-share')}>
-            <span className="section-label">Clean share</span>
-            <span className="stat-value mono">
-              {kpis.cleanEnergySharePct}
-              <span className="stat-unit">%</span>
-            </span>
-            <span className="stat-delta">+3.4% vs prior year</span>
-          </button>
-          <button type="button" className="card stat-card stat-glow" onClick={() => setDrilldown('kpi:reserve-margin')}>
-            <span className="section-label">Reserve margin</span>
-            <span className="stat-value mono">
-              {kpis.reserveMarginPct}
-              <span className="stat-unit">%</span>
-            </span>
-            <span className="stat-delta">−0.8% vs prior year</span>
-          </button>
-          <button type="button" className="card stat-card stat-glow" onClick={() => setDrilldown('kpi:emissions')}>
-            <span className="section-label">Emissions</span>
-            <span className="stat-value mono">
-              {kpis.emissionsMt}
-              <span className="stat-unit">Mt</span>
-            </span>
-            <span className="stat-delta">−4.2% vs prior year</span>
-          </button>
-        </div>
-      </section>
+      <div className="metric-strip fadein t2">
+        <button type="button" className="metric" onClick={() => setDrilldown('kpi:peak-load')}>
+          <span className="metric-label">Peak load</span>
+          <span className="metric-value">
+            {kpis.peakLoadGw}
+            <span className="metric-unit">GW</span>
+          </span>
+          <span className="metric-hint">+2.1% vs prior year</span>
+        </button>
+        <button type="button" className="metric" onClick={() => setDrilldown('kpi:clean-share')}>
+          <span className="metric-label">Clean share</span>
+          <span className="metric-value">
+            {kpis.cleanEnergySharePct}
+            <span className="metric-unit">%</span>
+          </span>
+          <span className="metric-hint">+3.4% vs prior year</span>
+        </button>
+        <button type="button" className="metric" onClick={() => setDrilldown('kpi:reserve')}>
+          <span className="metric-label">Reserve margin</span>
+          <span className="metric-value">
+            {kpis.reserveMarginPct}
+            <span className="metric-unit">%</span>
+          </span>
+          <span className="metric-hint">−0.8% vs prior year</span>
+        </button>
+        <button type="button" className="metric" onClick={() => setDrilldown('kpi:emissions')}>
+          <span className="metric-label">Emissions</span>
+          <span className="metric-value">
+            {kpis.emissionsMt}
+            <span className="metric-unit">Mt</span>
+          </span>
+          <span className="metric-hint">−4.2% vs prior year</span>
+        </button>
+      </div>
 
-      <section className="tray panel">
-        <div className="panel-head">
+      <div className="fadein t3">
+        <div className="block-head">
           <div>
-            <p className="section-label">Explorer</p>
-            <h2 className="page-h2">System overview</h2>
-            <p className="status-line">
+            <p className="kicker">Grid</p>
+            <h2 className="page-h2">System read</h2>
+            <p className="sub" style={{ marginBottom: 0 }}>
               {filters.year}
-              {filters.region !== 'all' ? ` · ${filters.region}` : ' · Statewide'}
+              {filters.region !== 'all' ? ` · ${filters.region}` : ' · statewide'}
               {drilldown ? ` · ${drilldown}` : ''}
             </p>
           </div>
           <div className="btn-row">
-            <Badge variant="info">Mock data</Badge>
+            <button
+              type="button"
+              className="btn btn-sm"
+              onClick={() => {
+                setView('scenarios')
+                window.history.replaceState(null, '', '#scenario')
+              }}
+            >
+              Open scenario →
+            </button>
             {drilldown && (
-              <button type="button" className="btn btn-sm" onClick={() => setDrilldown(null)}>
-                Clear drilldown
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setDrilldown(null)}>
+                Clear
               </button>
             )}
           </div>
         </div>
 
-        <div className="filter-bar">
+        <div className="filters">
           <Select
             label="Year"
             value={filters.year}
@@ -124,11 +137,11 @@ export function OverviewDashboard() {
             ]}
           />
           <Select
-            label="Technology"
+            label="Tech"
             value={filters.technology}
             onChange={(e) => setFilters({ technology: e.target.value as Technology | 'all' })}
             options={[
-              { value: 'all', label: 'All tech' },
+              { value: 'all', label: 'All' },
               ...Object.entries(TECH_LABELS).map(([k, v]) => ({ value: k, label: v })),
             ]}
           />
@@ -148,145 +161,138 @@ export function OverviewDashboard() {
           />
         </div>
 
-        <div className="stat-row" style={{ marginBottom: '1rem' }}>
-          <div className="card-solid block">
-            <p className="section-label">Total capacity</p>
-            <span className="stat-value mono" style={{ fontSize: '1.35rem' }}>
-              {kpis.totalCapacityGw}
-              <span className="stat-unit">GW</span>
-            </span>
-          </div>
-          <div className="card-solid block">
-            <p className="section-label">Battery storage</p>
-            <span className="stat-value mono" style={{ fontSize: '1.35rem' }}>
-              {kpis.batteryCapacityGw}
-              <span className="stat-unit">GW</span>
-            </span>
-          </div>
-          <div className="card-solid block">
-            <p className="section-label">Battery discharge</p>
-            <span className="stat-value mono" style={{ fontSize: '1.35rem' }}>
-              {kpis.batteryDischargeGwh}
-              <span className="stat-unit">GWh/d</span>
-            </span>
-          </div>
-          <div className="card-solid block">
-            <p className="section-label">Net imports</p>
-            <span className="stat-value mono" style={{ fontSize: '1.35rem' }}>
-              {kpis.netImportsGw}
-              <span className="stat-unit">GW</span>
-            </span>
-          </div>
-        </div>
+        <table className="list-table" style={{ marginBottom: '1.25rem' }}>
+          <tbody>
+            <tr>
+              <th scope="row">Capacity</th>
+              <td>
+                {kpis.totalCapacityGw} GW nameplate · battery {kpis.batteryCapacityGw} GW · net
+                imports {kpis.netImportsGw} GW
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">Storage day</th>
+              <td>~{kpis.batteryDischargeGwh} GWh discharge on a sample peak evening</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-        <div className="grid-2">
-          <div className="card-solid block">
-            <p className="section-label">Capacity by technology</p>
-            <CapacityBarChart data={capacity} height={260} />
-          </div>
-          <div className="card-solid block">
-            <div className="panel-head" style={{ marginBottom: '0.5rem' }}>
-              <p className="section-label" style={{ margin: 0 }}>
-                Generation mix
-              </p>
-              <Tabs
-                tabs={[
-                  { id: 'stacked', label: 'Stacked' },
-                  { id: 'load', label: 'Load vs gen' },
-                ]}
-                active={mixTab}
-                onChange={setMixTab}
-              />
-            </div>
-            <GenerationMixChart data={hourly} stacked={mixTab === 'stacked'} height={260} />
-          </div>
-        </div>
-      </section>
+      <hr className="rule fadein t3" />
 
-      <div className="grid-2">
-        <section className="tray panel">
-          <p className="section-label">Load shape</p>
-          <h2 className="page-h2">Load & generation</h2>
-          <p className="sub">Sample day profile with solar and wind contribution.</p>
-          <LoadGenerationChart data={hourly} height={260} />
+      <div className="grid-2 fadein t4">
+        <section className="block">
+          <p className="kicker">Capacity</p>
+          <h2 className="page-h2">By technology</h2>
+          <p className="sub">Nameplate GW — click a bar to drill down.</p>
+          <div className="chart-box">
+            <CapacityBarChart data={capacity} height={240} />
+          </div>
         </section>
-
-        <section className="tray panel">
-          <p className="section-label">Energy mix</p>
-          <h2 className="page-h2">Generation share</h2>
-          <p className="sub">Annualized energy by technology.</p>
-          <div className="stack" style={{ gap: '0.55rem' }}>
-            {generation
-              .slice()
-              .sort((a, b) => b.share - a.share)
-              .map((g) => (
-                <button
-                  key={g.technology}
-                  type="button"
-                  className="share-row"
-                  onClick={() => setDrilldown(`gen:${g.technology}`)}
-                >
-                  <span className="mono muted" style={{ width: '5.5rem', fontSize: '0.72rem' }}>
-                    {TECH_LABELS[g.technology]}
-                  </span>
-                  <div className="progress-track">
-                    <div className="progress-fill" style={{ width: `${g.share}%` }} />
-                  </div>
-                  <span className="mono" style={{ width: '3rem', textAlign: 'right' }}>
-                    {g.share.toFixed(1)}%
-                  </span>
-                  <span className="mono muted" style={{ width: '3.5rem', textAlign: 'right' }}>
-                    {formatNumber(g.mwh / 1e6, 1)} TWh
-                  </span>
-                </button>
-              ))}
+        <section className="block">
+          <div className="block-head">
+            <div>
+              <p className="kicker">Generation</p>
+              <h2 className="page-h2">Sample day mix</h2>
+            </div>
+            <Tabs
+              tabs={[
+                { id: 'stacked', label: 'Stacked' },
+                { id: 'load', label: 'Load vs gen' },
+              ]}
+              active={mixTab}
+              onChange={setMixTab}
+            />
+          </div>
+          <div className="chart-box">
+            <GenerationMixChart data={hourly} stacked={mixTab === 'stacked'} height={240} />
           </div>
         </section>
       </div>
 
+      <div className="grid-2">
+        <section className="block">
+          <p className="kicker">Shape</p>
+          <h2 className="page-h2">Load & generation</h2>
+          <p className="sub">Net demand with solar and wind contribution.</p>
+          <div className="chart-box">
+            <LoadGenerationChart data={hourly} height={240} />
+          </div>
+        </section>
+        <section className="block">
+          <p className="kicker">Share</p>
+          <h2 className="page-h2">Annualized energy</h2>
+          <p className="sub">Click a row to focus that technology.</p>
+          {generation
+            .slice()
+            .sort((a, b) => b.share - a.share)
+            .map((g) => (
+              <button
+                key={g.technology}
+                type="button"
+                className="share-row"
+                onClick={() => setDrilldown(`gen:${g.technology}`)}
+              >
+                <span className="mono muted" style={{ width: '5.5rem', fontSize: '0.7rem' }}>
+                  {TECH_LABELS[g.technology]}
+                </span>
+                <div className="progress-track">
+                  <div className="progress-fill" style={{ width: `${g.share}%` }} />
+                </div>
+                <span className="mono" style={{ width: '2.75rem', textAlign: 'right', color: 'var(--highlight)' }}>
+                  {g.share.toFixed(1)}%
+                </span>
+                <span className="mono muted" style={{ width: '3.25rem', textAlign: 'right' }}>
+                  {formatNumber(g.mwh / 1e6, 1)} TWh
+                </span>
+              </button>
+            ))}
+        </section>
+      </div>
+
+      <hr className="rule" />
+
       <div className="grid-3">
-        <section className="tray panel">
-          <p className="section-label">Geography</p>
+        <section className="block">
+          <p className="kicker">Place</p>
           <h2 className="page-h2">Regions</h2>
-          <p className="sub">Click a region to filter.</p>
+          <p className="sub">Click to filter the view.</p>
           <CAMap data={regional} />
         </section>
-
-        <section className="tray panel">
-          <p className="section-label">Interties</p>
+        <section className="block">
+          <p className="kicker">Interties</p>
           <h2 className="page-h2">Flows</h2>
           <p className="sub">Imports, exports, internal paths.</p>
           <FlowView flows={flows} />
         </section>
-
-        <section className="tray panel">
-          <p className="section-label">Policy</p>
+        <section className="block">
+          <p className="kicker">Policy</p>
           <h2 className="page-h2">Targets</h2>
-          <p className="sub">Key milestones.</p>
-          <div className="stack" style={{ gap: '0.65rem' }}>
-            {POLICY_TARGETS.map((t) => (
-              <div key={t.id} className="card-solid block">
-                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-                  <span style={{ fontSize: '0.88rem', fontWeight: 600 }}>{t.name}</span>
-                  <Badge variant={t.year <= 2030 ? 'warning' : 'info'}>{t.year}</Badge>
-                </div>
-                <div className="stat-value mono" style={{ fontSize: '1.25rem', marginTop: 6 }}>
-                  {t.targetValue}
-                  <span className="stat-unit">{t.unit}</span>
-                </div>
-                <p className="mono muted" style={{ margin: '4px 0 0' }}>
-                  {t.source}
-                </p>
-              </div>
-            ))}
-          </div>
+          <table className="list-table">
+            <tbody>
+              {POLICY_TARGETS.map((t) => (
+                <tr key={t.id}>
+                  <th scope="row">{t.year}</th>
+                  <td>
+                    {t.name} — {t.targetValue}
+                    {t.unit}
+                    <div className="mono muted" style={{ marginTop: 2 }}>
+                      {t.source}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </section>
       </div>
 
-      <section className="tray panel">
-        <p className="section-label">Registry</p>
+      <hr className="rule" />
+
+      <section className="block">
+        <p className="kicker">Registry</p>
         <h2 className="page-h2">Notable plants</h2>
-        <p className="sub">Sample nameplate capacity entries.</p>
+        <p className="sub">Sample nameplate entries from the plant registry.</p>
         <div className="table-wrap">
           <table className="data-table">
             <thead>
@@ -306,7 +312,7 @@ export function OverviewDashboard() {
                   (filters.region === 'all' || p.region === filters.region)
               ).map((p) => (
                 <tr key={p.id}>
-                  <td style={{ color: 'var(--text)', fontWeight: 500 }}>{p.name}</td>
+                  <td style={{ color: 'var(--highlight)', fontWeight: 500 }}>{p.name}</td>
                   <td>
                     <Badge>{TECH_LABELS[p.technology]}</Badge>
                   </td>
@@ -320,6 +326,17 @@ export function OverviewDashboard() {
           </table>
         </div>
       </section>
+
+      <p className="footer-line">
+        Overview · mock CEC / CAISO / EIA–scale values ·{' '}
+        <a href="#scenario" onClick={() => setView('scenarios')}>
+          Scenario
+        </a>{' '}
+        ·{' '}
+        <a href="#research" onClick={() => setView('research')}>
+          Research
+        </a>
+      </p>
     </div>
   )
 }
