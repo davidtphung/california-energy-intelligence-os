@@ -1662,3 +1662,79 @@ hr,
   margin-right: 0.3rem;
   vertical-align: middle;
 }
+
+/* Portfolio location map */
+.pmap {
+  position: relative;
+}
+
+.pmap-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: min(28rem, 60vh);
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  background: var(--bg);
+}
+
+.pmap-dot {
+  cursor: pointer;
+  transition: r 0.15s ease, fill-opacity 0.15s ease;
+}
+
+.pmap-tip {
+  margin-top: 0.65rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  line-height: 1.35;
+}
+
+.pmap-tip-tag {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 550;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+
+.pmap-tip-title {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--highlight);
+}
+
+.pmap-tip-sub {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.75rem;
+  color: var(--mute);
+  font-family: var(--font-mono);
+}
+
+.pmap-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.85rem;
+  margin-top: 0.65rem;
+}
+
+.pmap-leg-item {
+  font-size: 0.72rem;
+  color: var(--mute);
+  font-family: var(--font-mono);
+}
+
+.pmap-leg-item i {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  margin-right: 0.3rem;
+  vertical-align: middle;
+}

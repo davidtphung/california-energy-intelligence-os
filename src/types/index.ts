@@ -23,10 +23,29 @@ export type CARegion =
 export type AppMode = 'analyst' | 'planner' | 'engineer' | 'developer'
 export type AppView =
   | 'overview'
+  | 'portfolios'
   | 'scenarios'
   | 'research'
   | 'data-engineering'
   | 'developer'
+
+export type PortfolioKind =
+  | 'IOU'
+  | 'CCA'
+  | 'Municipal'
+  | 'Irrigation / water'
+  | 'Generator'
+  | 'Federal / state'
+  | 'Balancing area'
+
+export type PortfolioSector =
+  | 'retail load'
+  | 'wholesale gen'
+  | 'storage'
+  | 'hydro system'
+  | 'nuclear'
+  | 'renewables'
+  | 'gas fleet'
 
 export type PipelineStatus = 'success' | 'running' | 'failed' | 'queued' | 'warning'
 
