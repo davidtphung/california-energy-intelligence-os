@@ -8,12 +8,11 @@ import {
   getKPIs,
   PLANTS,
 } from '../../data/mockData'
-import { Card } from '../ui/Card'
 import { Button } from '../ui/Button'
 import { Badge } from '../ui/Badge'
 import { Tabs } from '../ui/Tabs'
 import { exportCsv, exportJson } from '../../lib/utils'
-import { Download, FileJson, Table2, Braces, AlertCircle } from 'lucide-react'
+import { Download, FileJson, Table2, AlertCircle } from 'lucide-react'
 
 export function DeveloperPanel() {
   const { activeScenario, filters, updateAssumptions } = useApp()
@@ -23,20 +22,16 @@ export function DeveloperPanel() {
   )
   const [jsonError, setJsonError] = useState<string | null>(null)
 
-  // Sync editor when scenario changes
   useEffect(() => {
     setJsonText(JSON.stringify(activeScenario.assumptions, null, 2))
     setJsonError(null)
   }, [activeScenario.id, activeScenario.assumptions])
 
   const apiTables = useMemo(() => {
-    const capacity = getCapacityByTech(filters)
-    const generation = getGenerationBySource(filters)
-    const kpis = getKPIs(filters)
     return {
-      kpis: [kpis],
-      capacity_by_tech: capacity,
-      generation_by_source: generation,
+      kpis: [getKPIs(filters)],
+      capacity_by_tech: getCapacityByTech(filters),
+      generation_by_source: getGenerationBySource(filters),
       plants: PLANTS,
       scenario_outputs: activeScenario.outputs,
     }
@@ -44,8 +39,7 @@ export function DeveloperPanel() {
 
   const applyJson = () => {
     try {
-      const parsed = JSON.parse(jsonText)
-      updateAssumptions(parsed)
+      updateAssumptions(JSON.parse(jsonText))
       setJsonError(null)
     } catch (e) {
       setJsonError(e instanceof Error ? e.message : 'Invalid JSON')
@@ -53,35 +47,30 @@ export function DeveloperPanel() {
   }
 
   return (
-    <div className="animate-fade-in space-y-5">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-2xl">
-            Developer Panel
-          </h2>
-          <p className="mt-1 text-sm text-slate-500">
-            Editable scenario config, metric definitions, API-ready tables, and exports.
-          </p>
-        </div>
+    <div className="animate-in stack">
+      <section className="hero">
+        <p className="section-label">API-ready</p>
+        <h1 className="page-title gradient-text">Developer panel</h1>
+        <p className="lede">
+          Editable scenario config, metric definitions, tables, and export.
+        </p>
         <Tabs
           tabs={[
-            { id: 'config', label: 'JSON Config' },
+            { id: 'config', label: 'JSON config' },
             { id: 'metrics', label: 'Metrics' },
-            { id: 'tables', label: 'API Tables' },
+            { id: 'tables', label: 'API tables' },
             { id: 'export', label: 'Export' },
           ]}
           active={tab}
           onChange={setTab}
         />
-      </div>
+      </section>
 
       {tab === 'config' && (
-        <div className="grid gap-4 lg:grid-cols-2">
-          <Card
-            title="Scenario assumptions (JSON)"
-            subtitle={activeScenario.name}
-            action={<Braces className="h-4 w-4 text-slate-400" aria-hidden />}
-          >
+        <div className="grid-2">
+          <section className="tray panel">
+            <p className="section-label">Scenario</p>
+            <h2 className="page-h2">{activeScenario.name}</h2>
             <textarea
               value={jsonText}
               onChange={(e) => {
@@ -89,105 +78,115 @@ export function DeveloperPanel() {
                 setJsonError(null)
               }}
               spellCheck={false}
-              className="h-80 w-full resize-y rounded-lg border border-slate-200 bg-slate-50 p-3 font-mono text-xs leading-relaxed text-slate-800 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
+              className="code-block"
+              style={{
+                width: '100%',
+                minHeight: 280,
+                resize: 'vertical',
+                marginTop: '0.75rem',
+                color: 'var(--success)',
+              }}
               aria-label="Scenario JSON configuration"
             />
             {jsonError && (
-              <p className="mt-2 flex items-center gap-1.5 text-xs text-rose-600">
+              <p
+                className="mono"
+                style={{ color: 'var(--danger)', display: 'flex', gap: 6, alignItems: 'center' }}
+              >
                 <AlertCircle className="h-3.5 w-3.5" />
                 {jsonError}
               </p>
             )}
-            <div className="mt-3 flex flex-wrap gap-2">
-              <Button onClick={applyJson}>Apply JSON</Button>
+            <div className="btn-row" style={{ justifyContent: 'flex-start', marginTop: '0.75rem' }}>
+              <Button variant="primary" onClick={applyJson}>
+                Apply JSON
+              </Button>
               <Button
-                variant="secondary"
                 onClick={() => {
                   setJsonText(JSON.stringify(activeScenario.assumptions, null, 2))
                   setJsonError(null)
                 }}
               >
-                Reset editor
+                Reset
               </Button>
               <Button
-                variant="outline"
                 icon={<FileJson className="h-3.5 w-3.5" />}
-                onClick={() =>
-                  exportJson(activeScenario, `scenario-${activeScenario.id}.json`)
-                }
+                onClick={() => exportJson(activeScenario, `scenario-${activeScenario.id}.json`)}
               >
-                Download scenario
+                Download
               </Button>
             </div>
-          </Card>
+          </section>
 
-          <Card title="Schema reference" subtitle="Expected assumption keys">
-            <pre className="overflow-x-auto rounded-lg bg-slate-950 p-4 text-xs leading-relaxed text-emerald-300 scrollbar-thin">
+          <section className="tray panel">
+            <p className="section-label">Schema</p>
+            <h2 className="page-h2">Reference</h2>
+            <pre className="code-block" style={{ marginTop: '0.75rem', color: 'var(--success)' }}>
 {`{
-  "demandGrowthPct": number,    // %/yr
+  "demandGrowthPct": number,
   "solarBuildoutGw": number,
   "windBuildoutGw": number,
   "storageBuildoutGw": number,
   "gasRetirementsGw": number,
-  "hydroVariability": number,   // 0.7–1.3
+  "hydroVariability": number,
   "importLevelGw": number,
   "cleanEnergyTargetPct": number,
-  "carbonPrice": number         // $/ton
+  "carbonPrice": number
 }`}
             </pre>
-            <p className="mt-3 text-xs text-slate-500">
-              Editing a preset clones it to a custom scenario. Wire this payload to{' '}
-              <code className="rounded bg-slate-100 px-1 dark:bg-slate-800">POST /api/scenarios</code>{' '}
-              in production.
-            </p>
-            <div className="mt-4 space-y-2">
-              <p className="text-xs font-semibold uppercase text-slate-500">Entities</p>
+            <div className="stack" style={{ gap: '0.35rem', marginTop: '1rem' }}>
               {DATA_MODEL.map((e) => (
                 <div
                   key={e.entity}
-                  className="flex items-center justify-between rounded-lg border border-slate-100 px-3 py-2 dark:border-slate-800"
+                  className="card-solid block"
+                  style={{ display: 'flex', justifyContent: 'space-between' }}
                 >
-                  <code className="text-xs text-sky-600 dark:text-sky-400">{e.entity}</code>
-                  <span className="text-[11px] text-slate-400">{e.rows.toLocaleString()} rows</span>
+                  <code className="mono" style={{ color: 'var(--accent)' }}>
+                    {e.entity}
+                  </code>
+                  <span className="mono muted">{e.rows.toLocaleString()}</span>
                 </div>
               ))}
             </div>
-          </Card>
+          </section>
         </div>
       )}
 
       {tab === 'metrics' && (
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="grid-2">
           {METRIC_DEFINITIONS.map((m) => (
-            <Card key={m.id} title={m.name} subtitle={m.unit}>
-              <p className="text-sm text-slate-600 dark:text-slate-300">{m.description}</p>
-              <pre className="mt-3 overflow-x-auto rounded-lg bg-slate-100 p-3 font-mono text-xs text-slate-700 dark:bg-slate-950 dark:text-emerald-300">
-                {m.formula}
-              </pre>
-              <div className="mt-3 flex flex-wrap gap-1.5">
+            <section key={m.id} className="card panel">
+              <p className="section-label">{m.unit}</p>
+              <h2 className="page-h2">{m.name}</h2>
+              <p className="sub">{m.description}</p>
+              <pre className="code-block">{m.formula}</pre>
+              <div className="chip-row" style={{ marginTop: '0.75rem' }}>
                 {m.sourceEntities.map((e) => (
                   <Badge key={e} variant="info">
                     {e}
                   </Badge>
                 ))}
               </div>
-            </Card>
+            </section>
           ))}
         </div>
       )}
 
       {tab === 'tables' && (
-        <div className="space-y-4">
+        <div className="stack">
           {Object.entries(apiTables).map(([name, rows]) => (
-            <Card
-              key={name}
-              title={name}
-              subtitle={`${Array.isArray(rows) ? rows.length : 0} records · JSON serializable`}
-              action={
-                <div className="flex gap-1.5">
+            <section key={name} className="tray panel">
+              <div className="panel-head">
+                <div>
+                  <p className="section-label">Table</p>
+                  <h2 className="page-h2">{name}</h2>
+                  <p className="status-line">
+                    {Array.isArray(rows) ? rows.length : 0} records
+                  </p>
+                </div>
+                <div className="btn-row">
                   <Button
                     size="sm"
-                    variant="outline"
                     icon={<FileJson className="h-3 w-3" />}
                     onClick={() => exportJson(rows, `${name}.json`)}
                   >
@@ -195,7 +194,6 @@ export function DeveloperPanel() {
                   </Button>
                   <Button
                     size="sm"
-                    variant="outline"
                     icon={<Table2 className="h-3 w-3" />}
                     onClick={() =>
                       exportCsv(rows as unknown as Record<string, unknown>[], `${name}.csv`)
@@ -204,25 +202,25 @@ export function DeveloperPanel() {
                     CSV
                   </Button>
                 </div>
-              }
-            >
-              <div className="max-h-56 overflow-auto rounded-lg bg-slate-50 p-3 dark:bg-slate-950 scrollbar-thin">
-                <pre className="font-mono text-[11px] leading-relaxed text-slate-700 dark:text-slate-300">
-                  {JSON.stringify(rows, null, 2).slice(0, 2000)}
-                  {JSON.stringify(rows).length > 2000 ? '\n…' : ''}
-                </pre>
               </div>
-            </Card>
+              <pre className="code-block" style={{ maxHeight: 200, overflow: 'auto' }}>
+                {JSON.stringify(rows, null, 2).slice(0, 1800)}
+                {JSON.stringify(rows).length > 1800 ? '\n…' : ''}
+              </pre>
+            </section>
           ))}
         </div>
       )}
 
       {tab === 'export' && (
-        <Card title="Export current view" subtitle="Download filtered datasets for analysis">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <section className="tray panel">
+          <p className="section-label">Download</p>
+          <h2 className="page-h2">Export current view</h2>
+          <p className="sub">Filtered datasets for analysis.</p>
+          <div className="grid-3">
             {[
               {
-                label: 'Full dashboard snapshot',
+                label: 'Dashboard snapshot',
                 desc: 'Filters, KPIs, capacity, generation',
                 action: () =>
                   exportJson(
@@ -238,7 +236,7 @@ export function DeveloperPanel() {
               },
               {
                 label: 'Capacity CSV',
-                desc: 'Technology × MW capacity table',
+                desc: 'Technology × MW',
                 action: () =>
                   exportCsv(
                     getCapacityByTech(filters) as unknown as Record<string, unknown>[],
@@ -247,7 +245,7 @@ export function DeveloperPanel() {
               },
               {
                 label: 'Generation CSV',
-                desc: 'Energy share by technology',
+                desc: 'Energy share by tech',
                 action: () =>
                   exportCsv(
                     getGenerationBySource(filters) as unknown as Record<string, unknown>[],
@@ -256,33 +254,36 @@ export function DeveloperPanel() {
               },
               {
                 label: 'Plants CSV',
-                desc: 'Plant registry sample',
+                desc: 'Plant registry',
                 action: () => exportCsv(PLANTS as unknown as Record<string, unknown>[], 'plants.csv'),
               },
               {
                 label: 'Scenario JSON',
-                desc: 'Active scenario + outputs',
+                desc: 'Active case + outputs',
                 action: () => exportJson(activeScenario, 'scenario.json'),
               },
               {
                 label: 'Metric catalog',
-                desc: 'Definitions for API consumers',
+                desc: 'Definitions for consumers',
                 action: () => exportJson(METRIC_DEFINITIONS, 'metrics.json'),
               },
             ].map((item) => (
               <button
                 key={item.label}
                 type="button"
+                className="card block"
+                style={{ textAlign: 'left', cursor: 'pointer' }}
                 onClick={item.action}
-                className="flex flex-col items-start rounded-xl border border-slate-200 p-4 text-left transition-all hover:border-sky-400 hover:shadow-md dark:border-slate-700 dark:hover:border-sky-500"
               >
-                <Download className="mb-2 h-5 w-5 text-sky-500" aria-hidden />
-                <p className="font-semibold text-slate-800 dark:text-slate-100">{item.label}</p>
-                <p className="mt-1 text-xs text-slate-500">{item.desc}</p>
+                <Download className="h-4 w-4" style={{ color: 'var(--accent)', marginBottom: 8 }} />
+                <strong style={{ display: 'block', fontSize: '0.9rem' }}>{item.label}</strong>
+                <p className="muted" style={{ margin: '0.3rem 0 0', fontSize: '0.78rem' }}>
+                  {item.desc}
+                </p>
               </button>
             ))}
           </div>
-        </Card>
+        </section>
       )}
     </div>
   )

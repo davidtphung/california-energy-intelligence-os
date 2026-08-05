@@ -13,8 +13,17 @@
     <meta name="author" content="David T Phung" />
     <meta name="application-name" content="California Energy Intelligence OS" />
     <meta name="color-scheme" content="dark light" />
-    <meta name="theme-color" content="#0ea5e9" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#020617" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f4f6f8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('ceios-theme')
+          if (!t) t = window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+          document.documentElement.setAttribute('data-theme', t)
+        } catch (e) {}
+      })()
+    </script>
 
     <!-- Favicons (sky → emerald brand mark) -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />

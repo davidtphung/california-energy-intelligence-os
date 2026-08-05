@@ -25,24 +25,18 @@ const metrics: {
 
 export function ScenarioCompareTable({ scenarios, year, activeId, onSelect }: Props) {
   return (
-    <div className="overflow-x-auto scrollbar-thin">
-      <table className="w-full min-w-[640px] border-collapse text-sm">
+    <div className="table-wrap">
+      <table className="data-table">
         <thead>
-          <tr className="border-b border-slate-200 dark:border-slate-700">
-            <th className="px-3 py-2.5 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-              Metric
-            </th>
+          <tr>
+            <th>Metric</th>
             {scenarios.map((s) => (
-              <th key={s.id} className="px-3 py-2.5 text-right">
+              <th key={s.id} style={{ textAlign: 'right' }}>
                 <button
                   type="button"
                   onClick={() => onSelect(s.id)}
-                  className={cn(
-                    'rounded-lg px-2 py-1 text-xs font-semibold transition-colors',
-                    s.id === activeId
-                      ? 'bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300'
-                      : 'text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800'
-                  )}
+                  className={cn('chip', s.id === activeId && 'active')}
+                  style={{ fontSize: 11 }}
                 >
                   {s.name}
                 </button>
@@ -56,16 +50,14 @@ export function ScenarioCompareTable({ scenarios, year, activeId, onSelect }: Pr
               const out = s.outputs.find((o) => o.year === year)!
               return out[m.key] as number
             })
-            const best =
-              m.better === 'higher' ? Math.max(...values) : Math.min(...values)
+            const best = m.better === 'higher' ? Math.max(...values) : Math.min(...values)
             return (
-              <tr
-                key={m.key}
-                className="border-b border-slate-100 transition-colors hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/40"
-              >
-                <td className="px-3 py-2.5 text-slate-600 dark:text-slate-300">
+              <tr key={m.key}>
+                <td>
                   {m.label}
-                  <span className="ml-1 text-xs text-slate-400">({m.unit})</span>
+                  <span className="muted" style={{ marginLeft: 4, fontSize: 11 }}>
+                    ({m.unit})
+                  </span>
                 </td>
                 {scenarios.map((s, i) => {
                   const v = values[i]
@@ -73,12 +65,11 @@ export function ScenarioCompareTable({ scenarios, year, activeId, onSelect }: Pr
                   return (
                     <td
                       key={s.id}
-                      className={cn(
-                        'px-3 py-2.5 text-right font-mono tabular-nums',
-                        isBest
-                          ? 'font-semibold text-emerald-600 dark:text-emerald-400'
-                          : 'text-slate-800 dark:text-slate-100'
-                      )}
+                      className="num"
+                      style={{
+                        color: isBest ? 'var(--success)' : undefined,
+                        fontWeight: isBest ? 600 : undefined,
+                      }}
                     >
                       {v.toFixed(1)}
                     </td>

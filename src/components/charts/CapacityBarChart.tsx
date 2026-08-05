@@ -24,8 +24,8 @@ export function CapacityBarChart({ data, height = 280 }: Props) {
     name: TECH_LABELS[d.technology],
     gw: Math.round((d.capacityMw / 1000) * 10) / 10,
   }))
-  const tick = theme === 'dark' ? '#94a3b8' : '#64748b'
-  const grid = theme === 'dark' ? '#1e293b' : '#e2e8f0'
+  const tick = theme === 'dark' ? '#ffffff73' : '#5c6b7f'
+  const grid = theme === 'dark' ? '#ffffff14' : '#0b12201f'
 
   return (
     <ResponsiveContainer width="100%" height={height}>
@@ -50,9 +50,9 @@ export function CapacityBarChart({ data, height = 280 }: Props) {
         />
         <Tooltip
           contentStyle={{
-            background: theme === 'dark' ? '#0f172a' : '#fff',
+            background: theme === 'dark' ? '#0a0a0a' : '#fff',
             border: `1px solid ${grid}`,
-            borderRadius: 8,
+            borderRadius: 10,
             fontSize: 12,
           }}
           formatter={(value) => [`${value} GW`, 'Capacity']}

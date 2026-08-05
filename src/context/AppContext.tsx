@@ -70,21 +70,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [drilldown, setDrilldown] = useState<string | null>(null)
 
   useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
     document.documentElement.classList.toggle('dark', theme === 'dark')
     localStorage.setItem('ceios-theme', theme)
-    // Keep browser chrome / mobile address bar aligned with app theme
-    const color = theme === 'dark' ? '#020617' : '#0ea5e9'
+    const color = theme === 'dark' ? '#000000' : '#f4f6f8'
     document
       .querySelectorAll('meta[name="theme-color"]')
       .forEach((el) => el.setAttribute('content', color))
   }, [theme])
-
-  useEffect(() => {
-    if (mode === 'planner') setView('scenarios')
-    else if (mode === 'engineer') setView('data-engineering')
-    else if (mode === 'developer') setView('developer')
-    else setView('overview')
-  }, [mode])
 
   const toggleTheme = useCallback(() => {
     setTheme((t) => (t === 'dark' ? 'light' : 'dark'))

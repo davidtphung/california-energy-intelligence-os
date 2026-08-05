@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import type { ReactNode, CSSProperties } from 'react'
 import { cn } from '../../lib/utils'
 
 interface CardProps {
@@ -6,10 +6,14 @@ interface CardProps {
   className?: string
   title?: string
   subtitle?: string
+  label?: string
   action?: ReactNode
   padding?: boolean
   onClick?: () => void
   interactive?: boolean
+  tray?: boolean
+  solid?: boolean
+  style?: CSSProperties
 }
 
 export function Card({
@@ -17,50 +21,56 @@ export function Card({
   className,
   title,
   subtitle,
+  label,
   action,
-  padding = true,
   onClick,
   interactive,
+  tray,
+  solid,
+  style,
 }: CardProps) {
+  const head =
+    label || title || action ? (
+      <header className="panel-head">
+        <div className="min-w-0">
+          {label && <p className="section-label">{label}</p>}
+          {title && <h2 className="page-h2">{title}</h2>}
+          {subtitle && <p className="status-line">{subtitle}</p>}
+        </div>
+        {action && <div className="btn-row">{action}</div>}
+      </header>
+    ) : null
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        className={cn(
+          tray ? 'tray panel' : solid ? 'card-solid block' : 'card panel',
+          interactive && 'stat-glow',
+          'stat-card',
+          className
+        )}
+        style={{ textAlign: 'left', ...style }}
+        onClick={onClick}
+      >
+        {head}
+        {children}
+      </button>
+    )
+  }
+
   return (
     <section
       className={cn(
-        'rounded-xl border border-slate-200/80 bg-white card-shadow dark:border-slate-800 dark:bg-slate-900/90',
-        interactive &&
-          'cursor-pointer transition-all duration-200 hover:border-sky-400/60 hover:shadow-lg hover:shadow-sky-500/5 dark:hover:border-sky-500/40',
-        onClick && 'cursor-pointer',
+        tray ? 'tray panel' : solid ? 'card-solid block' : 'card panel',
+        interactive && 'stat-glow',
         className
       )}
-      onClick={onClick}
-      onKeyDown={
-        onClick
-          ? (e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault()
-                onClick()
-              }
-            }
-          : undefined
-      }
-      role={onClick ? 'button' : undefined}
-      tabIndex={onClick ? 0 : undefined}
+      style={style}
     >
-      {(title || action) && (
-        <header className="flex items-start justify-between gap-3 border-b border-slate-100 px-4 py-3 dark:border-slate-800 sm:px-5">
-          <div className="min-w-0">
-            {title && (
-              <h3 className="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">
-                {title}
-              </h3>
-            )}
-            {subtitle && (
-              <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{subtitle}</p>
-            )}
-          </div>
-          {action && <div className="shrink-0">{action}</div>}
-        </header>
-      )}
-      <div className={cn(padding && 'p-4 sm:p-5')}>{children}</div>
+      {head}
+      {children}
     </section>
   )
 }

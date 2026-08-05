@@ -118,8 +118,8 @@ export function CAMap({ data }: Props) {
                 x={r.cx}
                 y={r.cy}
                 textAnchor="middle"
-                className="pointer-events-none fill-slate-700 text-[10px] font-semibold dark:fill-slate-200"
-                style={{ fontSize: 10 }}
+                className="pointer-events-none"
+                style={{ fontSize: 10, fontWeight: 600, fill: 'var(--text)' }}
               >
                 {r.label}
               </text>
@@ -128,8 +128,8 @@ export function CAMap({ data }: Props) {
                   x={r.cx}
                   y={r.cy + 12}
                   textAnchor="middle"
-                  className="pointer-events-none fill-slate-500"
-                  style={{ fontSize: 9 }}
+                  className="pointer-events-none"
+                  style={{ fontSize: 9, fill: 'var(--muted)' }}
                 >
                   {datum.capacityGw} GW
                 </text>
@@ -138,16 +138,11 @@ export function CAMap({ data }: Props) {
           )
         })}
       </svg>
-      <div className="mt-2 flex flex-wrap justify-center gap-2 text-[10px] text-slate-500">
+      <div className="chip-row" style={{ marginTop: 8, justifyContent: 'center' }}>
         {data.map((d) => (
           <span
             key={d.region}
-            className={cn(
-              'rounded-full px-2 py-0.5',
-              filters.region === d.region
-                ? 'bg-sky-100 text-sky-700 dark:bg-sky-950 dark:text-sky-300'
-                : 'bg-slate-100 dark:bg-slate-800'
-            )}
+            className={cn('badge', filters.region === d.region && 'badge-info')}
           >
             {d.cleanShare}% clean
           </span>

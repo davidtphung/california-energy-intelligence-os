@@ -1,13 +1,4 @@
-import {
-  Activity,
-  Battery,
-  Leaf,
-  Gauge,
-  Cloud,
-  Zap,
-  ArrowLeftRight,
-} from 'lucide-react'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useApp } from '../../context/AppContext'
 import {
   getCapacityByTech,
@@ -19,20 +10,19 @@ import {
   PLANTS,
   POLICY_TARGETS,
 } from '../../data/mockData'
-import { KPITile } from '../ui/KPITile'
-import { Card } from '../ui/Card'
 import { Badge } from '../ui/Badge'
+import { Select } from '../ui/Select'
+import { Tabs } from '../ui/Tabs'
 import { CapacityBarChart } from '../charts/CapacityBarChart'
 import { GenerationMixChart } from '../charts/GenerationMixChart'
 import { LoadGenerationChart } from '../charts/LoadGenerationChart'
 import { FlowView } from '../charts/FlowView'
 import { CAMap } from '../charts/CAMap'
 import { TECH_LABELS, formatNumber } from '../../lib/utils'
-import { Tabs } from '../ui/Tabs'
-import { useState } from 'react'
+import type { Technology, CARegion } from '../../types'
 
 export function OverviewDashboard() {
-  const { filters, setDrilldown } = useApp()
+  const { filters, setFilters, setDrilldown, drilldown } = useApp()
   const [mixTab, setMixTab] = useState('stacked')
 
   const kpis = useMemo(() => getKPIs(filters), [filters])
@@ -43,146 +33,189 @@ export function OverviewDashboard() {
   const regional = useMemo(() => getRegionalCapacity(filters), [filters])
 
   return (
-    <div className="animate-fade-in space-y-5">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-2xl">
-            System Overview
-          </h2>
-          <p className="mt-1 text-sm text-slate-500">
-            Installed capacity, generation mix, load, storage, and intertie flows — {filters.year}
-            {filters.region !== 'all' ? ` · ${filters.region}` : ' · Statewide'}
-          </p>
+    <div className="animate-in stack">
+      <section className="hero">
+        <p className="section-label">California · Electricity · Systems</p>
+        <h1 className="page-title gradient-text">Read the grid at a glance</h1>
+        <p className="lede">
+          Capacity, generation mix, load, storage, and intertie flows with realistic sample data.
+          Filter by year, tech, or region — click any chart to drill down.
+        </p>
+
+        <div className="stat-row" style={{ marginBottom: '0.25rem' }}>
+          <button type="button" className="card stat-card stat-glow" onClick={() => setDrilldown('kpi:peak-load')}>
+            <span className="section-label">Peak load</span>
+            <span className="stat-value mono">
+              {kpis.peakLoadGw}
+              <span className="stat-unit">GW</span>
+            </span>
+            <span className="stat-delta">+2.1% vs prior year</span>
+          </button>
+          <button type="button" className="card stat-card stat-glow" onClick={() => setDrilldown('kpi:clean-share')}>
+            <span className="section-label">Clean share</span>
+            <span className="stat-value mono">
+              {kpis.cleanEnergySharePct}
+              <span className="stat-unit">%</span>
+            </span>
+            <span className="stat-delta">+3.4% vs prior year</span>
+          </button>
+          <button type="button" className="card stat-card stat-glow" onClick={() => setDrilldown('kpi:reserve-margin')}>
+            <span className="section-label">Reserve margin</span>
+            <span className="stat-value mono">
+              {kpis.reserveMarginPct}
+              <span className="stat-unit">%</span>
+            </span>
+            <span className="stat-delta">−0.8% vs prior year</span>
+          </button>
+          <button type="button" className="card stat-card stat-glow" onClick={() => setDrilldown('kpi:emissions')}>
+            <span className="section-label">Emissions</span>
+            <span className="stat-value mono">
+              {kpis.emissionsMt}
+              <span className="stat-unit">Mt</span>
+            </span>
+            <span className="stat-delta">−4.2% vs prior year</span>
+          </button>
         </div>
-        <Badge variant="info">Mock data · API-ready schema</Badge>
-      </div>
+      </section>
 
-      {/* KPI row */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 xl:grid-cols-4">
-        <KPITile
-          label="Peak Load"
-          value={kpis.peakLoadGw}
-          unit="GW"
-          delta={2.1}
-          deltaLabel="vs prior year"
-          icon={<Activity className="h-4 w-4" />}
-          accent="rose"
-          onClick={() => setDrilldown('kpi:peak-load')}
-        />
-        <KPITile
-          label="Clean Energy Share"
-          value={kpis.cleanEnergySharePct}
-          unit="%"
-          delta={3.4}
-          deltaLabel="vs prior year"
-          icon={<Leaf className="h-4 w-4" />}
-          accent="emerald"
-          onClick={() => setDrilldown('kpi:clean-share')}
-        />
-        <KPITile
-          label="Reserve Margin"
-          value={kpis.reserveMarginPct}
-          unit="%"
-          delta={-0.8}
-          deltaLabel="vs prior year"
-          icon={<Gauge className="h-4 w-4" />}
-          accent="sky"
-          onClick={() => setDrilldown('kpi:reserve-margin')}
-        />
-        <KPITile
-          label="Emissions"
-          value={kpis.emissionsMt}
-          unit="Mt CO₂e"
-          delta={-4.2}
-          deltaLabel="vs prior year"
-          icon={<Cloud className="h-4 w-4" />}
-          accent="violet"
-          onClick={() => setDrilldown('kpi:emissions')}
-        />
-      </div>
+      <section className="tray panel">
+        <div className="panel-head">
+          <div>
+            <p className="section-label">Explorer</p>
+            <h2 className="page-h2">System overview</h2>
+            <p className="status-line">
+              {filters.year}
+              {filters.region !== 'all' ? ` · ${filters.region}` : ' · Statewide'}
+              {drilldown ? ` · ${drilldown}` : ''}
+            </p>
+          </div>
+          <div className="btn-row">
+            <Badge variant="info">Mock data</Badge>
+            {drilldown && (
+              <button type="button" className="btn btn-sm" onClick={() => setDrilldown(null)}>
+                Clear drilldown
+              </button>
+            )}
+          </div>
+        </div>
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <KPITile
-          label="Total Capacity"
-          value={kpis.totalCapacityGw}
-          unit="GW"
-          icon={<Zap className="h-4 w-4" />}
-          accent="amber"
-          onClick={() => setDrilldown('kpi:capacity')}
-        />
-        <KPITile
-          label="Battery Storage"
-          value={kpis.batteryCapacityGw}
-          unit="GW"
-          delta={18}
-          deltaLabel="YoY buildout"
-          icon={<Battery className="h-4 w-4" />}
-          accent="emerald"
-          onClick={() => setDrilldown('kpi:battery')}
-        />
-        <KPITile
-          label="Battery Discharge"
-          value={kpis.batteryDischargeGwh}
-          unit="GWh/day"
-          icon={<Battery className="h-4 w-4" />}
-          accent="sky"
-          onClick={() => setDrilldown('kpi:battery-discharge')}
-        />
-        <KPITile
-          label="Net Imports"
-          value={kpis.netImportsGw}
-          unit="GW avg"
-          icon={<ArrowLeftRight className="h-4 w-4" />}
-          accent="slate"
-          onClick={() => setDrilldown('kpi:imports')}
-        />
-      </div>
+        <div className="filter-bar">
+          <Select
+            label="Year"
+            value={filters.year}
+            onChange={(e) => setFilters({ year: Number(e.target.value) })}
+            options={[2024, 2025, 2026, 2027, 2028, 2029, 2030].map((y) => ({
+              value: y,
+              label: String(y),
+            }))}
+          />
+          <Select
+            label="Month"
+            value={filters.month}
+            onChange={(e) =>
+              setFilters({ month: e.target.value === 'all' ? 'all' : Number(e.target.value) })
+            }
+            options={[
+              { value: 'all', label: 'All' },
+              ...Array.from({ length: 12 }, (_, i) => ({
+                value: i + 1,
+                label: new Date(2000, i).toLocaleString('en', { month: 'short' }),
+              })),
+            ]}
+          />
+          <Select
+            label="Technology"
+            value={filters.technology}
+            onChange={(e) => setFilters({ technology: e.target.value as Technology | 'all' })}
+            options={[
+              { value: 'all', label: 'All tech' },
+              ...Object.entries(TECH_LABELS).map(([k, v]) => ({ value: k, label: v })),
+            ]}
+          />
+          <Select
+            label="Region"
+            value={filters.region}
+            onChange={(e) => setFilters({ region: e.target.value as CARegion | 'all' })}
+            options={[
+              { value: 'all', label: 'Statewide' },
+              'Northern CA',
+              'Bay Area',
+              'Central Valley',
+              'Central Coast',
+              'Southern CA',
+              'Desert / Inland Empire',
+            ].map((r) => (typeof r === 'string' ? { value: r, label: r } : r))}
+          />
+        </div>
 
-      {/* Charts row */}
-      <div className="grid gap-4 xl:grid-cols-2">
-        <Card
-          title="Installed Capacity by Technology"
-          subtitle="Nameplate capacity (GW) — click bar to drill down"
-          interactive
-          className="animate-slide-up"
-        >
-          <CapacityBarChart data={capacity} />
-        </Card>
+        <div className="stat-row" style={{ marginBottom: '1rem' }}>
+          <div className="card-solid block">
+            <p className="section-label">Total capacity</p>
+            <span className="stat-value mono" style={{ fontSize: '1.35rem' }}>
+              {kpis.totalCapacityGw}
+              <span className="stat-unit">GW</span>
+            </span>
+          </div>
+          <div className="card-solid block">
+            <p className="section-label">Battery storage</p>
+            <span className="stat-value mono" style={{ fontSize: '1.35rem' }}>
+              {kpis.batteryCapacityGw}
+              <span className="stat-unit">GW</span>
+            </span>
+          </div>
+          <div className="card-solid block">
+            <p className="section-label">Battery discharge</p>
+            <span className="stat-value mono" style={{ fontSize: '1.35rem' }}>
+              {kpis.batteryDischargeGwh}
+              <span className="stat-unit">GWh/d</span>
+            </span>
+          </div>
+          <div className="card-solid block">
+            <p className="section-label">Net imports</p>
+            <span className="stat-value mono" style={{ fontSize: '1.35rem' }}>
+              {kpis.netImportsGw}
+              <span className="stat-unit">GW</span>
+            </span>
+          </div>
+        </div>
 
-        <Card
-          title="Generation Mix (Sample Day)"
-          subtitle="Hourly stacked generation by source"
-          action={
-            <Tabs
-              tabs={[
-                { id: 'stacked', label: 'Stacked' },
-                { id: 'load', label: 'Load vs Gen' },
-              ]}
-              active={mixTab}
-              onChange={setMixTab}
-            />
-          }
-          className="animate-slide-up"
-        >
-          <GenerationMixChart data={hourly} stacked={mixTab === 'stacked'} />
-        </Card>
-      </div>
+        <div className="grid-2">
+          <div className="card-solid block">
+            <p className="section-label">Capacity by technology</p>
+            <CapacityBarChart data={capacity} height={260} />
+          </div>
+          <div className="card-solid block">
+            <div className="panel-head" style={{ marginBottom: '0.5rem' }}>
+              <p className="section-label" style={{ margin: 0 }}>
+                Generation mix
+              </p>
+              <Tabs
+                tabs={[
+                  { id: 'stacked', label: 'Stacked' },
+                  { id: 'load', label: 'Load vs gen' },
+                ]}
+                active={mixTab}
+                onChange={setMixTab}
+              />
+            </div>
+            <GenerationMixChart data={hourly} stacked={mixTab === 'stacked'} height={260} />
+          </div>
+        </div>
+      </section>
 
-      <div className="grid gap-4 xl:grid-cols-2">
-        <Card
-          title="Load & Generation Profile"
-          subtitle="Net demand shape with solar/wind contribution"
-          className="animate-slide-up"
-        >
-          <LoadGenerationChart data={hourly} />
-        </Card>
+      <div className="grid-2">
+        <section className="tray panel">
+          <p className="section-label">Load shape</p>
+          <h2 className="page-h2">Load & generation</h2>
+          <p className="sub">Sample day profile with solar and wind contribution.</p>
+          <LoadGenerationChart data={hourly} height={260} />
+        </section>
 
-        <Card
-          title="Generation Share"
-          subtitle="Annualized energy by technology"
-          className="animate-slide-up"
-        >
-          <div className="space-y-2.5">
+        <section className="tray panel">
+          <p className="section-label">Energy mix</p>
+          <h2 className="page-h2">Generation share</h2>
+          <p className="sub">Annualized energy by technology.</p>
+          <div className="stack" style={{ gap: '0.55rem' }}>
             {generation
               .slice()
               .sort((a, b) => b.share - a.share)
@@ -190,88 +223,80 @@ export function OverviewDashboard() {
                 <button
                   key={g.technology}
                   type="button"
-                  className="flex w-full items-center gap-3 text-left"
+                  className="share-row"
                   onClick={() => setDrilldown(`gen:${g.technology}`)}
                 >
-                  <span className="w-28 shrink-0 truncate text-xs font-medium text-slate-600 dark:text-slate-300">
+                  <span className="mono muted" style={{ width: '5.5rem', fontSize: '0.72rem' }}>
                     {TECH_LABELS[g.technology]}
                   </span>
-                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
-                    <div
-                      className="h-full rounded-full bg-sky-500 transition-all duration-500"
-                      style={{
-                        width: `${g.share}%`,
-                        backgroundColor:
-                          g.technology === 'solar'
-                            ? '#f59e0b'
-                            : g.technology === 'wind'
-                              ? '#38bdf8'
-                              : g.technology === 'natural_gas'
-                                ? '#94a3b8'
-                                : g.technology === 'hydro'
-                                  ? '#0ea5e9'
-                                  : undefined,
-                      }}
-                    />
+                  <div className="progress-track">
+                    <div className="progress-fill" style={{ width: `${g.share}%` }} />
                   </div>
-                  <span className="w-14 shrink-0 text-right font-mono text-xs text-slate-600 dark:text-slate-300">
+                  <span className="mono" style={{ width: '3rem', textAlign: 'right' }}>
                     {g.share.toFixed(1)}%
                   </span>
-                  <span className="hidden w-20 shrink-0 text-right text-[11px] text-slate-400 sm:block">
+                  <span className="mono muted" style={{ width: '3.5rem', textAlign: 'right' }}>
                     {formatNumber(g.mwh / 1e6, 1)} TWh
                   </span>
                 </button>
               ))}
           </div>
-        </Card>
+        </section>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
-        <Card title="California Regions" subtitle="Click region to filter" className="lg:col-span-1">
+      <div className="grid-3">
+        <section className="tray panel">
+          <p className="section-label">Geography</p>
+          <h2 className="page-h2">Regions</h2>
+          <p className="sub">Click a region to filter.</p>
           <CAMap data={regional} />
-        </Card>
+        </section>
 
-        <Card
-          title="Imports, Exports & Interties"
-          subtitle="Sankey-style flow magnitudes"
-          className="lg:col-span-1"
-        >
+        <section className="tray panel">
+          <p className="section-label">Interties</p>
+          <h2 className="page-h2">Flows</h2>
+          <p className="sub">Imports, exports, internal paths.</p>
           <FlowView flows={flows} />
-        </Card>
+        </section>
 
-        <Card title="Policy Targets" subtitle="Key milestones" className="lg:col-span-1">
-          <ul className="space-y-3">
+        <section className="tray panel">
+          <p className="section-label">Policy</p>
+          <h2 className="page-h2">Targets</h2>
+          <p className="sub">Key milestones.</p>
+          <div className="stack" style={{ gap: '0.65rem' }}>
             {POLICY_TARGETS.map((t) => (
-              <li
-                key={t.id}
-                className="rounded-lg border border-slate-100 p-3 dark:border-slate-800"
-              >
-                <div className="flex items-start justify-between gap-2">
-                  <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{t.name}</p>
+              <div key={t.id} className="card-solid block">
+                <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
+                  <span style={{ fontSize: '0.88rem', fontWeight: 600 }}>{t.name}</span>
                   <Badge variant={t.year <= 2030 ? 'warning' : 'info'}>{t.year}</Badge>
                 </div>
-                <p className="mt-1 font-mono text-lg font-semibold text-sky-600 dark:text-sky-400">
+                <div className="stat-value mono" style={{ fontSize: '1.25rem', marginTop: 6 }}>
                   {t.targetValue}
-                  {t.unit}
+                  <span className="stat-unit">{t.unit}</span>
+                </div>
+                <p className="mono muted" style={{ margin: '4px 0 0' }}>
+                  {t.source}
                 </p>
-                <p className="mt-0.5 text-[11px] text-slate-400">{t.source}</p>
-              </li>
+              </div>
             ))}
-          </ul>
-        </Card>
+          </div>
+        </section>
       </div>
 
-      <Card title="Notable Plants" subtitle="Sample registry entries">
-        <div className="overflow-x-auto scrollbar-thin">
-          <table className="w-full min-w-[700px] text-sm">
+      <section className="tray panel">
+        <p className="section-label">Registry</p>
+        <h2 className="page-h2">Notable plants</h2>
+        <p className="sub">Sample nameplate capacity entries.</p>
+        <div className="table-wrap">
+          <table className="data-table">
             <thead>
-              <tr className="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500 dark:border-slate-700">
-                <th className="px-3 py-2 font-semibold">Plant</th>
-                <th className="px-3 py-2 font-semibold">Tech</th>
-                <th className="px-3 py-2 font-semibold">Region</th>
-                <th className="px-3 py-2 font-semibold text-right">MW</th>
-                <th className="px-3 py-2 font-semibold">Operator</th>
-                <th className="px-3 py-2 font-semibold">Online</th>
+              <tr>
+                <th>Plant</th>
+                <th>Tech</th>
+                <th>Region</th>
+                <th style={{ textAlign: 'right' }}>MW</th>
+                <th>Operator</th>
+                <th>Online</th>
               </tr>
             </thead>
             <tbody>
@@ -280,26 +305,21 @@ export function OverviewDashboard() {
                   (filters.technology === 'all' || p.technology === filters.technology) &&
                   (filters.region === 'all' || p.region === filters.region)
               ).map((p) => (
-                <tr
-                  key={p.id}
-                  className="border-b border-slate-100 transition-colors hover:bg-slate-50 dark:border-slate-800 dark:hover:bg-slate-800/40"
-                >
-                  <td className="px-3 py-2.5 font-medium text-slate-800 dark:text-slate-100">
-                    {p.name}
-                  </td>
-                  <td className="px-3 py-2.5">
+                <tr key={p.id}>
+                  <td style={{ color: 'var(--text)', fontWeight: 500 }}>{p.name}</td>
+                  <td>
                     <Badge>{TECH_LABELS[p.technology]}</Badge>
                   </td>
-                  <td className="px-3 py-2.5 text-slate-600 dark:text-slate-300">{p.region}</td>
-                  <td className="px-3 py-2.5 text-right font-mono tabular-nums">{p.capacityMw}</td>
-                  <td className="px-3 py-2.5 text-slate-600 dark:text-slate-300">{p.operator}</td>
-                  <td className="px-3 py-2.5 text-slate-500">{p.onlineYear}</td>
+                  <td>{p.region}</td>
+                  <td className="num">{p.capacityMw}</td>
+                  <td>{p.operator}</td>
+                  <td className="mono muted">{p.onlineYear}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-      </Card>
+      </section>
     </div>
   )
 }
