@@ -3252,3 +3252,260 @@ html[data-theme="dark"] .gmap-alert.warn {
     width: 100%;
   }
 }
+
+/* ── Map-centric layouts (USA · Assets · shared) ── */
+.mapcentric {
+  max-width: none;
+  width: 100%;
+}
+
+.content:has(.mapcentric),
+.content:has(.gmap) {
+  max-width: min(96rem, 100%);
+}
+
+.mapcentric-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.65rem;
+}
+
+.mapcentric-lede {
+  margin: 0;
+  max-width: 36rem;
+  font-size: 0.88rem;
+  color: var(--ink-2);
+  line-height: 1.45;
+}
+
+.mapcentric-kpis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.mapcentric-kpi {
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  padding: 0.4rem 0.65rem;
+  min-width: 4.5rem;
+}
+
+.mapcentric-kpi span {
+  display: block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--mute);
+}
+
+.mapcentric-kpi strong {
+  display: block;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--highlight);
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+.mapcentric-kpi em {
+  font-style: normal;
+  font-size: 0.7rem;
+  font-weight: 500;
+  color: var(--mute);
+  margin-left: 0.2rem;
+}
+
+.mapcentric-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.65rem;
+  align-items: flex-end;
+  margin-bottom: 0.65rem;
+}
+
+.mapcentric-stage {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.65rem;
+  align-items: stretch;
+  margin-bottom: 0.85rem;
+}
+
+.mapcentric-stage.has-drawer {
+  grid-template-columns: minmax(0, 1fr) minmax(15rem, 18rem);
+}
+
+@media (max-width: 960px) {
+  .mapcentric-stage.has-drawer {
+    grid-template-columns: 1fr;
+  }
+}
+
+.mapcentric-map {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--bg-soft);
+  padding: 0.35rem;
+  min-height: 28rem;
+  overflow: hidden;
+}
+
+.mapcentric-map .usamap,
+.mapcentric-map .pmap {
+  width: 100%;
+}
+
+.mapcentric-drawer {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0.75rem 0.85rem;
+  background: var(--bg);
+  max-height: min(40rem, 78vh);
+  overflow: auto;
+}
+
+.mapcentric-flowbar {
+  display: flex;
+  height: 10px;
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 0.35rem 0 0.5rem;
+  background: var(--fill);
+}
+
+.mapcentric-flowbar > div {
+  min-width: 2px;
+  height: 100%;
+}
+
+.mapcentric-flowlist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 0.78rem;
+  color: var(--ink-2);
+}
+
+.mapcentric-flowlist li {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin: 0.2rem 0;
+  white-space: nowrap;
+}
+
+.mapcentric-flowlist i {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.mapcentric-flowlist .mono {
+  margin-left: auto;
+  color: var(--mute);
+  font-size: 0.72rem;
+}
+
+.mapcentric-flowlist-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.85rem;
+}
+
+.mapcentric-flowlist-inline li {
+  margin: 0;
+}
+
+.mapcentric-flowlist-inline .mono {
+  margin-left: 0.35rem;
+}
+
+.mapcentric-under {
+  padding: 0.5rem 0.35rem 0.25rem;
+  border-top: 1px solid var(--line-soft);
+  margin-top: 0.35rem;
+}
+
+.mapcentric-details {
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 0.55rem 0.85rem;
+  margin-bottom: 0.75rem;
+  background: var(--bg);
+}
+
+.mapcentric-details > summary {
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--highlight);
+  list-style: none;
+}
+
+.mapcentric-details > summary::-webkit-details-marker {
+  display: none;
+}
+
+.mapcentric-details > summary::before {
+  content: '▸ ';
+  color: var(--mute);
+}
+
+.mapcentric-details[open] > summary::before {
+  content: '▾ ';
+}
+
+.mapcentric-details-body {
+  margin-top: 0.75rem;
+}
+
+/* Bigger maps */
+.usamap-large .usamap-svg,
+.pmap-large .pmap-svg,
+.gmap-svg {
+  max-height: none;
+  min-height: min(32rem, 70vh);
+  width: 100%;
+  height: auto;
+}
+
+.usamap-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: min(36rem, 72vh);
+}
+
+.pmap-large .pmap-svg {
+  max-height: min(36rem, 72vh);
+}
+
+.pmap-flow {
+  animation: gmap-dash 1.4s linear infinite;
+}
+
+.gmap-map-wrap {
+  min-height: min(34rem, 72vh);
+}
+
+.gmap-svg {
+  min-height: min(32rem, 68vh);
+}
+
+@media (max-width: 640px) {
+  .mapcentric-map {
+    min-height: 18rem;
+  }
+  .usamap-large .usamap-svg,
+  .pmap-large .pmap-svg,
+  .gmap-svg {
+    min-height: 16rem;
+  }
+}

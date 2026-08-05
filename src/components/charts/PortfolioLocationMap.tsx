@@ -17,6 +17,8 @@ interface Props {
   techFilter: Technology | 'all'
   /** When a single state is filtered, use CA inset map for CA and US proj otherwise */
   stateFilter?: string | 'all'
+  /** Fill parent map-centric stage */
+  large?: boolean
   onSelectAsset: (
     asset: PortfolioAsset & {
       portfolioId: string
@@ -33,13 +35,14 @@ export function PortfolioLocationMap({
   selectedAssetId,
   techFilter,
   stateFilter = 'all',
+  large = true,
   onSelectAsset,
 }: Props) {
   const [hoverId, setHoverId] = useState<string | null>(null)
 
   const caOnly = stateFilter === 'CA'
-  const W = caOnly ? 360 : 720
-  const H = caOnly ? 420 : 460
+  const W = caOnly ? (large ? 520 : 360) : large ? 960 : 720
+  const H = caOnly ? (large ? 560 : 420) : large ? 580 : 460
 
   const assets = useMemo(() => {
     let list = allAssets(portfolios)
@@ -59,8 +62,34 @@ export function PortfolioLocationMap({
   const project = (lon: number, lat: number) =>
     caOnly ? projectCA(lon, lat, W, H) : projectUS(lon, lat, W, H)
 
+  // Flow links: selected portfolio assets → show soft connection network
+  const flowLinks = useMemo(() => {
+    if (selectedPortfolioId === 'all' && !selectedAssetId) return [] as { x1: number; y1: number; x2: number; y2: number; color: string }[]
+    const focus = assets.filter((a) =>
+      selectedAssetId
+        ? a.id === selectedAssetId || a.portfolioId === assets.find((x) => x.id === selectedAssetId)?.portfolioId
+        : a.portfolioId === selectedPortfolioId
+    )
+    if (focus.length < 2) return []
+    const anchor = focus.slice().sort((a, b) => b.capacityMw - a.capacityMw)[0]
+    const ap = project(anchor.longitude, anchor.latitude)
+    return focus
+      .filter((a) => a.id !== anchor.id)
+      .slice(0, 24)
+      .map((a) => {
+        const bp = project(a.longitude, a.latitude)
+        return {
+          x1: ap.x,
+          y1: ap.y,
+          x2: bp.x,
+          y2: bp.y,
+          color: TECH_MAP_COLOR[a.technology],
+        }
+      })
+  }, [assets, selectedPortfolioId, selectedAssetId, caOnly, W, H])
+
   return (
-    <div className="pmap">
+    <div className={`pmap${large ? ' pmap-large' : ''}`}>
       <svg
         viewBox={`0 0 ${W} ${H}`}
         className="pmap-svg"
@@ -140,9 +169,26 @@ export function PortfolioLocationMap({
           </>
         )}
 
+        {/* Data flow lines from selected portfolio hub */}
+        {flowLinks.map((l, i) => (
+          <line
+            key={`flow-${i}`}
+            x1={l.x1}
+            y1={l.y1}
+            x2={l.x2}
+            y2={l.y2}
+            stroke={l.color}
+            strokeWidth={1.4}
+            strokeOpacity={0.45}
+            strokeDasharray="6 5"
+            className="pmap-flow"
+            pointerEvents="none"
+          />
+        ))}
+
         {assets.map((a) => {
           const { x, y } = project(a.longitude, a.latitude)
-          const r = 3 + Math.sqrt(a.capacityMw / maxCap) * (caOnly ? 12 : 14)
+          const r = 3.5 + Math.sqrt(a.capacityMw / maxCap) * (caOnly ? 14 : large ? 16 : 14)
           const active = a.id === selectedAssetId || a.id === hoverId
           const color = TECH_MAP_COLOR[a.technology]
           return (

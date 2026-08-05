@@ -15,11 +15,9 @@ import { Select } from '../ui/Select'
 import { Input } from '../ui/Input'
 import { Button } from '../ui/Button'
 import { Download } from 'lucide-react'
-import { exportCsv, exportJson } from '../../lib/utils'
+import { exportCsv } from '../../lib/utils'
 import { useApp } from '../../context/AppContext'
 import { tradeOf, withTrade, tradeTotals } from '../../data/energyTrade'
-
-type SortKey = 'name' | 'capacityGw' | 'cleanPct' | 'peakGw' | 'generationTwh'
 
 export function StatesCatalogPanel() {
   const { openStateDetail } = useApp()
@@ -27,7 +25,6 @@ export function StatesCatalogPanel() {
   const [region, setRegion] = useState<USRegion | 'all'>('all')
   const [grid, setGrid] = useState<GridOperator | 'all'>('all')
   const [metric, setMetric] = useState<USAMapMetric>('generationTwh')
-  const [sortKey, setSortKey] = useState<SortKey>('capacityGw')
   const [selected, setSelected] = useState<string | null>('CA')
 
   const filtered = useMemo(() => {
@@ -44,12 +41,9 @@ export function StatesCatalogPanel() {
           s.grid.toLowerCase().includes(q)
       )
     }
-    list.sort((a, b) => {
-      if (sortKey === 'name') return a.name.localeCompare(b.name)
-      return (b[sortKey] as number) - (a[sortKey] as number)
-    })
+    list.sort((a, b) => b.capacityGw - a.capacityGw)
     return list
-  }, [query, region, grid, sortKey])
+  }, [query, region, grid])
 
   const focus: USStateEnergy | null =
     filtered.find((s) => s.abbr === selected) ?? filtered[0] ?? null
@@ -63,61 +57,75 @@ export function StatesCatalogPanel() {
   )
   const focusTrade = focus ? tradeOf(focus.abbr) : null
 
-  /** Open full dedicated state page */
+  /** Select on map — data flows into drawer; full page is explicit */
+  const selectState = (abbr: string) => setSelected(abbr)
   const openState = (abbr: string) => {
     setSelected(abbr)
     openStateDetail(abbr)
   }
 
+  const fuelFlow = focus
+    ? [
+        { k: 'Gas', v: focus.gasGw, c: '#94a3b8' },
+        { k: 'Coal', v: focus.coalGw, c: '#44403c' },
+        { k: 'Nuclear', v: focus.nuclearGw, c: '#a78bfa' },
+        { k: 'Hydro', v: focus.hydroGw, c: '#0ea5e9' },
+        { k: 'Wind', v: focus.windGw, c: '#38bdf8' },
+        { k: 'Solar', v: focus.solarGw, c: '#f59e0b' },
+        { k: 'Storage', v: focus.storageGw, c: '#22c55e' },
+      ].filter((x) => x.v > 0.05)
+    : []
+  const fuelSum = fuelFlow.reduce((s, x) => s + x.v, 0) || 1
+
   return (
-    <div id="states" className="fadein t1">
-      <div className="intro">
-        <strong>United States catalog</strong>
-        <p>
-          All 50 states plus Puerto Rico: capacity, peak, clean share, trade, and primary fuel.
-          California is the home workspace; use this map to navigate other jurisdictions.
-        </p>
-      </div>
+    <div id="states" className="mapcentric fadein t1">
+      <header className="mapcentric-head">
+        <div>
+          <p className="kicker">USA · map first</p>
+          <h1 className="page-h2" style={{ marginBottom: 4 }}>
+            National energy map
+          </h1>
+          <p className="mapcentric-lede">
+            Capacity and generation across jurisdictions. Click a bubble — metrics and fuel mix flow
+            from the map into the side panel.
+          </p>
+        </div>
+        <div className="mapcentric-kpis">
+          <div className="mapcentric-kpi">
+            <span>States</span>
+            <strong>{t.count}</strong>
+          </div>
+          <div className="mapcentric-kpi">
+            <span>Capacity</span>
+            <strong>
+              {t.capacityGw.toFixed(0)}
+              <em>GW</em>
+            </strong>
+          </div>
+          <div className="mapcentric-kpi">
+            <span>Generation</span>
+            <strong>
+              {t.generationTwh.toFixed(0)}
+              <em>TWh</em>
+            </strong>
+          </div>
+          <div className="mapcentric-kpi">
+            <span>Clean avg</span>
+            <strong>
+              {t.cleanAvg.toFixed(0)}
+              <em>%</em>
+            </strong>
+          </div>
+        </div>
+      </header>
 
-      <div className="metric-strip">
-        <div className="metric" style={{ cursor: 'default' }}>
-          <span className="metric-label">States shown</span>
-          <span className="metric-value">{t.count}</span>
-          <span className="metric-hint">of 51 (50 + PR)</span>
-        </div>
-        <div className="metric" style={{ cursor: 'default' }}>
-          <span className="metric-label">Capacity</span>
-          <span className="metric-value">
-            {t.capacityGw.toFixed(0)}
-            <span className="metric-unit">GW</span>
-          </span>
-          <span className="metric-hint">filtered sum</span>
-        </div>
-        <div className="metric" style={{ cursor: 'default' }}>
-          <span className="metric-label">Generation</span>
-          <span className="metric-value">
-            {t.generationTwh.toFixed(0)}
-            <span className="metric-unit">TWh</span>
-          </span>
-          <span className="metric-hint">annual sample</span>
-        </div>
-        <div className="metric" style={{ cursor: 'default' }}>
-          <span className="metric-label">Avg clean</span>
-          <span className="metric-value">
-            {t.cleanAvg.toFixed(0)}
-            <span className="metric-unit">%</span>
-          </span>
-          <span className="metric-hint">unweighted mean</span>
-        </div>
-      </div>
-
-      <div className="filters">
+      <div className="mapcentric-filters">
         <Input
           placeholder="Search state, fuel, grid…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           aria-label="Search states"
-          style={{ minWidth: '11rem' }}
+          style={{ minWidth: '10rem' }}
         />
         <Select
           label="Region"
@@ -129,7 +137,7 @@ export function StatesCatalogPanel() {
           ]}
         />
         <Select
-          label="Grid / ISO"
+          label="Grid"
           value={grid}
           onChange={(e) => setGrid(e.target.value as GridOperator | 'all')}
           options={[
@@ -138,33 +146,21 @@ export function StatesCatalogPanel() {
           ]}
         />
         <Select
-          label="Map color"
+          label="Color by"
           value={metric}
           onChange={(e) => setMetric(e.target.value as USAMapMetric)}
           options={[
             { value: 'generationTwh', label: 'Generation TWh' },
-            { value: 'capacityGw', label: 'Total capacity GW' },
-            { value: 'gasGw', label: 'Natural gas GW' },
+            { value: 'capacityGw', label: 'Capacity GW' },
+            { value: 'gasGw', label: 'Gas GW' },
             { value: 'coalGw', label: 'Coal GW' },
             { value: 'nuclearGw', label: 'Nuclear GW' },
             { value: 'hydroGw', label: 'Hydro GW' },
             { value: 'solarGw', label: 'Solar GW' },
             { value: 'windGw', label: 'Wind GW' },
-            { value: 'peakGw', label: 'Peak load GW' },
+            { value: 'peakGw', label: 'Peak GW' },
             { value: 'cleanPct', label: 'Clean %' },
             { value: 'cf', label: 'Capacity factor' },
-          ]}
-        />
-        <Select
-          label="Sort"
-          value={sortKey}
-          onChange={(e) => setSortKey(e.target.value as SortKey)}
-          options={[
-            { value: 'capacityGw', label: 'Capacity' },
-            { value: 'cleanPct', label: 'Clean %' },
-            { value: 'peakGw', label: 'Peak' },
-            { value: 'generationTwh', label: 'Generation' },
-            { value: 'name', label: 'Name' },
           ]}
         />
         <div className="btn-row" style={{ alignSelf: 'flex-end' }}>
@@ -176,24 +172,9 @@ export function StatesCatalogPanel() {
                 tradeRows.map((s) => ({
                   abbr: s.abbr,
                   name: s.name,
-                  region: s.region,
-                  grid: s.grid,
                   capacity_gw: s.capacityGw,
                   generation_twh: s.generationTwh,
-                  peak_gw: s.peakGw,
-                  clean_pct: s.cleanPct,
-                  imports_twh: s.importsTwh,
-                  exports_twh: s.exportsTwh,
                   net_export_twh: s.netExportTwh,
-                  primary: s.primary,
-                  secondary: s.secondary,
-                  nuclear_gw: s.nuclearGw,
-                  solar_gw: s.solarGw,
-                  wind_gw: s.windGw,
-                  gas_gw: s.gasGw,
-                  coal_gw: s.coalGw,
-                  hydro_gw: s.hydroGw,
-                  storage_gw: s.storageGw,
                 })),
                 'us-states-energy-trade.csv'
               )
@@ -201,234 +182,165 @@ export function StatesCatalogPanel() {
           >
             CSV
           </Button>
-          <Button size="sm" onClick={() => exportJson(filtered, 'us-states-energy.json')}>
-            JSON
-          </Button>
         </div>
       </div>
 
-      <div className="grid-2" style={{ alignItems: 'start' }}>
-        <section className="block">
-          <p className="kicker">Map</p>
-          <h2 className="page-h2">Navigate the USA</h2>
-          <p className="sub">
-            Bubble area is capacity (GW). Color is {metric === 'generationTwh' ? 'annual generation' : metric === 'cf' ? 'approx. capacity factor' : metric}. AK, HI, and PR sit in insets.
-          </p>
+      {/* Map stage + data drawer */}
+      <div className={`mapcentric-stage${focus ? ' has-drawer' : ''}`}>
+        <div className="mapcentric-map">
           <USAMap
             states={filtered.length ? filtered : US_STATES}
             selected={selected}
-            onSelect={openState}
+            onSelect={selectState}
             metric={metric}
+            large
           />
-        </section>
+        </div>
 
-        <section className="block">
-          <p className="kicker">Profile</p>
-          {focus ? (
-            <>
-              <h2 className="page-h2">
-                {focus.name}{' '}
-                <span className="mono muted" style={{ fontWeight: 500, fontSize: '0.9rem' }}>
-                  {focus.abbr}
-                </span>
-              </h2>
-              <p className="sub">{focus.note}</p>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 12 }}>
-                <Badge variant="info">{focus.region}</Badge>
-                <Badge>{focus.grid}</Badge>
-                {focus.abbr === 'CA' && <Badge variant="success">Home workspace</Badge>}
-              </div>
-              <Button size="sm" style={{ marginBottom: 12 }} onClick={() => openState(focus.abbr)}>
-                Open full {focus.abbr} page
+        {focus && (
+          <aside className="mapcentric-drawer" aria-label="State data from map">
+            <p className="kicker">From map</p>
+            <h2 className="page-h2" style={{ fontSize: '1.2rem' }}>
+              {focus.name}{' '}
+              <span className="mono muted" style={{ fontSize: '0.85rem', fontWeight: 500 }}>
+                {focus.abbr}
+              </span>
+            </h2>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
+              <Badge variant="info">{focus.region}</Badge>
+              <Badge>{focus.grid}</Badge>
+            </div>
+            <p className="sub" style={{ maxWidth: 'none', fontSize: '0.82rem' }}>
+              {focus.note}
+            </p>
+
+            <p className="kicker" style={{ marginTop: 12 }}>
+              Capacity flow
+            </p>
+            <div className="mapcentric-flowbar" aria-hidden>
+              {fuelFlow.map((f) => (
+                <div
+                  key={f.k}
+                  style={{ width: `${(f.v / fuelSum) * 100}%`, background: f.c }}
+                  title={`${f.k}: ${f.v} GW`}
+                />
+              ))}
+            </div>
+            <ul className="mapcentric-flowlist">
+              {fuelFlow.map((f) => (
+                <li key={f.k}>
+                  <i style={{ background: f.c }} />
+                  {f.k}{' '}
+                  <span className="mono">
+                    {f.v.toFixed(1)} GW · {((f.v / fuelSum) * 100).toFixed(0)}%
+                  </span>
+                </li>
+              ))}
+            </ul>
+
+            <table className="list-table" style={{ marginTop: 10 }}>
+              <tbody>
+                <tr>
+                  <th scope="row">Capacity</th>
+                  <td className="mono" style={{ color: 'var(--highlight)' }}>
+                    {focus.capacityGw} GW
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Peak</th>
+                  <td className="mono">{focus.peakGw} GW</td>
+                </tr>
+                <tr>
+                  <th scope="row">Generation</th>
+                  <td className="mono">{focus.generationTwh} TWh/yr</td>
+                </tr>
+                <tr>
+                  <th scope="row">Clean</th>
+                  <td className="mono">{focus.cleanPct}%</td>
+                </tr>
+                {focusTrade && (
+                  <>
+                    <tr>
+                      <th scope="row">Imports</th>
+                      <td className="mono">{focusTrade.importsTwh} TWh</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Exports</th>
+                      <td className="mono">{focusTrade.exportsTwh} TWh</td>
+                    </tr>
+                  </>
+                )}
+              </tbody>
+            </table>
+            <div className="btn-row" style={{ marginTop: 12 }}>
+              <Button size="sm" onClick={() => openState(focus.abbr)}>
+                Open {focus.abbr} page
               </Button>
-              <table className="list-table">
-                <tbody>
-                  <tr>
-                    <th scope="row">Capacity</th>
-                    <td className="mono" style={{ color: 'var(--highlight)' }}>
-                      {focus.capacityGw} GW
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Peak load</th>
-                    <td className="mono">{focus.peakGw} GW</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Generation</th>
-                    <td className="mono">{focus.generationTwh} TWh/yr</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Clean share</th>
-                    <td className="mono">{focus.cleanPct}%</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Primary / secondary</th>
-                    <td>
-                      {focus.primary} · {focus.secondary}
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Nuclear</th>
-                    <td className="mono">{focus.nuclearGw} GW</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Solar / wind</th>
-                    <td className="mono">
-                      {focus.solarGw} / {focus.windGw} GW
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Gas / coal</th>
-                    <td className="mono">
-                      {focus.gasGw} / {focus.coalGw} GW
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Hydro / storage</th>
-                    <td className="mono">
-                      {focus.hydroGw} / {focus.storageGw} GW
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              {focusTrade && (
-                <>
-                  <p className="kicker" style={{ marginTop: '1rem' }}>
-                    Electricity trade
-                  </p>
-                  <table className="list-table">
-                    <tbody>
-                      <tr>
-                        <th scope="row">Imports</th>
-                        <td className="mono" style={{ color: 'var(--highlight)' }}>
-                          {focusTrade.importsTwh} TWh/yr
-                        </td>
-                      </tr>
-                      <tr>
-                        <th scope="row">Exports</th>
-                        <td className="mono">{focusTrade.exportsTwh} TWh/yr</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">Net export</th>
-                        <td className="mono">
-                          {focusTrade.exportsTwh - focusTrade.importsTwh >= 0 ? '+' : ''}
-                          {focusTrade.exportsTwh - focusTrade.importsTwh} TWh
-                          {focusTrade.exportsTwh - focusTrade.importsTwh >= 0
-                            ? ' (exporter)'
-                            : ' (importer)'}
-                        </td>
-                      </tr>
-                      <tr>
-                        <th scope="row">Import from</th>
-                        <td>{focusTrade.importFrom.join(' · ') || 'none listed'}</td>
-                      </tr>
-                      <tr>
-                        <th scope="row">Export to</th>
-                        <td>{focusTrade.exportTo.join(' · ') || 'none listed'}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                  <p className="sub" style={{ marginTop: 8 }}>
-                    {focusTrade.note}
-                  </p>
-                </>
-              )}
-            </>
-          ) : (
-            <p className="sub">No states match filters.</p>
-          )}
-        </section>
+            </div>
+          </aside>
+        )}
       </div>
 
-      <hr className="rule" />
-
-      <section className="block">
-        <p className="kicker">Trade</p>
-        <h2 className="page-h2">Import and export energy</h2>
-        <p className="sub">
-          Filtered set: {tradeSum.importsTwh} TWh imports · {tradeSum.exportsTwh} TWh exports · net{' '}
-          {tradeSum.netExportTwh >= 0 ? '+' : ''}
-          {tradeSum.netExportTwh} TWh. Click a bar to open that state&apos;s page.
-        </p>
-        <ImportExportChart
-          states={filtered.length ? filtered : US_STATES}
-          selectedAbbr={selected}
-          onSelect={openState}
-        />
-      </section>
-
-      <hr className="rule" />
-
-      <section className="block">
-        <p className="kicker">California focus</p>
-        <h2 className="page-h2">CA import / export detail</h2>
-        <CaliforniaTradeDetail />
-      </section>
-
-      <hr className="rule" />
-
-      <section className="block">
-        <p className="kicker">Catalog</p>
-        <h2 className="page-h2">All states</h2>
-        <p className="sub">
-          Smart list of {filtered.length} jurisdictions (states + PR). Other mainland/territory sample
-          capacity (ex-CA) {totals(other49).capacityGw.toFixed(0)} GW.
-        </p>
-        <div className="table-wrap">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>State</th>
-                <th>Region</th>
-                <th>Grid</th>
-                <th style={{ textAlign: 'right' }}>Cap GW</th>
-                <th style={{ textAlign: 'right' }}>Peak GW</th>
-                <th style={{ textAlign: 'right' }}>TWh</th>
-                <th style={{ textAlign: 'right' }}>Clean %</th>
-                <th style={{ textAlign: 'right' }}>Import</th>
-                <th style={{ textAlign: 'right' }}>Export</th>
-                <th style={{ textAlign: 'right' }}>Net</th>
-                <th>Primary</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tradeRows.map((s) => (
-                <tr
-                  key={s.abbr}
-                  onClick={() => openState(s.abbr)}
-                  style={{
-                    cursor: 'pointer',
-                    background: s.abbr === selected ? 'var(--fill)' : undefined,
-                  }}
-                >
-                  <td style={{ fontWeight: 600, color: 'var(--highlight)' }}>
-                    {s.abbr}{' '}
-                    <span style={{ fontWeight: 500, color: 'var(--ink-2)' }}>{s.name}</span>
-                  </td>
-                  <td className="muted">{s.region}</td>
-                  <td className="muted">{s.grid}</td>
-                  <td className="num">{s.capacityGw}</td>
-                  <td className="num">{s.peakGw}</td>
-                  <td className="num">{s.generationTwh}</td>
-                  <td className="num">{s.cleanPct}</td>
-                  <td className="num">{s.importsTwh}</td>
-                  <td className="num">{s.exportsTwh}</td>
-                  <td className="num">
-                    {s.netExportTwh >= 0 ? '+' : ''}
-                    {s.netExportTwh}
-                  </td>
-                  <td>{s.primary}</td>
+      <details className="mapcentric-details">
+        <summary>Trade chart · full catalog ({filtered.length} states)</summary>
+        <section className="block" style={{ marginTop: '0.75rem' }}>
+          <p className="sub">
+            Imports {tradeSum.importsTwh} TWh · exports {tradeSum.exportsTwh} TWh · net{' '}
+            {tradeSum.netExportTwh >= 0 ? '+' : ''}
+            {tradeSum.netExportTwh} TWh · ex-CA capacity {totals(other49).capacityGw.toFixed(0)} GW
+          </p>
+          <ImportExportChart
+            states={filtered.length ? filtered : US_STATES}
+            selectedAbbr={selected}
+            onSelect={selectState}
+          />
+          {selected === 'CA' && (
+            <div style={{ marginTop: '1rem' }}>
+              <CaliforniaTradeDetail />
+            </div>
+          )}
+          <div className="table-wrap" style={{ marginTop: '1rem', maxHeight: '20rem', overflow: 'auto' }}>
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>State</th>
+                  <th style={{ textAlign: 'right' }}>Cap</th>
+                  <th style={{ textAlign: 'right' }}>TWh</th>
+                  <th style={{ textAlign: 'right' }}>Clean</th>
+                  <th style={{ textAlign: 'right' }}>Net trade</th>
+                  <th>Primary</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+              </thead>
+              <tbody>
+                {tradeRows.map((s) => (
+                  <tr
+                    key={s.abbr}
+                    onClick={() => selectState(s.abbr)}
+                    style={{
+                      cursor: 'pointer',
+                      background: s.abbr === selected ? 'var(--fill)' : undefined,
+                    }}
+                  >
+                    <td style={{ fontWeight: 600, color: 'var(--highlight)' }}>
+                      {s.abbr} {s.name}
+                    </td>
+                    <td className="num">{s.capacityGw}</td>
+                    <td className="num">{s.generationTwh}</td>
+                    <td className="num">{s.cleanPct}%</td>
+                    <td className="num">
+                      {s.netExportTwh >= 0 ? '+' : ''}
+                      {s.netExportTwh}
+                    </td>
+                    <td>{s.primary}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </details>
 
-      <p className="footer-line">
-        USA catalog · EIA-scale sample values for navigation · pair with CA live CAISO feeds for
-        California detail
-      </p>
+      <p className="footer-line">USA · map-centric · data flows from selection · EIA-scale samples</p>
     </div>
   )
 }

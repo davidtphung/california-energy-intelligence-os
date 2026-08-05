@@ -27,7 +27,7 @@ import { Input } from '../ui/Input'
 import { TECH_COLORS, TECH_LABELS, TECH_ORDER } from '../../lib/utils'
 import type { PortfolioKind, Technology } from '../../types'
 import { useApp } from '../../context/AppContext'
-import { exportCsv, exportJson } from '../../lib/utils'
+import { exportCsv } from '../../lib/utils'
 import { Button } from '../ui/Button'
 import { Download } from 'lucide-react'
 
@@ -143,213 +143,91 @@ export function PortfoliosPanel() {
     setSelectedAsset(null)
   }
 
+  const techFlow = byTech.slice(0, 8)
+  const techFlowSum = techFlow.reduce((s, r) => s + r.capacityMw, 0) || 1
+
   return (
-    <div id="portfolios" className="fadein t1">
-      <div className="intro">
-        <strong>Portfolios · every energy source</strong>
-        <p>
-          Energy portfolios and major US plants across all technologies: coal, natural gas, nuclear,
-          hydro, wind, solar, geothermal, biomass, battery storage, and other/oil. California keeps
-          detailed LSEs; every state has a fleet sample; flagship plants map by category. Click a
-          tech chip or state to focus the map.
-        </p>
-      </div>
-
-      <div className="metric-strip">
-        <div className="metric" style={{ cursor: 'default' }}>
-          <span className="metric-label">States</span>
-          <span className="metric-value">{totals.states}</span>
-          <span className="metric-hint">of {PORTFOLIO_STATE_ABBRS.length} with portfolios</span>
+    <div id="portfolios" className="mapcentric fadein t1">
+      <header className="mapcentric-head">
+        <div>
+          <p className="kicker">Assets · map first</p>
+          <h1 className="page-h2" style={{ marginBottom: 4 }}>
+            Portfolio map
+          </h1>
+          <p className="mapcentric-lede">
+            Plants and fleets on the map. Click a site — capacity, tech, and portfolio data flow into
+            the drawer. Lines show selected portfolio connections.
+          </p>
         </div>
-        <div className="metric" style={{ cursor: 'default' }}>
-          <span className="metric-label">Portfolios</span>
-          <span className="metric-value">{totals.portfolios}</span>
-          <span className="metric-hint">in current filter</span>
-        </div>
-        <div className="metric" style={{ cursor: 'default' }}>
-          <span className="metric-label">Major US plants</span>
-          <span className="metric-value">{plantAll.count}</span>
-          <span className="metric-hint">
-            {plantAll.capacityGw.toFixed(0)} GW · {plantAll.techCount} tech · {plantAll.states}{' '}
-            states
-          </span>
-        </div>
-        <div className="metric" style={{ cursor: 'default' }}>
-          <span className="metric-label">Mapped assets</span>
-          <span className="metric-value">{totals.count}</span>
-          <span className="metric-hint">
-            {(totals.capacityMw / 1000).toFixed(0)} GW · {totals.techs} sources in filter
-          </span>
-        </div>
-      </div>
-
-      {/* Every energy source category */}
-      <section className="block" style={{ marginBottom: '0.85rem' }}>
-        <p className="kicker">Energy sources</p>
-        <h2 className="page-h2">Filter by technology</h2>
-        <p className="sub">
-          All categories — not hydro-only. Chip filters map, plant catalog, and asset tables.
-        </p>
-        <div className="state-chip-row" style={{ marginBottom: '0.65rem' }}>
-          <button
-            type="button"
-            className={`state-chip${techFilter === 'all' ? ' is-on' : ''}`}
-            onClick={() => {
-              setTechFilter('all')
-              setSelectedPortfolioId('all')
-              setSelectedAsset(null)
-            }}
-          >
-            All sources
-          </button>
-          {TECH_ORDER.map((t) => {
-            const row = plantTechRows.find((r) => r.technology === t)
-            return (
-              <button
-                key={t}
-                type="button"
-                className={`state-chip${techFilter === t ? ' is-on' : ''}`}
-                onClick={() => {
-                  setTechFilter(t)
-                  setSelectedPortfolioId('all')
-                  setSelectedAsset(null)
-                }}
-                title={
-                  row
-                    ? `${row.count} major plants · ${(row.capacityMw / 1000).toFixed(1)} GW sample`
-                    : TECH_LABELS[t]
-                }
-              >
-                <i
-                  style={{
-                    display: 'inline-block',
-                    width: 8,
-                    height: 8,
-                    borderRadius: 2,
-                    background: TECH_COLORS[t],
-                    marginRight: 6,
-                    verticalAlign: 'middle',
-                  }}
-                />
-                {TECH_LABELS[t]}
-                {row ? ` · ${row.count}` : ''}
-              </button>
-            )
-          })}
-        </div>
-        <div className="btn-row">
-          <Button
-            size="sm"
-            onClick={() => {
-              setTechFilter('all')
-              setQuery('')
-              setKindFilter('all')
-              setSelectedPortfolioId('all')
-              setSelectedAsset(null)
-            }}
-          >
-            Clear tech filter
-          </Button>
-          <Button
-            size="sm"
-            onClick={() => {
-              setTechFilter('nuclear')
-              setQuery('Palo Verde')
-            }}
-          >
-            Find Palo Verde
-          </Button>
-          <Button
-            size="sm"
-            onClick={() => {
-              setTechFilter('hydro')
-              setQuery('Grand Coulee')
-            }}
-          >
-            Find Grand Coulee
-          </Button>
-          <Button
-            size="sm"
-            onClick={() =>
-              exportCsv(
-                US_ENERGY_PLANTS.map((p) => ({
-                  name: p.name,
-                  technology: p.technology,
-                  state: p.stateAbbr,
-                  capacity_mw: p.capacityMw,
-                  output_mw: p.outputMw,
-                  operator: p.operator,
-                  detail: p.detail,
-                  online_year: p.onlineYear,
-                  lat: p.latitude,
-                  lon: p.longitude,
-                })),
-                'us-energy-plants-all-sources.csv'
-              )
-            }
-            icon={<Download className="h-3.5 w-3.5" />}
-          >
-            All plants CSV
-          </Button>
-        </div>
-      </section>
-
-      {/* State picker - every state */}
-      <section className="block">
-        <p className="kicker">States</p>
-        <h2 className="page-h2">Browse by jurisdiction</h2>
-        <p className="sub">
-          Select a state to focus its portfolios on the map and tables. CA shows detailed LSEs;
-          other states show fleet nodes for every major technology (coal, gas, nuclear, hydro, wind,
-          solar, storage).
-        </p>
-        <div className="state-abbr-grid" style={{ marginBottom: '0.65rem' }}>
-          <button
-            type="button"
-            className={`state-abbr-btn${stateFilter === 'all' ? ' is-on' : ''}`}
-            onClick={() => pickState('all')}
-            title="All states"
-          >
-            ALL
-          </button>
-          {PORTFOLIO_STATE_ABBRS.map((abbr) => {
-            const st = US_STATES.find((s) => s.abbr === abbr)
-            const n = PORTFOLIOS.filter((p) => p.stateAbbr === abbr).length
-            return (
-              <button
-                key={abbr}
-                type="button"
-                className={`state-abbr-btn${stateFilter === abbr ? ' is-on' : ''}`}
-                onClick={() => pickState(abbr)}
-                title={`${st?.name ?? abbr} · ${n} portfolio${n === 1 ? '' : 's'}`}
-              >
-                {abbr}
-              </button>
-            )
-          })}
-        </div>
-        {stateFilter !== 'all' && (
-          <div className="btn-row" style={{ marginBottom: '0.5rem' }}>
-            <Badge variant="info">
-              {US_STATES.find((s) => s.abbr === stateFilter)?.name ?? stateFilter}
-            </Badge>
-            <Button size="sm" onClick={() => openStateDetail(stateFilter)}>
-              Open {stateFilter} energy page
-            </Button>
-            <Button size="sm" onClick={() => pickState('all')}>
-              Clear state filter
-            </Button>
+        <div className="mapcentric-kpis">
+          <div className="mapcentric-kpi">
+            <span>Assets</span>
+            <strong>{totals.count}</strong>
           </div>
-        )}
-      </section>
+          <div className="mapcentric-kpi">
+            <span>Capacity</span>
+            <strong>
+              {(totals.capacityMw / 1000).toFixed(0)}
+              <em>GW</em>
+            </strong>
+          </div>
+          <div className="mapcentric-kpi">
+            <span>Sources</span>
+            <strong>{totals.techs}</strong>
+          </div>
+          <div className="mapcentric-kpi">
+            <span>Plants</span>
+            <strong>{plantAll.count}</strong>
+          </div>
+        </div>
+      </header>
 
-      <div className="filters">
+      <div className="state-chip-row" style={{ marginBottom: '0.5rem' }}>
+        <button
+          type="button"
+          className={`state-chip${techFilter === 'all' ? ' is-on' : ''}`}
+          onClick={() => {
+            setTechFilter('all')
+            setSelectedPortfolioId('all')
+            setSelectedAsset(null)
+          }}
+        >
+          All sources
+        </button>
+        {TECH_ORDER.map((t) => (
+          <button
+            key={t}
+            type="button"
+            className={`state-chip${techFilter === t ? ' is-on' : ''}`}
+            onClick={() => {
+              setTechFilter(t)
+              setSelectedPortfolioId('all')
+              setSelectedAsset(null)
+            }}
+          >
+            <i
+              style={{
+                display: 'inline-block',
+                width: 8,
+                height: 8,
+                borderRadius: 2,
+                background: TECH_COLORS[t],
+                marginRight: 6,
+                verticalAlign: 'middle',
+              }}
+            />
+            {TECH_LABELS[t]}
+          </button>
+        ))}
+      </div>
+
+      <div className="mapcentric-filters">
         <Input
-          placeholder="Search portfolio, plant, state, county…"
+          placeholder="Search plant, portfolio, state…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           aria-label="Search portfolios"
-          style={{ minWidth: '12rem' }}
+          style={{ minWidth: '10rem' }}
         />
         <Select
           label="State"
@@ -370,15 +248,6 @@ export function PortfoliosPanel() {
           options={[
             { value: 'all', label: 'All kinds' },
             ...PORTFOLIO_KINDS.map((k) => ({ value: k, label: k })),
-          ]}
-        />
-        <Select
-          label="Technology"
-          value={techFilter}
-          onChange={(e) => setTechFilter(e.target.value as Technology | 'all')}
-          options={[
-            { value: 'all', label: 'All tech' },
-            ...Object.entries(TECH_LABELS).map(([k, v]) => ({ value: k, label: v })),
           ]}
         />
         <Select
@@ -409,229 +278,222 @@ export function PortfoliosPanel() {
                   technology: a.technology,
                   capacity_mw: a.capacityMw,
                   output_mw: a.outputMw,
-                  latitude: a.latitude,
-                  longitude: a.longitude,
-                  region: a.region,
-                  county: a.county,
-                  status: a.status,
                 })),
                 'us-portfolio-assets.csv'
               )
             }
           >
-            Export CSV
-          </Button>
-          <Button
-            size="sm"
-            onClick={() =>
-              exportJson({ portfolios: filteredPortfolios, assets }, 'us-portfolios.json')
-            }
-          >
-            Export JSON
+            CSV
           </Button>
         </div>
       </div>
 
-      <div className="grid-2" style={{ alignItems: 'start' }}>
-        <section className="block">
-          <p className="kicker">Map</p>
-          <h2 className="page-h2">
-            {stateFilter === 'all' ? 'USA location outputs' : `${stateFilter} location outputs`}
-          </h2>
-          <p className="sub">
-            Click a site for capacity, sample output, and coordinates. Size scales with nameplate.
-          </p>
+      <div
+        className={`mapcentric-stage${selectedAsset || selectedPortfolio ? ' has-drawer' : ''}`}
+      >
+        <div className="mapcentric-map">
           <PortfolioLocationMap
             portfolios={filteredPortfolios}
             selectedPortfolioId={selectedPortfolioId}
             selectedAssetId={selectedAsset?.id ?? null}
             techFilter={techFilter}
             stateFilter={stateFilter}
+            large
             onSelectAsset={onSelectAsset}
           />
-        </section>
-
-        <section className="block">
-          <p className="kicker">Selection</p>
-          <h2 className="page-h2">
-            {selectedAsset
-              ? selectedAsset.name
-              : selectedPortfolio
-                ? selectedPortfolio.name
-                : stateFilter !== 'all'
-                  ? `${US_STATES.find((s) => s.abbr === stateFilter)?.name ?? stateFilter} portfolios`
-                  : 'All portfolios'}
-          </h2>
-
-          {selectedAsset ? (
-            <div>
-              <table className="list-table">
-                <tbody>
-                  <tr>
-                    <th scope="row">State</th>
-                    <td>
-                      <button
-                        type="button"
-                        className="linkish"
-                        onClick={() => openStateDetail(selectedAsset.stateAbbr)}
-                      >
-                        {selectedAsset.stateAbbr} · {selectedAsset.stateName}
-                      </button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Portfolio</th>
-                    <td>{selectedAsset.portfolioShort}</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Technology</th>
-                    <td>{TECH_LABELS[selectedAsset.technology]}</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Capacity</th>
-                    <td className="mono" style={{ color: 'var(--highlight)' }}>
-                      {selectedAsset.capacityMw.toLocaleString()} MW
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Sample output</th>
-                    <td className="mono">
-                      {selectedAsset.outputMw.toLocaleString()} MW
-                      {selectedAsset.outputMw < 0 ? ' (charging / load)' : ''}
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Location</th>
-                    <td>
-                      {selectedAsset.latitude.toFixed(4)}°N,{' '}
-                      {Math.abs(selectedAsset.longitude).toFixed(4)}°W
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Region / county</th>
-                    <td>
-                      {selectedAsset.region} · {selectedAsset.county}
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Status</th>
-                    <td>
-                      <Badge>{selectedAsset.status}</Badge>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              <Button
-                size="sm"
-                className="btn-ghost"
-                style={{ marginTop: 8 }}
-                onClick={() => setSelectedAsset(null)}
-              >
-                Clear site
-              </Button>
+          {/* Capacity stack under map — visual data flow by tech */}
+          {techFlow.length > 0 && (
+            <div className="mapcentric-under">
+              <p className="kicker">Capacity on map</p>
+              <div className="mapcentric-flowbar" aria-hidden>
+                {techFlow.map((r) => (
+                  <div
+                    key={r.technology}
+                    style={{
+                      width: `${(r.capacityMw / techFlowSum) * 100}%`,
+                      background: TECH_COLORS[r.technology],
+                    }}
+                    title={`${TECH_LABELS[r.technology]}: ${(r.capacityMw / 1000).toFixed(1)} GW`}
+                  />
+                ))}
+              </div>
+              <ul className="mapcentric-flowlist mapcentric-flowlist-inline">
+                {techFlow.map((r) => (
+                  <li key={r.technology}>
+                    <button
+                      type="button"
+                      className="linkish"
+                      onClick={() => setTechFilter(r.technology)}
+                    >
+                      <i style={{ background: TECH_COLORS[r.technology] }} />
+                      {TECH_LABELS[r.technology]}{' '}
+                      <span className="mono">{(r.capacityMw / 1000).toFixed(1)} GW</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
             </div>
-          ) : selectedPortfolio ? (
-            <div>
-              <p className="sub">{selectedPortfolio.notes}</p>
-              <table className="list-table">
-                <tbody>
-                  <tr>
-                    <th scope="row">State</th>
-                    <td>
-                      <button
-                        type="button"
-                        className="linkish"
-                        onClick={() => openStateDetail(selectedPortfolio.stateAbbr)}
-                      >
-                        {selectedPortfolio.stateAbbr} · {selectedPortfolio.stateName}
-                      </button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Kind</th>
-                    <td>
-                      <Badge>{selectedPortfolio.kind}</Badge> · {selectedPortfolio.sector}
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">HQ</th>
-                    <td>{selectedPortfolio.hq}</td>
-                  </tr>
-                  {selectedPortfolio.customers && (
-                    <tr>
-                      <th scope="row">Customers</th>
-                      <td>{selectedPortfolio.customers}</td>
-                    </tr>
-                  )}
-                  {selectedPortfolio.loadSharePct != null && (
-                    <tr>
-                      <th scope="row">~Load share</th>
-                      <td className="mono">{selectedPortfolio.loadSharePct}%</td>
-                    </tr>
-                  )}
-                  {selectedPortfolio.cleanTarget && (
-                    <tr>
-                      <th scope="row">Clean target</th>
-                      <td>{selectedPortfolio.cleanTarget}</td>
-                    </tr>
-                  )}
-                  <tr>
-                    <th scope="row">Mapped capacity</th>
-                    <td className="mono" style={{ color: 'var(--highlight)' }}>
-                      {(portfolioTotals(selectedPortfolio).capacityMw / 1000).toFixed(2)} GW
-                    </td>
-                  </tr>
-                  <tr>
-                    <th scope="row">Sample output</th>
-                    <td className="mono">
-                      {(portfolioTotals(selectedPortfolio).outputMw / 1000).toFixed(2)} GW gen
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-              {selectedPortfolio.website && (
-                <p style={{ marginTop: 8 }}>
-                  <a href={selectedPortfolio.website} target="_blank" rel="noopener noreferrer">
-                    Open portfolio site
-                  </a>
-                </p>
-              )}
-            </div>
-          ) : (
-            <p className="sub">
-              Select a state above, pick a portfolio from the catalog, or click a map site. CA has
-              detailed LSEs; every other state has a tech fleet sample.
-            </p>
           )}
+        </div>
 
-          <p className="kicker" style={{ marginTop: '1.25rem' }}>
-            {stateFilter === 'all' ? 'Region rollup' : 'Within selection'}
-          </p>
-          <table className="list-table">
-            <tbody>
-              {regions.slice(0, 12).map((r) => (
-                <tr key={r.region}>
-                  <th scope="row">{r.region}</th>
-                  <td className="mono">
-                    {(r.capacityMw / 1000).toFixed(1)} GW cap · {(r.outputMw / 1000).toFixed(1)} GW
-                    out · {r.count} sites ·{' '}
-                    {r.capacityMw ? Math.round((r.cleanMw / r.capacityMw) * 100) : 0}% clean cap
-                  </td>
-                </tr>
-              ))}
-              {regions.length === 0 && (
-                <tr>
-                  <td colSpan={2} className="muted">
-                    No assets in filter.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </section>
+        {(selectedAsset || selectedPortfolio || stateFilter !== 'all') && (
+          <aside className="mapcentric-drawer" aria-label="Asset data from map">
+            <p className="kicker">From map</p>
+            <h2 className="page-h2" style={{ fontSize: '1.15rem' }}>
+              {selectedAsset
+                ? selectedAsset.name
+                : selectedPortfolio
+                  ? selectedPortfolio.name
+                  : `${US_STATES.find((s) => s.abbr === stateFilter)?.name ?? stateFilter}`}
+            </h2>
+
+            {selectedAsset ? (
+              <>
+                <table className="list-table">
+                  <tbody>
+                    <tr>
+                      <th scope="row">State</th>
+                      <td>
+                        <button
+                          type="button"
+                          className="linkish"
+                          onClick={() => openStateDetail(selectedAsset.stateAbbr)}
+                        >
+                          {selectedAsset.stateAbbr}
+                        </button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Portfolio</th>
+                      <td>{selectedAsset.portfolioShort}</td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Tech</th>
+                      <td>
+                        <i
+                          style={{
+                            display: 'inline-block',
+                            width: 8,
+                            height: 8,
+                            borderRadius: 2,
+                            background: TECH_COLORS[selectedAsset.technology],
+                            marginRight: 6,
+                          }}
+                        />
+                        {TECH_LABELS[selectedAsset.technology]}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Capacity</th>
+                      <td className="mono" style={{ color: 'var(--highlight)' }}>
+                        {selectedAsset.capacityMw.toLocaleString()} MW
+                      </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Output</th>
+                      <td className="mono">
+                        {selectedAsset.outputMw.toLocaleString()} MW
+                        {selectedAsset.outputMw < 0 ? ' charge' : ''}
+                      </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Coords</th>
+                      <td className="mono">
+                        {selectedAsset.latitude.toFixed(3)}°,{' '}
+                        {Math.abs(selectedAsset.longitude).toFixed(3)}°W
+                      </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Status</th>
+                      <td>
+                        <Badge>{selectedAsset.status}</Badge>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+                <Button size="sm" style={{ marginTop: 8 }} onClick={() => setSelectedAsset(null)}>
+                  Clear site
+                </Button>
+              </>
+            ) : selectedPortfolio ? (
+              <>
+                <p className="sub" style={{ maxWidth: 'none', fontSize: '0.82rem' }}>
+                  {selectedPortfolio.notes}
+                </p>
+                <table className="list-table">
+                  <tbody>
+                    <tr>
+                      <th scope="row">State</th>
+                      <td>
+                        <button
+                          type="button"
+                          className="linkish"
+                          onClick={() => openStateDetail(selectedPortfolio.stateAbbr)}
+                        >
+                          {selectedPortfolio.stateAbbr}
+                        </button>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Kind</th>
+                      <td>
+                        <Badge>{selectedPortfolio.kind}</Badge>
+                      </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Capacity</th>
+                      <td className="mono" style={{ color: 'var(--highlight)' }}>
+                        {(portfolioTotals(selectedPortfolio).capacityMw / 1000).toFixed(2)} GW
+                      </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Output</th>
+                      <td className="mono">
+                        {(portfolioTotals(selectedPortfolio).outputMw / 1000).toFixed(2)} GW
+                      </td>
+                    </tr>
+                    <tr>
+                      <th scope="row">Sites</th>
+                      <td className="mono">{selectedPortfolio.assets.length}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </>
+            ) : (
+              <p className="sub" style={{ maxWidth: 'none' }}>
+                Click a map marker to stream site data here. Filter state or tech above to focus.
+              </p>
+            )}
+
+            {regions.length > 0 && (
+              <>
+                <p className="kicker" style={{ marginTop: 14 }}>
+                  Region rollup
+                </p>
+                <table className="list-table">
+                  <tbody>
+                    {regions.slice(0, 8).map((r) => (
+                      <tr key={r.region}>
+                        <th scope="row">{r.region}</th>
+                        <td className="mono" style={{ fontSize: '0.75rem' }}>
+                          {(r.capacityMw / 1000).toFixed(1)} GW · {r.count}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </>
+            )}
+          </aside>
+        )}
       </div>
 
-      <hr className="rule" />
+      <details className="mapcentric-details">
+        <summary>
+          Plants · portfolios · tables ({filteredPlants.length} plants · {filteredPortfolios.length}{' '}
+          portfolios)
+        </summary>
+      <div className="mapcentric-details-body">
 
       {/* Capacity by technology in current filter */}
       <section className="block">
@@ -1051,10 +913,11 @@ export function PortfoliosPanel() {
         )}
       </section>
 
+      </div>
+      </details>
+
       <p className="footer-line">
-        Portfolios · all energy sources · {plantAll.count} major plants ({plantAll.capacityGw.toFixed(0)}{' '}
-        GW) · coal · gas · nuclear · hydro · wind · solar · geo · biomass · battery · other · CA
-        LSEs · EIA-860-scale samples
+        Assets · map-centric · data flows from selection · {plantAll.count} plants · EIA-860 samples
       </p>
     </div>
   )

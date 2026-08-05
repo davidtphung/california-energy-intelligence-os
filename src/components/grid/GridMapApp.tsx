@@ -43,8 +43,8 @@ import {
 import { exportCsv } from '../../lib/utils'
 import { useApp } from '../../context/AppContext'
 
-const W = 960
-const H = 560
+const W = 1100
+const H = 640
 
 const METRIC_OPTIONS = Object.entries(METRIC_META).map(([k, v]) => ({
   value: k as MetricKey,

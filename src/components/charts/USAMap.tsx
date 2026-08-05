@@ -23,6 +23,8 @@ interface Props {
   metric?: USAMapMetric
   /** When true, size encodes capacity and color encodes the metric */
   dualEncode?: boolean
+  /** Larger canvas for map-centric layouts */
+  large?: boolean
 }
 
 /** Approximate fleet capacity factor from annual gen and nameplate */
@@ -48,9 +50,9 @@ function norm(value: number, min: number, max: number, curve: 'linear' | 'sqrt' 
  * Bubble radius from capacity (area ∝ capacity is the realistic encoding).
  * Uses sqrt so TX (~165 GW) vs VT (~1 GW) stay readable without swallowing the map.
  */
-function radiusFromCapacity(capacityGw: number, maxCap: number): number {
-  const R_MIN = 5.5
-  const R_MAX = 28
+function radiusFromCapacity(capacityGw: number, maxCap: number, large = false): number {
+  const R_MIN = large ? 6.5 : 5.5
+  const R_MAX = large ? 34 : 28
   // Area scale: r = rMin + (rMax-rMin) * sqrt(cap / max)
   const t = Math.sqrt(clamp(capacityGw / Math.max(maxCap, 1), 0, 1))
   return R_MIN + t * (R_MAX - R_MIN)
@@ -138,12 +140,13 @@ export function USAMap({
   onSelect,
   metric = 'generationTwh',
   dualEncode = true,
+  large = true,
 }: Props) {
   const { theme } = useApp()
   const [hover, setHover] = useState<string | null>(null)
   const uid = useId().replace(/:/g, '')
-  const W = 760
-  const H = 500
+  const W = large ? 960 : 760
+  const H = large ? 580 : 500
   const isDark = theme === 'dark'
 
   const maxCap = useMemo(
@@ -180,11 +183,11 @@ export function USAMap({
 
   const radiusFor = (s: USStateEnergy) => {
     if (dualEncode || sizeKey === 'capacityGw') {
-      return radiusFromCapacity(s.capacityGw, maxCap)
+      return radiusFromCapacity(s.capacityGw, maxCap, large)
     }
     // Area ∝ metric for non-capacity size modes
     const t = Math.sqrt(norm(metricValue(s, sizeKey), minS, maxS, 'linear'))
-    return 5.5 + t * 22.5
+    return (large ? 6.5 : 5.5) + t * (large ? 28 : 22.5)
   }
 
   // Reference bubbles for legend (capacity GW)
@@ -201,7 +204,7 @@ export function USAMap({
   )
 
   return (
-    <div className="usamap">
+    <div className={`usamap${large ? ' usamap-large' : ''}`}>
       <svg
         viewBox={`0 0 ${W} ${H}`}
         className="usamap-svg"
