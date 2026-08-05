@@ -201,7 +201,7 @@ export function DeveloperPanel() {
                         generation: getGenerationBySource(filters),
                         scenario: activeScenario,
                       },
-                      'ceios-snapshot.json'
+                      'eis-snapshot.json'
                     ),
                 },
                 {

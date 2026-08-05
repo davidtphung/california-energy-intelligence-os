@@ -50,7 +50,7 @@ export function Header() {
         generation: getGenerationBySource(filters),
         hourly: getHourlySeries(filters),
       },
-      `ceios-export-${filters.year}.json`
+      `eis-export-${filters.year}.json`
     )
   }
 
@@ -69,7 +69,7 @@ export function Header() {
             </button>
             <div>
               <h1 className="text-base font-bold tracking-tight text-slate-900 dark:text-white sm:text-lg">
-                California Energy Intelligence OS
+                Energy Intelligence System
               </h1>
               <p className="hidden text-xs text-slate-500 sm:block">
                 Research · Planning · Data Engineering · API-ready

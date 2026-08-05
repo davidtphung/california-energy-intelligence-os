@@ -1,7 +1,7 @@
 {
-  "name": "California Energy Intelligence OS",
-  "short_name": "CEI OS",
-  "description": "Research, planning, and developer dashboard for California electricity systems.",
+  "name": "Energy Intelligence System",
+  "short_name": "EIS",
+  "description": "EIS · Energy Intelligence System - live grid, portfolios, scenarios, and multi-state energy research.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#000000",

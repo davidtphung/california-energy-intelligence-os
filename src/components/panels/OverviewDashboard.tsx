@@ -40,7 +40,7 @@ export function OverviewDashboard() {
   return (
     <div>
       <div className="intro fadein t1">
-        <strong>California Energy Intelligence OS</strong>
+        <strong>Energy Intelligence System</strong>
         <p>
           Live CAISO grid telemetry for today, plus research and scenario tools for California
           electricity systems.

@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="California Energy Intelligence OS">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="Energy Intelligence System">
   <defs>
     <linearGradient id="page" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
       <stop stop-color="#020617"/>
@@ -39,7 +39,7 @@
 
   <!-- Title -->
   <text x="214" y="210" fill="#f8fafc" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="48" font-weight="700" letter-spacing="-0.02em">
-    California Energy Intelligence OS
+    EIS · Energy Intelligence System
   </text>
   <text x="214" y="252" fill="#94a3b8" font-family="Inter, ui-sans-serif, system-ui, sans-serif" font-size="24" font-weight="500">
     Research · Planning · Data Engineering · API-ready

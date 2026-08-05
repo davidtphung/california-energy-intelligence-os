@@ -1,6 +1,6 @@
-# California Energy Intelligence OS
+# EIS · Energy Intelligence System
 
-A modern interactive web app for **California electricity research, planning, and developer workflows**. Built as a 1000×-quality dashboard with realistic sample data and an API-ready data model.
+A modern interactive web app for **energy research, planning, and developer workflows** (California live grid plus US state catalog). Realistic sample data and an API-ready data model.
 
 ## Features
 

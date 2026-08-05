@@ -1,4 +1,4 @@
-/** Core domain types for California Energy Intelligence OS */
+/** Core domain types for Energy Intelligence System (EIS) */
 
 export type Technology =
   | 'solar'

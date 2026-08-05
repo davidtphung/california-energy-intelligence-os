@@ -77,7 +77,7 @@ export function Sidebar() {
           </div>
           <div className="min-w-0">
             <p className="truncate text-sm font-bold tracking-tight text-slate-900 dark:text-white">
-              Energy Intelligence OS
+              Energy Intelligence System
             </p>
             <p className="truncate text-[11px] text-slate-500">California · {mode} mode</p>
           </div>
@@ -126,7 +126,7 @@ export function Sidebar() {
           <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3 dark:border-slate-800">
             <div className="flex items-center gap-2">
               <Zap className="h-5 w-5 text-sky-500" aria-hidden />
-              <span className="text-sm font-bold">CEI OS</span>
+              <span className="text-sm font-bold">EIS</span>
             </div>
             <button
               type="button"

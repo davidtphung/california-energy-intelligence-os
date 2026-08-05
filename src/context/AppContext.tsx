@@ -57,9 +57,10 @@ const defaultFilters: Filters = {
 export function AppProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<'light' | 'dark'>(() => {
     if (typeof window === 'undefined') return 'light'
-    const stored = localStorage.getItem('ceios-theme') as 'light' | 'dark' | null
+    const stored =
+      (localStorage.getItem('eis-theme') as 'light' | 'dark' | null) ||
+      (localStorage.getItem('ceios-theme') as 'light' | 'dark' | null)
     if (stored) return stored
-    // Paper-first default (jacob.energy lineage)
     return 'light'
   })
   const [mode, setMode] = useState<AppMode>('analyst')
@@ -73,7 +74,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
     document.documentElement.classList.toggle('dark', theme === 'dark')
-    localStorage.setItem('ceios-theme', theme)
+    localStorage.setItem('eis-theme', theme)
     const color = theme === 'dark' ? '#000000' : '#ffffff'
     document
       .querySelectorAll('meta[name="theme-color"]')

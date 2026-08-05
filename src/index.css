@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* CEI OS - jacob.energy-inspired: paper, ink, quiet motion */
+/* EIS · Energy Intelligence System - paper, ink, quiet motion */
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 

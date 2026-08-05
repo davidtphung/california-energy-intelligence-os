@@ -64,7 +64,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         generation: getGenerationBySource(filters),
         hourly: getHourlySeries(filters),
       },
-      `ceios-export-${filters.year}.json`
+      `eis-export-${filters.year}.json`
     )
   }
 
@@ -76,8 +76,8 @@ export function AppShell({ children }: { children: ReactNode }) {
 
       <nav className="rail" aria-label="Primary">
         <button type="button" className="brand" onClick={() => go('overview', 'overview')}>
-          <span className="brand-mark">CEI</span>
-          <span className="brand-dot">OS</span>
+          <span className="brand-mark">EIS</span>
+          <span className="brand-dot">Energy Intelligence System</span>
         </button>
 
         <ul className="menu-items">
