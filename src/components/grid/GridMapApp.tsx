@@ -8,7 +8,6 @@ import {
   Download,
   Pause,
   Play,
-  Radio,
   Search,
   X,
   Layers,
@@ -43,6 +42,7 @@ import {
 import { exportCsv } from '../../lib/utils'
 import { useApp } from '../../context/AppContext'
 import { FutureBalanceMap } from './FutureBalanceMap'
+import { ConstructionProjectsMap } from './ConstructionProjectsMap'
 
 const W = 1100
 const H = 640
@@ -52,11 +52,45 @@ const METRIC_OPTIONS = Object.entries(METRIC_META).map(([k, v]) => ({
   label: v.label,
 }))
 
-type MapLens = 'live' | 'future'
+type MapLens = 'live' | 'future' | 'build'
+
+function MapLensBar({
+  lens,
+  setLens,
+}: {
+  lens: MapLens
+  setLens: (l: MapLens) => void
+}) {
+  return (
+    <div className="gmap-mode" style={{ marginBottom: lens === 'live' ? 0 : '0.5rem' }}>
+      <button
+        type="button"
+        className={lens === 'build' ? 'is-on' : ''}
+        onClick={() => setLens('build')}
+      >
+        Construction
+      </button>
+      <button
+        type="button"
+        className={lens === 'future' ? 'is-on' : ''}
+        onClick={() => setLens('future')}
+      >
+        Future balance
+      </button>
+      <button
+        type="button"
+        className={lens === 'live' ? 'is-on' : ''}
+        onClick={() => setLens('live')}
+      >
+        Live grid
+      </button>
+    </div>
+  )
+}
 
 export function GridMapApp() {
   const { theme, openStateDetail } = useApp()
-  const [lens, setLens] = useState<MapLens>('future')
+  const [lens, setLens] = useState<MapLens>('build')
   const [filters, setFilters] = useState<GridFilters>(DEFAULT_FILTERS)
   const [layers, setLayers] = useState<Record<LayerId, boolean>>(() =>
     Object.fromEntries(LAYER_META.map((l) => [l.id, l.defaultOn])) as Record<LayerId, boolean>
@@ -170,20 +204,19 @@ export function GridMapApp() {
     return all.slice(0, 6)
   }, [kpis, filters.role])
 
+  if (lens === 'build') {
+    return (
+      <div className="gmap fadein t1" id="grid-map">
+        <MapLensBar lens={lens} setLens={setLens} />
+        <ConstructionProjectsMap />
+      </div>
+    )
+  }
+
   if (lens === 'future') {
     return (
       <div className="gmap fadein t1" id="grid-map">
-        <div className="gmap-head" style={{ marginBottom: '0.5rem' }}>
-          <div className="gmap-mode">
-            <button type="button" className="is-on" onClick={() => setLens('future')}>
-              Future balance
-            </button>
-            <button type="button" onClick={() => setLens('live')}>
-              <Radio className="h-3 w-3" />
-              Live grid
-            </button>
-          </div>
-        </div>
+        <MapLensBar lens={lens} setLens={setLens} />
         <FutureBalanceMap />
       </div>
     )
@@ -201,15 +234,7 @@ export function GridMapApp() {
           <p className="gmap-summary">{frame.summary}</p>
         </div>
         <div className="gmap-head-actions">
-          <div className="gmap-mode">
-            <button type="button" onClick={() => setLens('future')}>
-              Future balance
-            </button>
-            <button type="button" className="is-on" onClick={() => setLens('live')}>
-              <Radio className="h-3 w-3" />
-              Live grid
-            </button>
-          </div>
+          <MapLensBar lens={lens} setLens={setLens} />
           <div className="gmap-mode">
             {(['live', 'historical', 'forecast'] as GridMode[]).map((m) => (
               <button
