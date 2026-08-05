@@ -14,7 +14,7 @@ const NAV: { id: AppView; label: string; hash: string }[] = [
   { id: 'overview', label: 'Overview', hash: 'overview' },
   { id: 'portfolios', label: 'Portfolios', hash: 'portfolios' },
   { id: 'states', label: 'USA', hash: 'states' },
-  { id: 'gas', label: 'Gas', hash: 'gas' },
+  { id: 'fossil', label: 'Fossil', hash: 'fossil' },
   { id: 'policy', label: 'Policy', hash: 'policy' },
   { id: 'consistency', label: 'Consistency', hash: 'consistency' },
   { id: 'scenarios', label: 'Scenario', hash: 'scenario' },
@@ -56,6 +56,11 @@ export function AppShell({ children }: { children: ReactNode }) {
           return
         }
       }
+      // Legacy gas hash → full fossil/hydrocarbon tracker
+      if (raw === 'gas') {
+        setView('fossil')
+        return
+      }
       const match = NAV.find((n) => n.hash === raw)
       if (match) setView(match.id)
     }
@@ -96,13 +101,17 @@ export function AppShell({ children }: { children: ReactNode }) {
               <button
                 type="button"
                 className={
-                  view === item.id || (view === 'state-detail' && item.id === 'states')
+                  view === item.id ||
+                  (view === 'state-detail' && item.id === 'states') ||
+                  (view === 'gas' && item.id === 'fossil')
                     ? 'active'
                     : undefined
                 }
                 onClick={() => go(item.id, item.hash)}
                 aria-current={
-                  view === item.id || (view === 'state-detail' && item.id === 'states')
+                  view === item.id ||
+                  (view === 'state-detail' && item.id === 'states') ||
+                  (view === 'gas' && item.id === 'fossil')
                     ? 'page'
                     : undefined
                 }

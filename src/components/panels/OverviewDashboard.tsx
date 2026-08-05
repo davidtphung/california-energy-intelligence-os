@@ -11,6 +11,7 @@ import {
 } from '../../data/usStates'
 import { tradeTotals, withTrade } from '../../data/energyTrade'
 import { gasTotals, GAS_REF_YEAR } from '../../data/naturalGas'
+import { fossilSummaryTable } from '../../data/fossilFuels'
 import { useApp } from '../../context/AppContext'
 import { USAMap, type USAMapMetric } from '../charts/USAMap'
 import { ImportExportChart } from '../charts/ImportExportChart'
@@ -28,6 +29,7 @@ export function OverviewDashboard() {
   const us = useMemo(() => totals(US_STATES), [])
   const tradeSum = useMemo(() => tradeTotals(US_STATES.map((s) => s.abbr)), [])
   const gas = useMemo(() => gasTotals(GAS_REF_YEAR), [])
+  const fossil = useMemo(() => fossilSummaryTable(), [])
 
   const mapStates = useMemo(() => {
     if (regionFocus === 'all') return US_STATES
@@ -211,61 +213,53 @@ export function OverviewDashboard() {
 
       <hr className="rule" />
 
-      {/* Natural gas production & export snapshot */}
+      {/* Hydrocarbons & fossil fuels · full history tracker */}
       <section className="block fadein t3">
         <div className="block-head">
           <div>
-            <p className="kicker">Natural gas · {gas.year}</p>
-            <h2 className="page-h2">Production and exports</h2>
+            <p className="kicker">Hydrocarbons · fossil fuels</p>
+            <h2 className="page-h2">Production, capacity, and exports</h2>
             <p className="sub" style={{ marginBottom: 0 }}>
-              Dry production {gas.productionBcfd.toFixed(1)} Bcf/d · LNG exports{' '}
-              {gas.lngExportBcfd.toFixed(1)} · pipeline exports {gas.pipelineExportBcfd.toFixed(1)} ·
-              net exports {gas.netExportsBcfd.toFixed(1)} Bcf/d.
+              Crude oil (1859–), natural gas (1900–), coal (1800–), petroleum products (1920–). Gas
+              dry production {gas.productionBcfd.toFixed(1)} Bcf/d · net gas exports{' '}
+              {gas.netExportsBcfd.toFixed(1)} Bcf/d ({gas.year}).
             </p>
           </div>
           <Button
             size="sm"
             onClick={() => {
-              setView('gas')
-              window.history.replaceState(null, '', '#gas')
+              setView('fossil')
+              window.history.replaceState(null, '', '#fossil')
             }}
           >
-            Open gas tracker
+            Open fossil tracker
           </Button>
         </div>
         <div className="metric-strip" style={{ marginTop: '0.75rem' }}>
-          <div className="metric" style={{ cursor: 'default' }}>
-            <span className="metric-label">Production</span>
-            <span className="metric-value">
-              {gas.productionBcfd.toFixed(1)}
-              <span className="metric-unit">Bcf/d</span>
-            </span>
-            <span className="metric-hint">~{(gas.productionBcfYr / 1000).toFixed(1)} Tcf/yr</span>
-          </div>
-          <div className="metric" style={{ cursor: 'default' }}>
-            <span className="metric-label">LNG exports</span>
-            <span className="metric-value">
-              {gas.lngExportBcfd.toFixed(1)}
-              <span className="metric-unit">Bcf/d</span>
-            </span>
-            <span className="metric-hint">cargo markets</span>
-          </div>
-          <div className="metric" style={{ cursor: 'default' }}>
-            <span className="metric-label">Pipeline exports</span>
-            <span className="metric-value">
-              {gas.pipelineExportBcfd.toFixed(1)}
-              <span className="metric-unit">Bcf/d</span>
-            </span>
-            <span className="metric-hint">Mexico + Canada</span>
-          </div>
-          <div className="metric" style={{ cursor: 'default' }}>
-            <span className="metric-label">Net exports</span>
-            <span className="metric-value">
-              {gas.netExportsBcfd.toFixed(1)}
-              <span className="metric-unit">Bcf/d</span>
-            </span>
-            <span className="metric-hint">minus imports {gas.importsBcfd.toFixed(1)}</span>
-          </div>
+          {fossil.map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              className="metric"
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                setView('fossil')
+                window.history.replaceState(null, '', '#fossil')
+              }}
+            >
+              <span className="metric-label">
+                {s.short} · prod {s.latestYear}
+              </span>
+              <span className="metric-value" style={{ fontSize: '1.05rem' }}>
+                {s.production >= 100 ? s.production.toFixed(0) : s.production.toFixed(1)}
+                <span className="metric-unit">{s.unitProd}</span>
+              </span>
+              <span className="metric-hint">
+                exp {s.exports >= 100 ? s.exports.toFixed(0) : s.exports.toFixed(1)} · since{' '}
+                {s.firstYear}
+              </span>
+            </button>
+          ))}
         </div>
       </section>
 

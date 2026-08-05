@@ -27,7 +27,8 @@ export type AppView =
   | 'portfolios'
   | 'states'
   | 'state-detail'
-  | 'gas'
+  | 'fossil'
+  | 'gas' // alias → fossil (legacy #gas links)
   | 'policy'
   | 'consistency'
   | 'scenarios'
