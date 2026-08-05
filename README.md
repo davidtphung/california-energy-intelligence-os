@@ -40,6 +40,26 @@ npm run build    # production build
 npm run preview  # preview production build
 ```
 
+### Live data
+
+The Overview panel pulls **today’s CAISO grid data** (no API key) via a same-origin proxy:
+
+| Feed | Path |
+|------|------|
+| System status | `/api/live/caiso/systemstatus.csv` → CAISO Outlook |
+| Demand | `demand.csv` |
+| Fuel mix | `fuelsource.csv` |
+| Storage | `storage.csv` |
+| Renewables | `renewables.csv` |
+| Net demand | `netdemand.csv` |
+| CO₂ | `co2.csv` |
+| Weather | Open-Meteo (Central Valley proxy) |
+| EIA CISO hourly | Optional — set `VITE_EIA_API_KEY` |
+
+Dev: Vite proxies `/api/live/caiso/*`. Prod: `vercel.json` rewrites to `www.caiso.com/outlook/current/*`.
+
+Refresh interval: 60s.
+
 ## Project structure
 
 ```

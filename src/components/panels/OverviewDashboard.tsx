@@ -19,6 +19,7 @@ import { LoadGenerationChart } from '../charts/LoadGenerationChart'
 import { FlowView } from '../charts/FlowView'
 import { CAMap } from '../charts/CAMap'
 import { EnergyPathwayMap } from '../charts/EnergyPathwayMap'
+import { LiveGridPanel } from './LiveGridPanel'
 import { TECH_LABELS, formatNumber } from '../../lib/utils'
 import type { Technology, CARegion } from '../../types'
 
@@ -38,15 +39,25 @@ export function OverviewDashboard() {
       <div className="intro fadein t1">
         <strong>California Energy Intelligence OS</strong>
         <p>
-          A quiet workspace for reading California electricity systems — capacity, generation,
-          load, storage, and policy paths. Built for research and planning; sample data first,
-          API-ready later. Built by{' '}
+          Live CAISO grid telemetry for today, plus research and scenario tools for California
+          electricity systems. Built by{' '}
           <a href="https://x.com/davidtphung" target="_blank" rel="noopener noreferrer">
             David T Phung
           </a>
           .
         </p>
       </div>
+
+      <LiveGridPanel />
+
+      <hr className="rule" />
+
+      <p className="kicker">Reference · sample</p>
+      <h2 className="page-h2">Modeled system snapshot</h2>
+      <p className="sub">
+        The metrics below remain scenario-scale placeholders for multi-year planning. Live CAISO
+        values are above.
+      </p>
 
       <div className="metric-strip fadein t2">
         <button type="button" className="metric" onClick={() => setDrilldown('kpi:peak-load')}>

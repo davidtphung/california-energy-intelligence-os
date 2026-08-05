@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/live/caiso/:path*",
+      "destination": "https://www.caiso.com/outlook/current/:path*"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/live/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, s-maxage=30, stale-while-revalidate=60" }
+      ]
+    }
+  ]
+}

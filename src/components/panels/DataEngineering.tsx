@@ -8,6 +8,9 @@ import {
 import { Badge } from '../ui/Badge'
 import type { PipelineStatus } from '../../types'
 import { formatDistanceToNow } from 'date-fns'
+import { useLiveGrid } from '../../hooks/useLiveGrid'
+import { Button } from '../ui/Button'
+import { RefreshCw } from 'lucide-react'
 
 function statusBadge(status: PipelineStatus) {
   const map: Record<
@@ -26,18 +29,76 @@ function statusBadge(status: PipelineStatus) {
 
 export function DataEngineering() {
   const lastRefresh = formatDistanceToNow(new Date(LAST_REFRESH), { addSuffix: true })
+  const { data: live, loading, refresh } = useLiveGrid(true)
 
   return (
     <div id="data">
       <div className="intro fadein t1">
         <strong>Data</strong>
         <p>
-          Pipeline health, entity model, quality checks, and error log. Last refresh {lastRefresh}.
+          Live source health plus entity model, quality checks, and sample pipeline log. Mock
+          pipeline catalog last baked {lastRefresh}.
         </p>
       </div>
 
       <section className="block fadein t2">
-        <p className="kicker">Pipelines</p>
+        <div className="block-head">
+          <div>
+            <p className="kicker">Live sources</p>
+            <h2 className="page-h2">Today&apos;s pulls</h2>
+          </div>
+          <Button size="sm" onClick={() => void refresh()} disabled={loading} icon={<RefreshCw className={`h-3.5 w-3.5${loading ? ' spin' : ''}`} />}>
+            Refresh
+          </Button>
+        </div>
+        <div className="table-wrap">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Source</th>
+                <th>Org</th>
+                <th>Status</th>
+                <th>Latency</th>
+                <th>Message</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(live?.sources ?? []).map((s) => (
+                <tr key={s.id}>
+                  <td>
+                    <a href={s.url} target="_blank" rel="noopener noreferrer">
+                      {s.name}
+                    </a>
+                  </td>
+                  <td className="muted">{s.organization}</td>
+                  <td>
+                    <Badge
+                      variant={
+                        s.status === 'ok'
+                          ? 'success'
+                          : s.status === 'error'
+                            ? 'danger'
+                            : s.status === 'skipped'
+                              ? 'default'
+                              : 'warning'
+                      }
+                    >
+                      {s.status}
+                    </Badge>
+                  </td>
+                  <td className="mono muted">{s.latencyMs != null ? `${s.latencyMs} ms` : '—'}</td>
+                  <td className="muted">{s.message ?? '—'}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <hr className="rule" />
+
+      <section className="block fadein t2">
+        <p className="kicker">Pipelines (sample)</p>
         <table className="list-table">
           <tbody>
             {PIPELINE_RUNS.map((run) => (

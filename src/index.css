@@ -1004,6 +1004,14 @@ hr,
   }
 }
 
+.spin {
+  animation: spin 0.85s linear infinite;
+}
+
+.live-panel {
+  margin-bottom: 0.5rem;
+}
+
 .stat-mini {
   padding: 0.55rem 0;
   border-bottom: 1px solid var(--line-soft);
