@@ -4,8 +4,8 @@
   "description": "Research, planning, and developer dashboard for California electricity systems.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#020617",
-  "theme_color": "#0ea5e9",
+  "background_color": "#000000",
+  "theme_color": "#000000",
   "lang": "en-US",
   "icons": [
     {
