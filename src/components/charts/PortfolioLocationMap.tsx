@@ -6,20 +6,25 @@ import {
   type EnergyPortfolio,
   type PortfolioAsset,
 } from '../../data/portfolios'
+import { projectUS } from '../../data/usStates'
 import type { Technology } from '../../types'
-import { TECH_LABELS } from '../../lib/utils'
-import { cn } from '../../lib/utils'
-
-/** Simplified California outline (viewBox 360×420) */
-const CA_OUTLINE =
-  'M 48 38 L 72 22 L 118 18 L 155 28 L 178 48 L 195 78 L 208 120 L 218 165 L 228 210 L 238 255 L 242 300 L 235 340 L 218 378 L 188 400 L 155 408 L 125 400 L 98 378 L 78 340 L 62 290 L 52 240 L 48 190 L 42 145 L 38 100 L 40 65 Z'
+import { TECH_LABELS, cn } from '../../lib/utils'
 
 interface Props {
   portfolios: EnergyPortfolio[]
   selectedPortfolioId: string | 'all'
   selectedAssetId: string | null
   techFilter: Technology | 'all'
-  onSelectAsset: (asset: PortfolioAsset & { portfolioId: string; portfolioShort: string }) => void
+  /** When a single state is filtered, use CA inset map for CA and US proj otherwise */
+  stateFilter?: string | 'all'
+  onSelectAsset: (
+    asset: PortfolioAsset & {
+      portfolioId: string
+      portfolioShort: string
+      stateName: string
+      kind: import('../../types').PortfolioKind
+    }
+  ) => void
 }
 
 export function PortfolioLocationMap({
@@ -27,11 +32,14 @@ export function PortfolioLocationMap({
   selectedPortfolioId,
   selectedAssetId,
   techFilter,
+  stateFilter = 'all',
   onSelectAsset,
 }: Props) {
   const [hoverId, setHoverId] = useState<string | null>(null)
-  const W = 360
-  const H = 420
+
+  const caOnly = stateFilter === 'CA'
+  const W = caOnly ? 360 : 720
+  const H = caOnly ? 420 : 460
 
   const assets = useMemo(() => {
     let list = allAssets(portfolios)
@@ -41,11 +49,15 @@ export function PortfolioLocationMap({
     if (techFilter !== 'all') {
       list = list.filter((a) => a.technology === techFilter)
     }
-    return list
+    // Largest first so small markers stay clickable on top
+    return [...list].sort((a, b) => b.capacityMw - a.capacityMw)
   }, [portfolios, selectedPortfolioId, techFilter])
 
   const maxCap = Math.max(...assets.map((a) => a.capacityMw), 1)
   const hover = assets.find((a) => a.id === hoverId) ?? assets.find((a) => a.id === selectedAssetId)
+
+  const project = (lon: number, lat: number) =>
+    caOnly ? projectCA(lon, lat, W, H) : projectUS(lon, lat, W, H)
 
   return (
     <div className="pmap">
@@ -53,7 +65,11 @@ export function PortfolioLocationMap({
         viewBox={`0 0 ${W} ${H}`}
         className="pmap-svg"
         role="img"
-        aria-label="California map of energy portfolio asset locations"
+        aria-label={
+          caOnly
+            ? 'California map of energy portfolio asset locations'
+            : 'United States map of energy portfolio asset locations by state'
+        }
       >
         <defs>
           <filter id="pmap-soft" x="-50%" y="-50%" width="200%" height="200%">
@@ -65,38 +81,68 @@ export function PortfolioLocationMap({
           </filter>
         </defs>
 
-        {/* Ocean / field */}
         <rect width={W} height={H} fill="var(--bg-soft)" />
 
-        {/* State fill */}
-        <path
-          d={CA_OUTLINE}
-          fill="var(--fill)"
-          stroke="var(--line)"
-          strokeWidth={1.5}
-        />
-
-        {/* Grid ticks for lat/lon reference (no overlapping labels) */}
-        {[34, 36, 38, 40].map((lat) => {
-          const { y } = projectCA(-120, lat, W, H)
-          return (
-            <line
-              key={lat}
-              x1={20}
-              x2={W - 20}
-              y1={y}
-              y2={y}
-              stroke="var(--line-soft)"
-              strokeWidth={0.6}
-              strokeDasharray="2 6"
+        {caOnly ? (
+          <path
+            d="M 48 38 L 72 22 L 118 18 L 155 28 L 178 48 L 195 78 L 208 120 L 218 165 L 228 210 L 238 255 L 242 300 L 235 340 L 218 378 L 188 400 L 155 408 L 125 400 L 98 378 L 78 340 L 62 290 L 52 240 L 48 190 L 42 145 L 38 100 L 40 65 Z"
+            fill="var(--fill)"
+            stroke="var(--line)"
+            strokeWidth={1.5}
+          />
+        ) : (
+          <>
+            <path
+              d="M 48 80 L 90 55 L 160 42 L 240 38 L 320 42 L 400 48 L 480 58 L 540 72 L 600 95 L 650 130 L 675 175 L 680 230 L 670 280 L 640 320 L 590 350 L 520 365 L 440 370 L 360 365 L 280 355 L 200 340 L 140 310 L 100 270 L 70 220 L 52 160 Z"
+              fill="var(--fill)"
+              stroke="var(--line)"
+              strokeWidth={1.2}
             />
-          )
-        })}
+            <rect
+              x={24}
+              y={300}
+              width={150}
+              height={140}
+              rx={4}
+              fill="none"
+              stroke="var(--line-soft)"
+              strokeDasharray="3 3"
+            />
+            <text x={32} y={316} fill="var(--mute)" fontSize={10} fontFamily="var(--font-mono)">
+              AK
+            </text>
+            <rect
+              x={168}
+              y={360}
+              width={120}
+              height={80}
+              rx={4}
+              fill="none"
+              stroke="var(--line-soft)"
+              strokeDasharray="3 3"
+            />
+            <text x={176} y={376} fill="var(--mute)" fontSize={10} fontFamily="var(--font-mono)">
+              HI
+            </text>
+            <rect
+              x={304}
+              y={360}
+              width={120}
+              height={80}
+              rx={4}
+              fill="none"
+              stroke="var(--line-soft)"
+              strokeDasharray="3 3"
+            />
+            <text x={312} y={376} fill="var(--mute)" fontSize={10} fontFamily="var(--font-mono)">
+              PR
+            </text>
+          </>
+        )}
 
-        {/* Assets: size by capacity, color by tech */}
         {assets.map((a) => {
-          const { x, y } = projectCA(a.longitude, a.latitude, W, H)
-          const r = 3.5 + (a.capacityMw / maxCap) * 10
+          const { x, y } = project(a.longitude, a.latitude)
+          const r = 3 + Math.sqrt(a.capacityMw / maxCap) * (caOnly ? 12 : 14)
           const active = a.id === selectedAssetId || a.id === hoverId
           const color = TECH_MAP_COLOR[a.technology]
           return (
@@ -116,7 +162,7 @@ export function PortfolioLocationMap({
                 onClick={() => onSelectAsset(a)}
                 role="button"
                 tabIndex={0}
-                aria-label={`${a.name}, ${a.capacityMw} MW ${a.technology}`}
+                aria-label={`${a.name}, ${a.stateAbbr}, ${a.capacityMw} MW ${a.technology}`}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault()
@@ -124,7 +170,6 @@ export function PortfolioLocationMap({
                   }
                 }}
               />
-              {/* Output ring: positive gen = solid arc hint via second circle */}
               {a.outputMw !== 0 && (
                 <circle
                   cx={x}
@@ -142,25 +187,15 @@ export function PortfolioLocationMap({
           )
         })}
 
-        {/* Lon/lat corner labels - corners only, no collision with dots */}
-        <text x={22} y={H - 14} fill="var(--mute)" fontSize={9} fontFamily="var(--font-mono)">
-          32.5°N
-        </text>
-        <text x={W - 48} y={22} fill="var(--mute)" fontSize={9} fontFamily="var(--font-mono)">
-          42°N
-        </text>
-        <text x={22} y={22} fill="var(--mute)" fontSize={9} fontFamily="var(--font-mono)">
-          124°W
-        </text>
-        <text x={W - 52} y={H - 14} fill="var(--mute)" fontSize={9} fontFamily="var(--font-mono)">
-          114°W
+        <text x={16} y={H - 12} fill="var(--mute)" fontSize={9} fontFamily="var(--font-mono)">
+          {caOnly ? 'California detail' : 'USA · size = nameplate MW'}
         </text>
       </svg>
 
       {hover && (
         <div className="pmap-tip" role="status">
           <span className="pmap-tip-tag">
-            {hover.portfolioShort} · {hover.county}
+            {hover.stateAbbr} · {hover.portfolioShort} · {hover.county}
           </span>
           <span className="pmap-tip-title">{hover.name}</span>
           <span className="pmap-tip-sub">
@@ -182,6 +217,7 @@ export function PortfolioLocationMap({
       </div>
       <p className="mono muted" style={{ marginTop: 6, fontSize: 11 }}>
         Dot size = nameplate MW · ring = sample output (dashed = charging / load)
+        {stateFilter !== 'all' ? ` · filter ${stateFilter}` : ' · all states'}
       </p>
     </div>
   )

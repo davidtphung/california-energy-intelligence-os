@@ -1,10 +1,12 @@
 /**
- * California energy portfolios and location-level outputs.
- * Capacity / generation figures are realistic CA-scale samples for mapping UX;
- * wire to CEC QFER, EIA-860, CAISO master file, and LSE IRPs in production.
+ * US energy portfolios and location-level outputs.
+ * California has detailed LSE / generator samples; every other state has a
+ * representative fleet portfolio derived from EIA-scale state totals.
+ * Wire to CEC QFER, EIA-860, ISO master files, and LSE IRPs in production.
  */
 
-import type { CARegion, PortfolioKind, PortfolioSector, Technology } from '../types'
+import type { PortfolioKind, PortfolioSector, Technology } from '../types'
+import { US_STATES, type USStateEnergy } from './usStates'
 
 export interface PortfolioAsset {
   id: string
@@ -15,8 +17,11 @@ export interface PortfolioAsset {
   outputMw: number
   latitude: number
   longitude: number
-  region: CARegion
+  /** Sub-region label (CA region or state region) */
+  region: string
   county: string
+  /** Two-letter state / PR abbr */
+  stateAbbr: string
   status: 'operating' | 'construction' | 'retired-planned'
 }
 
@@ -26,6 +31,9 @@ export interface EnergyPortfolio {
   short: string
   kind: PortfolioKind
   sector: PortfolioSector
+  /** Two-letter state / PR abbr */
+  stateAbbr: string
+  stateName: string
   hq: string
   customers?: string
   loadSharePct?: number
@@ -33,6 +41,10 @@ export interface EnergyPortfolio {
   notes: string
   website?: string
   assets: PortfolioAsset[]
+}
+
+type PortfolioSeed = Omit<EnergyPortfolio, 'stateAbbr' | 'stateName' | 'assets'> & {
+  assets: Omit<PortfolioAsset, 'stateAbbr'>[]
 }
 
 /** Simple equirectangular project CA bbox to SVG */
@@ -68,7 +80,8 @@ export const TECH_MAP_COLOR: Record<Technology, string> = {
   other: '#a8a29e',
 }
 
-export const PORTFOLIOS: EnergyPortfolio[] = [
+/** Detailed California portfolios (seed - state tags applied below) */
+const CA_PORTFOLIO_SEEDS: PortfolioSeed[] = [
   {
     id: 'pge',
     name: 'Pacific Gas and Electric',
@@ -418,9 +431,151 @@ export const PORTFOLIOS: EnergyPortfolio[] = [
   },
 ]
 
-export function allAssets(portfolios: EnergyPortfolio[] = PORTFOLIOS): (PortfolioAsset & { portfolioId: string; portfolioShort: string; kind: PortfolioKind })[] {
+function tagCalifornia(seed: PortfolioSeed): EnergyPortfolio {
+  return {
+    ...seed,
+    stateAbbr: 'CA',
+    stateName: 'California',
+    assets: seed.assets.map((a) => ({ ...a, stateAbbr: 'CA' })),
+  }
+}
+
+/** Offsets (deg) so multi-tech fleet markers fan out around state centroid */
+const TECH_OFFSETS: Record<Technology, { dLat: number; dLon: number }> = {
+  nuclear: { dLat: 0.35, dLon: -0.25 },
+  solar: { dLat: -0.3, dLon: 0.4 },
+  wind: { dLat: 0.45, dLon: 0.35 },
+  hydro: { dLat: 0.55, dLon: -0.45 },
+  natural_gas: { dLat: -0.15, dLon: -0.35 },
+  geothermal: { dLat: -0.4, dLon: -0.15 },
+  biomass: { dLat: 0.2, dLon: 0.55 },
+  battery: { dLat: -0.5, dLon: 0.15 },
+  other: { dLat: 0.1, dLon: 0.1 },
+}
+
+function techOutputMw(capMw: number, tech: Technology, cleanPct: number): number {
+  const cf =
+    tech === 'nuclear'
+      ? 0.9
+      : tech === 'natural_gas'
+        ? 0.35
+        : tech === 'hydro'
+          ? 0.4
+          : tech === 'geothermal'
+            ? 0.75
+            : tech === 'wind'
+              ? 0.35
+              : tech === 'solar'
+                ? 0.28
+                : tech === 'battery'
+                  ? -0.25
+                  : 0.35
+  const cleanBoost = tech === 'solar' || tech === 'wind' ? 1 + cleanPct / 200 : 1
+  return Math.round(capMw * cf * cleanBoost)
+}
+
+/** One representative fleet portfolio per state from EIA-scale state totals */
+export function buildStateFleetPortfolio(s: USStateEnergy): EnergyPortfolio {
+  const slices: { tech: Technology; gw: number; label: string }[] = [
+    { tech: 'nuclear', gw: s.nuclearGw, label: 'Nuclear fleet' },
+    { tech: 'solar', gw: s.solarGw, label: 'Solar fleet' },
+    { tech: 'wind', gw: s.windGw, label: 'Wind fleet' },
+    { tech: 'hydro', gw: s.hydroGw, label: 'Hydro fleet' },
+    { tech: 'natural_gas', gw: s.gasGw, label: 'Gas fleet' },
+    { tech: 'other', gw: s.coalGw, label: 'Coal / thermal fleet' },
+    { tech: 'battery', gw: s.storageGw, label: 'Storage fleet' },
+  ]
+
+  const assets: PortfolioAsset[] = slices
+    .filter((x) => x.gw >= 0.05)
+    .map((x) => {
+      const off = TECH_OFFSETS[x.tech]
+      const capMw = Math.round(x.gw * 1000)
+      const tech = x.tech
+      return {
+        id: `${s.abbr.toLowerCase()}-${tech}`,
+        name: `${s.name} ${x.label}`,
+        technology: tech,
+        capacityMw: capMw,
+        outputMw: techOutputMw(capMw, tech === 'other' ? 'natural_gas' : tech, s.cleanPct),
+        latitude: s.lat + off.dLat,
+        longitude: s.lon + off.dLon,
+        region: s.region,
+        county: s.name,
+        stateAbbr: s.abbr,
+        status: 'operating' as const,
+      }
+    })
+
+  if (assets.length === 0) {
+    const capMw = Math.max(50, Math.round(s.capacityGw * 1000))
+    assets.push({
+      id: `${s.abbr.toLowerCase()}-system`,
+      name: `${s.name} system capacity`,
+      technology: 'other',
+      capacityMw: capMw,
+      outputMw: Math.round(capMw * 0.3),
+      latitude: s.lat,
+      longitude: s.lon,
+      region: s.region,
+      county: s.name,
+      stateAbbr: s.abbr,
+      status: 'operating',
+    })
+  }
+
+  const isoLike =
+    s.grid.includes('ISO') ||
+    s.grid === 'ERCOT' ||
+    s.grid === 'CAISO' ||
+    s.grid === 'PJM' ||
+    s.grid === 'MISO' ||
+    s.grid === 'SPP'
+
+  return {
+    id: `state-${s.abbr.toLowerCase()}`,
+    name: `${s.name} power fleet`,
+    short: s.abbr,
+    kind: isoLike ? 'Balancing area' : 'Generator',
+    sector: 'wholesale gen',
+    stateAbbr: s.abbr,
+    stateName: s.name,
+    hq: s.name,
+    cleanTarget: `${s.cleanPct}% clean (sample gen share)`,
+    notes: `${s.note} Grid: ${s.grid}. Primary ${s.primary} · secondary ${s.secondary}. Sample fleet nodes from state capacity totals.`,
+    assets,
+  }
+}
+
+const CA_DETAILED: EnergyPortfolio[] = CA_PORTFOLIO_SEEDS.map(tagCalifornia)
+
+/** CA detail LSEs + one fleet portfolio for every other state / PR */
+export const PORTFOLIOS: EnergyPortfolio[] = [
+  ...CA_DETAILED,
+  ...US_STATES.filter((s) => s.abbr !== 'CA').map(buildStateFleetPortfolio),
+]
+
+export const CA_FLEET_PORTFOLIO: EnergyPortfolio = buildStateFleetPortfolio(
+  US_STATES.find((s) => s.abbr === 'CA')!
+)
+
+export function allAssets(
+  portfolios: EnergyPortfolio[] = PORTFOLIOS
+): (PortfolioAsset & {
+  portfolioId: string
+  portfolioShort: string
+  kind: PortfolioKind
+  stateName: string
+})[] {
   return portfolios.flatMap((p) =>
-    p.assets.map((a) => ({ ...a, portfolioId: p.id, portfolioShort: p.short, kind: p.kind }))
+    p.assets.map((a) => ({
+      ...a,
+      portfolioId: p.id,
+      portfolioShort: p.short,
+      kind: p.kind,
+      stateAbbr: a.stateAbbr || p.stateAbbr,
+      stateName: p.stateName,
+    }))
   )
 }
 
@@ -458,6 +613,44 @@ export function regionRollup(assets: ReturnType<typeof allAssets>) {
   return [...map.values()].sort((a, b) => b.capacityMw - a.capacityMw)
 }
 
+export function stateRollup(portfolios: EnergyPortfolio[]) {
+  const map = new Map<
+    string,
+    {
+      stateAbbr: string
+      stateName: string
+      portfolios: number
+      assets: number
+      capacityMw: number
+      outputMw: number
+    }
+  >()
+  for (const p of portfolios) {
+    const cur = map.get(p.stateAbbr) ?? {
+      stateAbbr: p.stateAbbr,
+      stateName: p.stateName,
+      portfolios: 0,
+      assets: 0,
+      capacityMw: 0,
+      outputMw: 0,
+    }
+    const t = portfolioTotals(p)
+    cur.portfolios += 1
+    cur.assets += p.assets.length
+    cur.capacityMw += t.capacityMw
+    cur.outputMw += t.outputMw
+    map.set(p.stateAbbr, cur)
+  }
+  return [...map.values()].sort((a, b) => a.stateName.localeCompare(b.stateName))
+}
+
+export function portfoliosForState(
+  abbr: string,
+  portfolios: EnergyPortfolio[] = PORTFOLIOS
+): EnergyPortfolio[] {
+  return portfolios.filter((p) => p.stateAbbr === abbr.toUpperCase())
+}
+
 export const PORTFOLIO_KINDS: PortfolioKind[] = [
   'IOU',
   'CCA',
@@ -467,3 +660,8 @@ export const PORTFOLIO_KINDS: PortfolioKind[] = [
   'Federal / state',
   'Balancing area',
 ]
+
+export const PORTFOLIO_STATE_ABBRS: string[] = [
+  ...new Set(PORTFOLIOS.map((p) => p.stateAbbr)),
+].sort((a, b) => a.localeCompare(b))
+
