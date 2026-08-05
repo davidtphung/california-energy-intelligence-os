@@ -8,6 +8,7 @@
 import type { PortfolioKind, PortfolioSector, Technology } from '../types'
 import { US_STATES, type USStateEnergy } from './usStates'
 import { buildUsHydroPortfolios } from './usHydroPlants'
+import { buildUsTechPlantPortfolios } from './usEnergyPlants'
 
 export interface PortfolioAsset {
   id: string
@@ -557,12 +558,36 @@ export function buildStateFleetPortfolio(s: USStateEnergy): EnergyPortfolio {
 
 const CA_DETAILED: EnergyPortfolio[] = CA_PORTFOLIO_SEEDS.map(tagCalifornia)
 
-/** CA detail LSEs + state fleets + national major hydro operator fleets */
+/** CA detail LSEs + state fleets + national major plants (all tech) + hydro operators */
 export const PORTFOLIOS: EnergyPortfolio[] = [
   ...CA_DETAILED,
   ...US_STATES.filter((s) => s.abbr !== 'CA').map(buildStateFleetPortfolio),
+  ...buildUsTechPlantPortfolios(),
   ...buildUsHydroPortfolios(),
 ]
+
+/** Capacity rollup by technology across portfolios (or a filtered asset list) */
+export function techCapacityRollup(
+  assets: { technology: Technology; capacityMw: number; outputMw: number }[]
+) {
+  const map = new Map<
+    Technology,
+    { technology: Technology; capacityMw: number; outputMw: number; count: number }
+  >()
+  for (const a of assets) {
+    const cur = map.get(a.technology) ?? {
+      technology: a.technology,
+      capacityMw: 0,
+      outputMw: 0,
+      count: 0,
+    }
+    cur.capacityMw += a.capacityMw
+    cur.outputMw += Math.max(0, a.outputMw)
+    cur.count += 1
+    map.set(a.technology, cur)
+  }
+  return [...map.values()].sort((a, b) => b.capacityMw - a.capacityMw)
+}
 
 export const CA_FLEET_PORTFOLIO: EnergyPortfolio = buildStateFleetPortfolio(
   US_STATES.find((s) => s.abbr === 'CA')!
