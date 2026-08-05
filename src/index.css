@@ -1850,3 +1850,57 @@ hr,
     grid-template-columns: 5.5rem 1fr 3.75rem;
   }
 }
+
+/* USA map */
+.usamap {
+  position: relative;
+}
+
+.usamap-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: min(28rem, 55vh);
+  border: 1px solid var(--line-soft);
+  border-radius: 4px;
+  background: var(--bg);
+}
+
+.usamap-dot {
+  cursor: pointer;
+  transition: r 0.12s ease;
+}
+
+.usamap-tip {
+  margin-top: 0.55rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--surface);
+  line-height: 1.35;
+}
+
+.usamap-tip-tag {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 550;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+
+.usamap-tip-title {
+  display: block;
+  margin-top: 0.08rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--highlight);
+}
+
+.usamap-tip-sub {
+  display: block;
+  margin-top: 0.12rem;
+  font-size: 0.74rem;
+  color: var(--mute);
+  font-family: var(--font-mono);
+}

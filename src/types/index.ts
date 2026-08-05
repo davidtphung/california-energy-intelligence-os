@@ -24,6 +24,7 @@ export type AppMode = 'analyst' | 'planner' | 'engineer' | 'developer'
 export type AppView =
   | 'overview'
   | 'portfolios'
+  | 'states'
   | 'consistency'
   | 'scenarios'
   | 'research'
