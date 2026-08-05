@@ -98,6 +98,10 @@ body {
   line-height: 1.55;
   letter-spacing: -0.005em;
   -webkit-font-smoothing: antialiased;
+  /* Keep whole words intact - never split mid-word across lines */
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: none;
 }
 
 #root {
@@ -538,6 +542,7 @@ hr,
   color: var(--mute);
   margin-bottom: 0.2rem;
   font-weight: 500;
+  white-space: nowrap;
 }
 
 .metric-value {
@@ -549,6 +554,10 @@ hr,
   color: var(--highlight);
   line-height: 1.15;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: visible;
+  word-break: normal;
+  overflow-wrap: normal;
 }
 
 .metric-unit {
@@ -563,6 +572,7 @@ hr,
   margin-top: 0.25rem;
   font-size: 0.68rem;
   color: var(--mute-2);
+  white-space: nowrap;
 }
 
 /* Panels / blocks - flat, paper */
@@ -1856,7 +1866,7 @@ hr,
 
 .cchart-head {
   display: grid;
-  grid-template-columns: minmax(8.5rem, 11rem) minmax(0, 1fr) auto;
+  grid-template-columns: minmax(9.5rem, 12.5rem) minmax(0, 1fr) auto;
   gap: 0.65rem;
   align-items: end;
   font-size: 0.62rem;
@@ -1875,9 +1885,10 @@ hr,
 }
 
 .cchart-head-axis span {
-  white-space: normal;
+  white-space: nowrap;
   line-height: 1.25;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 
 .cchart-head-score {
@@ -1888,7 +1899,7 @@ hr,
 
 .cchart-row {
   display: grid;
-  grid-template-columns: minmax(8.5rem, 11rem) minmax(0, 1fr) auto;
+  grid-template-columns: minmax(9.5rem, 12.5rem) minmax(0, 1fr) auto;
   gap: 0.65rem;
   align-items: center;
   width: 100%;
@@ -1925,10 +1936,10 @@ hr,
 .cchart-label-text {
   min-width: 0;
   flex: 1 1 auto;
-  white-space: normal;
-  overflow-wrap: anywhere;
-  word-break: break-word;
-  hyphens: auto;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
 }
 
 .cchart-label i {
@@ -1978,7 +1989,7 @@ hr,
   margin: 0.55rem 0 0;
   font-size: 0.72rem;
   white-space: normal;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
   line-height: 1.45;
 }
 
@@ -2018,7 +2029,7 @@ hr,
   line-height: 1.4;
   min-width: 0;
   white-space: normal;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
 }
 
 .cprof-grid {
@@ -2086,20 +2097,26 @@ hr,
   }
 }
 
-/* Consistency panel: never clip text */
+/* Consistency panel: whole words on one line - no mid-word breaks */
 #consistency {
   min-width: 0;
   max-width: 100%;
   overflow: visible;
 }
 
-#consistency .page-h2,
+#consistency .page-h2 {
+  white-space: nowrap;
+  overflow: visible;
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
 #consistency .sub,
 #consistency .footer-line,
 #consistency .intro p {
   white-space: normal;
-  overflow-wrap: anywhere;
-  word-break: break-word;
+  overflow-wrap: normal;
+  word-break: normal;
   max-width: 100%;
 }
 
@@ -2107,18 +2124,22 @@ hr,
   max-width: none;
 }
 
+#consistency .metric-value,
+#consistency .metric-label,
+#consistency .metric-hint {
+  white-space: nowrap;
+  overflow: visible;
+  word-break: normal;
+  overflow-wrap: normal;
+  max-width: none;
+}
+
 #consistency .metric-value {
   font-size: clamp(0.9rem, 2.2vw, 1.1rem);
-  white-space: normal;
-  overflow-wrap: anywhere;
-  word-break: break-word;
   line-height: 1.25;
-  max-width: 100%;
 }
 
 #consistency .metric-hint {
-  white-space: normal;
-  overflow-wrap: anywhere;
   line-height: 1.35;
 }
 
@@ -2130,6 +2151,7 @@ hr,
 
 #consistency .metric-strip {
   min-width: 0;
+  overflow-x: auto;
 }
 
 #consistency .list-table {
@@ -2138,17 +2160,17 @@ hr,
 }
 
 #consistency .list-table th {
-  white-space: normal;
+  white-space: nowrap;
   width: auto;
-  max-width: 8.5rem;
   padding-right: 0.75rem;
-  overflow-wrap: anywhere;
+  word-break: normal;
+  overflow-wrap: normal;
 }
 
 #consistency .list-table td {
   white-space: normal;
-  overflow-wrap: anywhere;
-  word-break: break-word;
+  overflow-wrap: normal;
+  word-break: normal;
 }
 
 #consistency .btl-tri {
@@ -2163,8 +2185,8 @@ hr,
 
 #consistency .idea-list li {
   white-space: normal;
-  overflow-wrap: anywhere;
-  word-break: break-word;
+  overflow-wrap: normal;
+  word-break: normal;
   line-height: 1.5;
   margin-bottom: 0.4rem;
 }
@@ -2176,31 +2198,25 @@ hr,
 }
 
 #consistency .data-table {
-  min-width: 640px;
+  min-width: 720px;
   width: 100%;
 }
 
-#consistency .data-table th {
-  white-space: normal;
-  line-height: 1.25;
-  vertical-align: bottom;
-}
-
+#consistency .data-table th,
 #consistency .data-table td {
-  white-space: normal;
-  overflow-wrap: anywhere;
-  word-break: break-word;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
   line-height: 1.35;
 }
 
-#consistency .data-table td.num {
-  white-space: nowrap;
-  word-break: normal;
+#consistency .data-table th {
+  vertical-align: bottom;
 }
 
 #consistency .data-table td.muted {
-  white-space: normal;
-  max-width: 12rem;
+  white-space: nowrap;
+  max-width: none;
 }
 
 #consistency .block {
@@ -2211,6 +2227,10 @@ hr,
 
 #consistency .block-head {
   min-width: 0;
+}
+
+#consistency .badge {
+  white-space: nowrap;
 }
 
 /* USA map */
@@ -2366,7 +2386,9 @@ hr,
   font-size: 0.7rem;
   color: var(--mute);
   line-height: 1.35;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  word-break: normal;
+  white-space: nowrap;
 }
 
 .ov-rank-list {
@@ -2405,7 +2427,9 @@ hr,
 
 .ov-rank-name {
   min-width: 0;
-  overflow-wrap: anywhere;
+  overflow-wrap: normal;
+  word-break: normal;
+  white-space: nowrap;
   font-size: 0.88rem;
   color: var(--ink-2);
 }
@@ -2493,11 +2517,71 @@ hr,
   font-weight: 600;
 }
 
-#state-detail .metric-value {
+#state-detail .metric-value,
+#state-detail .metric-label,
+#state-detail .metric-hint {
   font-size: clamp(0.95rem, 2.2vw, 1.2rem);
-  white-space: normal;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  word-break: normal;
   line-height: 1.25;
+}
+
+#state-detail .metric-label,
+#state-detail .metric-hint {
+  font-size: inherit;
+}
+
+#state-detail .metric-strip {
+  overflow-x: auto;
+}
+
+/* Global: tables keep cell text on one line; scroll instead of splitting words */
+.data-table th,
+.data-table td {
+  white-space: nowrap;
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
+.list-table th {
+  white-space: nowrap;
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
+.list-table td {
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
+.page-h2,
+.kicker,
+.badge {
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: none;
+}
+
+.state-chip,
+.state-abbr-btn,
+.ov-region-name {
+  white-space: nowrap;
+  word-break: normal;
+  overflow-wrap: normal;
+}
+
+/* Prose may wrap to multiple lines, but only between whole words */
+.sub,
+.intro p,
+.footer-line,
+.idea-list li,
+.btl-prose,
+.ep-prose,
+.btl-note {
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: none;
 }
 
 #state-detail .metric {
