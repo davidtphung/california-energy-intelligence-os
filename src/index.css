@@ -2591,3 +2591,102 @@ hr,
 #overview .data-table tbody tr:hover td {
   background: var(--fill);
 }
+
+/* Policy timeline */
+.policy-timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  max-height: min(40rem, 70vh);
+  overflow-y: auto;
+  padding-right: 0.25rem;
+  min-width: 0;
+}
+
+.policy-era-block {
+  min-width: 0;
+}
+
+.policy-era-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.35rem 0.75rem;
+  margin-bottom: 0.35rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid var(--line-soft);
+}
+
+.policy-era-label {
+  font-size: 0.82rem;
+  font-weight: 650;
+  color: var(--highlight);
+  white-space: nowrap;
+}
+
+.policy-era-meta {
+  font-size: 0.7rem;
+  white-space: nowrap;
+}
+
+.policy-era-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.policy-row {
+  display: grid;
+  grid-template-columns: 3.25rem minmax(0, 1fr) auto;
+  gap: 0.45rem 0.55rem;
+  align-items: center;
+  width: 100%;
+  padding: 0.4rem 0.3rem;
+  border: 0;
+  border-bottom: 1px solid var(--line-soft);
+  background: none;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  min-width: 0;
+}
+
+.policy-row:hover,
+.policy-row.is-on {
+  background: var(--fill);
+}
+
+.policy-year {
+  font-size: 0.75rem;
+  color: var(--mute);
+  white-space: nowrap;
+}
+
+.policy-row-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.08rem;
+  min-width: 0;
+}
+
+.policy-row-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--highlight);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.policy-row-sub {
+  font-size: 0.72rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#policy .metric-value {
+  white-space: nowrap;
+}

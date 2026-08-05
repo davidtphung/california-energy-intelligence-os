@@ -26,6 +26,7 @@ export type AppView =
   | 'portfolios'
   | 'states'
   | 'state-detail'
+  | 'policy'
   | 'consistency'
   | 'scenarios'
   | 'research'
