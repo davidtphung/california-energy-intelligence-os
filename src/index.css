@@ -1353,3 +1353,312 @@ hr,
   margin-right: 0.3rem;
   vertical-align: middle;
 }
+
+/* - -  Baseload / energy-density timeline (mars.design cadence) - -  */
+.btl {
+  margin: 0.5rem 0 1.75rem;
+}
+
+.btl-hero {
+  margin-bottom: 1rem;
+}
+
+.btl-kicker {
+  margin: 0 0 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+
+.btl-date {
+  margin: 0 0 0.25rem;
+  font-size: clamp(1.75rem, 4vw, 2.35rem);
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  color: var(--highlight);
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+
+.btl-sub {
+  margin: 0 0 0.4rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--ink);
+  letter-spacing: -0.015em;
+}
+
+.btl-note {
+  margin: 0;
+  max-width: 36rem;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--mute);
+}
+
+.btl-seg {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin: 0.85rem 0 0.75rem;
+}
+
+.btl-seg-btn {
+  appearance: none;
+  cursor: pointer;
+  margin: 0;
+  padding: 0.32rem 0.75rem;
+  border-radius: 9999px;
+  border: 1px solid var(--line);
+  background: none;
+  font-family: inherit;
+  font-size: 0.68rem;
+  font-weight: 550;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--mute);
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+.btl-seg-btn:hover {
+  color: var(--ink);
+  border-color: var(--ink-2);
+}
+
+.btl-seg-btn.is-on {
+  color: var(--highlight);
+  border-color: var(--highlight);
+  background: var(--fill);
+}
+
+.btl-ends {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+  gap: 0.5rem;
+}
+
+.btl-end {
+  font-size: 0.68rem;
+  font-weight: 550;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mute);
+  user-select: none;
+}
+
+.btl-end-mid {
+  color: var(--ink-2);
+  letter-spacing: 0.04em;
+  text-align: center;
+  max-width: 50%;
+  font-size: 0.65rem;
+}
+
+.btl-stage {
+  position: relative;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.btl-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: min(30rem, 56vh);
+  overflow: visible;
+}
+
+.btl-hit {
+  cursor: pointer;
+}
+
+.btl-draw {
+  stroke-dasharray: 1400;
+  stroke-dashoffset: 1400;
+  animation: btl-draw 1.2s cubic-bezier(0.25, 0.6, 0.2, 1) 0.12s both;
+}
+
+.btl-fade {
+  opacity: 0;
+  animation: btl-fade 0.5s ease both;
+}
+
+@keyframes btl-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes btl-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btl-draw,
+  .btl-fade {
+    animation: none !important;
+    opacity: 1 !important;
+    stroke-dasharray: none !important;
+    stroke-dashoffset: 0 !important;
+  }
+}
+
+.btl-tip {
+  position: absolute;
+  left: 50%;
+  bottom: 0.15rem;
+  transform: translateX(-50%);
+  z-index: 5;
+  width: max-content;
+  max-width: min(24rem, 94%);
+  padding: 0.5rem 0.8rem 0.55rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.07);
+  pointer-events: none;
+  line-height: 1.35;
+}
+
+.btl-tip-tag {
+  display: block;
+  font-size: 0.58rem;
+  font-weight: 550;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+
+.btl-tip-title {
+  display: block;
+  margin-top: 0.05rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--highlight);
+}
+
+.btl-tip-sub {
+  display: block;
+  margin-top: 0.12rem;
+  font-size: 0.72rem;
+  color: var(--mute);
+  font-family: var(--font-mono);
+}
+
+.btl-detail {
+  border-top: 1px solid var(--line);
+  padding-top: 1.15rem;
+  animation: btl-fade 0.35s ease both;
+}
+
+.btl-detail-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+  gap: 1rem 1.5rem;
+  margin-bottom: 1.1rem;
+}
+
+@media (max-width: 720px) {
+  .btl-detail-head {
+    grid-template-columns: 1fr;
+  }
+}
+
+.btl-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem 0.75rem;
+}
+
+@media (max-width: 560px) {
+  .btl-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.btl-stat {
+  border-bottom: 1px solid var(--line-soft);
+  padding-bottom: 0.35rem;
+}
+
+.btl-stat-k {
+  display: block;
+  font-size: 0.62rem;
+  font-weight: 550;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--mute);
+}
+
+.btl-stat-v {
+  display: block;
+  margin-top: 0.1rem;
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 550;
+  color: var(--highlight);
+  font-variant-numeric: tabular-nums;
+}
+
+.btl-tri {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem 1.25rem;
+  margin-bottom: 1.15rem;
+}
+
+@media (max-width: 720px) {
+  .btl-tri {
+    grid-template-columns: 1fr;
+  }
+}
+
+.btl-prose {
+  margin: 0.2rem 0 0;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+
+.btl-stack-bar {
+  display: flex;
+  width: 100%;
+  height: 11px;
+  border-radius: 2px;
+  overflow: hidden;
+  border: 1px solid var(--line-soft);
+  margin: 0.4rem 0 0.55rem;
+}
+
+.btl-stack-seg {
+  height: 100%;
+  min-width: 0;
+  transition: width 0.4s ease;
+}
+
+.btl-stack-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  font-size: 0.74rem;
+  color: var(--mute);
+  font-family: var(--font-mono);
+}
+
+.btl-stack-legend i {
+  display: inline-block;
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 1px;
+  margin-right: 0.3rem;
+  vertical-align: middle;
+}

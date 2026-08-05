@@ -19,6 +19,7 @@ import { LoadGenerationChart } from '../charts/LoadGenerationChart'
 import { FlowView } from '../charts/FlowView'
 import { CAMap } from '../charts/CAMap'
 import { EnergyPathwayMap } from '../charts/EnergyPathwayMap'
+import { BaseloadDensityTimeline } from '../charts/BaseloadDensityTimeline'
 import { LiveGridPanel } from './LiveGridPanel'
 import { TECH_LABELS, formatNumber } from '../../lib/utils'
 import type { Technology, CARegion } from '../../types'
@@ -49,6 +50,12 @@ export function OverviewDashboard() {
       </div>
 
       <LiveGridPanel />
+
+      <hr className="rule" />
+
+      <div className="fadein t2">
+        <BaseloadDensityTimeline />
+      </div>
 
       <hr className="rule" />
 
