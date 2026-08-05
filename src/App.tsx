@@ -4,6 +4,7 @@ import { OverviewDashboard } from './components/panels/OverviewDashboard'
 import { PortfoliosPanel } from './components/panels/PortfoliosPanel'
 import { StatesCatalogPanel } from './components/panels/StatesCatalogPanel'
 import { StateDetailPanel } from './components/panels/StateDetailPanel'
+import { NaturalGasPanel } from './components/panels/NaturalGasPanel'
 import { PolicyPanel } from './components/panels/PolicyPanel'
 import { ConsistencyPanel } from './components/panels/ConsistencyPanel'
 import { ScenarioPlanner } from './components/panels/ScenarioPlanner'
@@ -23,6 +24,8 @@ function ViewRouter() {
       return <StatesCatalogPanel />
     case 'state-detail':
       return <StateDetailPanel />
+    case 'gas':
+      return <NaturalGasPanel />
     case 'policy':
       return <PolicyPanel />
     case 'consistency':

@@ -10,6 +10,7 @@ import {
   type USRegion,
 } from '../../data/usStates'
 import { tradeTotals, withTrade } from '../../data/energyTrade'
+import { gasTotals, GAS_REF_YEAR } from '../../data/naturalGas'
 import { useApp } from '../../context/AppContext'
 import { USAMap, type USAMapMetric } from '../charts/USAMap'
 import { ImportExportChart } from '../charts/ImportExportChart'
@@ -26,6 +27,7 @@ export function OverviewDashboard() {
 
   const us = useMemo(() => totals(US_STATES), [])
   const tradeSum = useMemo(() => tradeTotals(US_STATES.map((s) => s.abbr)), [])
+  const gas = useMemo(() => gasTotals(GAS_REF_YEAR), [])
 
   const mapStates = useMemo(() => {
     if (regionFocus === 'all') return US_STATES
@@ -204,6 +206,66 @@ export function OverviewDashboard() {
               {s.abbr}
             </button>
           ))}
+        </div>
+      </section>
+
+      <hr className="rule" />
+
+      {/* Natural gas production & export snapshot */}
+      <section className="block fadein t3">
+        <div className="block-head">
+          <div>
+            <p className="kicker">Natural gas · {gas.year}</p>
+            <h2 className="page-h2">Production and exports</h2>
+            <p className="sub" style={{ marginBottom: 0 }}>
+              Dry production {gas.productionBcfd.toFixed(1)} Bcf/d · LNG exports{' '}
+              {gas.lngExportBcfd.toFixed(1)} · pipeline exports {gas.pipelineExportBcfd.toFixed(1)} ·
+              net exports {gas.netExportsBcfd.toFixed(1)} Bcf/d.
+            </p>
+          </div>
+          <Button
+            size="sm"
+            onClick={() => {
+              setView('gas')
+              window.history.replaceState(null, '', '#gas')
+            }}
+          >
+            Open gas tracker
+          </Button>
+        </div>
+        <div className="metric-strip" style={{ marginTop: '0.75rem' }}>
+          <div className="metric" style={{ cursor: 'default' }}>
+            <span className="metric-label">Production</span>
+            <span className="metric-value">
+              {gas.productionBcfd.toFixed(1)}
+              <span className="metric-unit">Bcf/d</span>
+            </span>
+            <span className="metric-hint">~{(gas.productionBcfYr / 1000).toFixed(1)} Tcf/yr</span>
+          </div>
+          <div className="metric" style={{ cursor: 'default' }}>
+            <span className="metric-label">LNG exports</span>
+            <span className="metric-value">
+              {gas.lngExportBcfd.toFixed(1)}
+              <span className="metric-unit">Bcf/d</span>
+            </span>
+            <span className="metric-hint">cargo markets</span>
+          </div>
+          <div className="metric" style={{ cursor: 'default' }}>
+            <span className="metric-label">Pipeline exports</span>
+            <span className="metric-value">
+              {gas.pipelineExportBcfd.toFixed(1)}
+              <span className="metric-unit">Bcf/d</span>
+            </span>
+            <span className="metric-hint">Mexico + Canada</span>
+          </div>
+          <div className="metric" style={{ cursor: 'default' }}>
+            <span className="metric-label">Net exports</span>
+            <span className="metric-value">
+              {gas.netExportsBcfd.toFixed(1)}
+              <span className="metric-unit">Bcf/d</span>
+            </span>
+            <span className="metric-hint">minus imports {gas.importsBcfd.toFixed(1)}</span>
+          </div>
         </div>
       </section>
 
