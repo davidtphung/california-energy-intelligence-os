@@ -68,7 +68,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return 'light'
   })
   const [mode, setMode] = useState<AppMode>('analyst')
-  const [view, setView] = useState<AppView>('overview')
+  const [view, setView] = useState<AppView>('map')
   const [selectedStateAbbr, setSelectedStateAbbr] = useState<string | null>(null)
   const [filters, setFiltersState] = useState<Filters>(defaultFilters)
   const [scenarios, setScenarios] = useState<Scenario[]>(PRESET_SCENARIOS)

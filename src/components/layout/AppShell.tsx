@@ -10,18 +10,25 @@ import {
 } from '../../data/mockData'
 import { exportJson } from '../../lib/utils'
 
+/** Primary modes only — secondary tools stay addressable by hash */
 const NAV: { id: AppView; label: string; hash: string }[] = [
-  { id: 'overview', label: 'Overview', hash: 'overview' },
-  { id: 'portfolios', label: 'Portfolios', hash: 'portfolios' },
+  { id: 'map', label: 'Map', hash: 'map' },
   { id: 'states', label: 'USA', hash: 'states' },
-  { id: 'fossil', label: 'Fossil', hash: 'fossil' },
+  { id: 'portfolios', label: 'Assets', hash: 'portfolios' },
+  { id: 'fossil', label: 'Fuels', hash: 'fossil' },
   { id: 'policy', label: 'Policy', hash: 'policy' },
-  { id: 'consistency', label: 'Consistency', hash: 'consistency' },
   { id: 'scenarios', label: 'Scenario', hash: 'scenario' },
-  { id: 'research', label: 'Research', hash: 'research' },
-  { id: 'data-engineering', label: 'Data', hash: 'data' },
-  { id: 'developer', label: 'Dev', hash: 'dev' },
 ]
+
+const HASH_ALIASES: Record<string, AppView> = {
+  overview: 'map',
+  gas: 'fossil',
+  consistency: 'consistency',
+  research: 'research',
+  data: 'data-engineering',
+  dev: 'developer',
+  map: 'map',
+}
 
 function LiveClock() {
   const [now, setNow] = useState(() => new Date())
@@ -47,8 +54,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const applyHash = () => {
-      const raw = window.location.hash.replace('#', '')
-      // Dedicated state pages: #state/CA or #state/PR
+      const raw = window.location.hash.replace('#', '') || 'map'
       if (raw.startsWith('state/')) {
         const abbr = raw.slice('state/'.length).split(/[/?#]/)[0]
         if (abbr && abbr.length >= 2) {
@@ -56,13 +62,16 @@ export function AppShell({ children }: { children: ReactNode }) {
           return
         }
       }
-      // Legacy gas hash → full fossil/hydrocarbon tracker
-      if (raw === 'gas') {
-        setView('fossil')
+      if (raw in HASH_ALIASES) {
+        setView(HASH_ALIASES[raw])
         return
       }
       const match = NAV.find((n) => n.hash === raw)
       if (match) setView(match.id)
+      else if (raw === 'consistency') setView('consistency')
+      else if (raw === 'research') setView('research')
+      else if (raw === 'data') setView('data-engineering')
+      else if (raw === 'dev') setView('developer')
     }
     applyHash()
     window.addEventListener('hashchange', applyHash)
@@ -90,36 +99,31 @@ export function AppShell({ children }: { children: ReactNode }) {
       </a>
 
       <nav className="rail" aria-label="Primary">
-        <button type="button" className="brand" onClick={() => go('overview', 'overview')}>
+        <button type="button" className="brand" onClick={() => go('map', 'map')}>
           <span className="brand-mark">EIS</span>
-          <span className="brand-dot">Energy Intelligence System</span>
+          <span className="brand-dot">Grid Pulse · Energy Intelligence</span>
         </button>
 
         <ul className="menu-items">
-          {NAV.map((item) => (
-            <li key={item.id}>
-              <button
-                type="button"
-                className={
-                  view === item.id ||
-                  (view === 'state-detail' && item.id === 'states') ||
-                  (view === 'gas' && item.id === 'fossil')
-                    ? 'active'
-                    : undefined
-                }
-                onClick={() => go(item.id, item.hash)}
-                aria-current={
-                  view === item.id ||
-                  (view === 'state-detail' && item.id === 'states') ||
-                  (view === 'gas' && item.id === 'fossil')
-                    ? 'page'
-                    : undefined
-                }
-              >
-                {item.label}
-              </button>
-            </li>
-          ))}
+          {NAV.map((item) => {
+            const active =
+              view === item.id ||
+              (view === 'overview' && item.id === 'map') ||
+              (view === 'state-detail' && item.id === 'states') ||
+              (view === 'gas' && item.id === 'fossil')
+            return (
+              <li key={item.id}>
+                <button
+                  type="button"
+                  className={active ? 'active' : undefined}
+                  onClick={() => go(item.id, item.hash)}
+                  aria-current={active ? 'page' : undefined}
+                >
+                  {item.label}
+                </button>
+              </li>
+            )
+          })}
         </ul>
 
         <div className="menu-actions">
@@ -140,9 +144,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="menu-meta">
           <LiveClock />
           <br />
-          California
+          Live map
           <br />
-          sample grid data
+          stream + replay
         </div>
 
         <div className="rail-credit">

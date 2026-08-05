@@ -1,6 +1,6 @@
 import { AppProvider, useApp } from './context/AppContext'
 import { AppShell } from './components/layout/AppShell'
-import { OverviewDashboard } from './components/panels/OverviewDashboard'
+import { GridMapApp } from './components/grid/GridMapApp'
 import { PortfoliosPanel } from './components/panels/PortfoliosPanel'
 import { StatesCatalogPanel } from './components/panels/StatesCatalogPanel'
 import { StateDetailPanel } from './components/panels/StateDetailPanel'
@@ -16,8 +16,9 @@ function ViewRouter() {
   const { view } = useApp()
 
   switch (view) {
+    case 'map':
     case 'overview':
-      return <OverviewDashboard />
+      return <GridMapApp />
     case 'portfolios':
       return <PortfoliosPanel />
     case 'states':
@@ -40,7 +41,7 @@ function ViewRouter() {
     case 'developer':
       return <DeveloperPanel />
     default:
-      return <OverviewDashboard />
+      return <GridMapApp />
   }
 }
 

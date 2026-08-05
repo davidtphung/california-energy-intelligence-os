@@ -23,12 +23,13 @@ export type CARegion =
 
 export type AppMode = 'analyst' | 'planner' | 'engineer' | 'developer'
 export type AppView =
-  | 'overview'
+  | 'map' // Grid Pulse · primary live map
+  | 'overview' // legacy alias → map
   | 'portfolios'
   | 'states'
   | 'state-detail'
   | 'fossil'
-  | 'gas' // alias → fossil (legacy #gas links)
+  | 'gas' // alias → fossil
   | 'policy'
   | 'consistency'
   | 'scenarios'
