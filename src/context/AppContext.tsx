@@ -74,7 +74,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     document.documentElement.setAttribute('data-theme', theme)
     document.documentElement.classList.toggle('dark', theme === 'dark')
     localStorage.setItem('ceios-theme', theme)
-    const color = theme === 'dark' ? '#141311' : '#ffffff'
+    const color = theme === 'dark' ? '#000000' : '#ffffff'
     document
       .querySelectorAll('meta[name="theme-color"]')
       .forEach((el) => el.setAttribute('content', color))

@@ -53,7 +53,7 @@ export function LoadGenerationChart({ data, height = 280 }: Props) {
         />
         <Tooltip
           contentStyle={{
-            background: theme === 'dark' ? '#1c1a17' : '#ffffff',
+            background: theme === 'dark' ? '#000000' : '#ffffff',
             border: `1px solid ${grid}`,
             borderRadius: 2,
             fontSize: 12,

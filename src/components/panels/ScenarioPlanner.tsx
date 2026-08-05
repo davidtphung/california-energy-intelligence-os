@@ -228,7 +228,7 @@ export function ScenarioPlanner() {
                 <YAxis tick={{ fill: tick, fontSize: 11 }} axisLine={false} tickLine={false} width={32} />
                 <Tooltip
                   contentStyle={{
-                    background: theme === 'dark' ? '#1c1a17' : '#ffffff',
+                    background: theme === 'dark' ? '#000000' : '#ffffff',
                     border: '1px solid var(--line)',
                     borderRadius: 2,
                     fontSize: 12,

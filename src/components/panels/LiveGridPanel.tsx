@@ -33,7 +33,7 @@ export function LiveGridPanel() {
   const { theme } = useApp()
   const tick = theme === 'dark' ? '#8a8478' : '#7a7468'
   const grid = theme === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'
-  const tipBg = theme === 'dark' ? '#1c1a17' : '#ffffff'
+  const tipBg = theme === 'dark' ? '#000000' : '#ffffff'
 
   const caiso = data?.caiso
   const fuel = caiso?.fuel

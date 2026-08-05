@@ -45,9 +45,9 @@ html[data-theme="light"] {
 /* Dark: charcoal paper */
 html[data-theme="dark"] {
   color-scheme: dark;
-  --bg: #141311;
-  --bg-soft: #1c1a17;
-  --surface: #22201c;
+  --bg: #000000;
+  --bg-soft: #000000;
+  --surface: #000000;
   --ink: #e8e4db;
   --ink-2: #c9c3b6;
   --mute: #8a8478;

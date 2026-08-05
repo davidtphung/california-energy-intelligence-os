@@ -72,7 +72,7 @@ export function GenerationMixChart({ data, height = 300, stacked = true }: Props
           />
           <Tooltip
             contentStyle={{
-              background: theme === 'dark' ? '#1c1a17' : '#ffffff',
+              background: theme === 'dark' ? '#000000' : '#ffffff',
               border: `1px solid ${grid}`,
               borderRadius: 2,
               fontSize: 12,
@@ -109,7 +109,7 @@ export function GenerationMixChart({ data, height = 300, stacked = true }: Props
         <YAxis tick={{ fill: tick, fontSize: 11 }} axisLine={false} tickLine={false} unit=" MW" width={56} />
         <Tooltip
           contentStyle={{
-            background: theme === 'dark' ? '#1c1a17' : '#ffffff',
+            background: theme === 'dark' ? '#000000' : '#ffffff',
             border: `1px solid ${grid}`,
             borderRadius: 2,
             fontSize: 12,
