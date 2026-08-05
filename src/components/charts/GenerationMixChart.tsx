@@ -98,9 +98,9 @@ export function GenerationMixChart({ data, height = 300, stacked = true }: Props
         <YAxis tick={{ fill: tick, fontSize: 11 }} axisLine={false} tickLine={false} unit=" MW" width={56} />
         <Tooltip
           contentStyle={{
-            background: theme === 'dark' ? '#0a0a0a' : '#fff',
+            background: theme === 'dark' ? '#1c1a17' : '#e4e0d7',
             border: `1px solid ${grid}`,
-            borderRadius: 10,
+            borderRadius: 2,
             fontSize: 12,
           }}
         />
