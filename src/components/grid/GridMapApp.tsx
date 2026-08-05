@@ -43,6 +43,7 @@ import { exportCsv } from '../../lib/utils'
 import { useApp } from '../../context/AppContext'
 import { FutureBalanceMap } from './FutureBalanceMap'
 import { ConstructionProjectsMap } from './ConstructionProjectsMap'
+import { UtilityGridMap } from './UtilityGridMap'
 
 const W = 1100
 const H = 640
@@ -52,7 +53,7 @@ const METRIC_OPTIONS = Object.entries(METRIC_META).map(([k, v]) => ({
   label: v.label,
 }))
 
-type MapLens = 'live' | 'future' | 'build'
+type MapLens = 'live' | 'future' | 'build' | 'grid'
 
 function MapLensBar({
   lens,
@@ -63,6 +64,13 @@ function MapLensBar({
 }) {
   return (
     <div className="gmap-mode" style={{ marginBottom: lens === 'live' ? 0 : '0.5rem' }}>
+      <button
+        type="button"
+        className={lens === 'grid' ? 'is-on' : ''}
+        onClick={() => setLens('grid')}
+      >
+        Grid / utilities
+      </button>
       <button
         type="button"
         className={lens === 'build' ? 'is-on' : ''}
@@ -90,7 +98,7 @@ function MapLensBar({
 
 export function GridMapApp() {
   const { theme, openStateDetail } = useApp()
-  const [lens, setLens] = useState<MapLens>('build')
+  const [lens, setLens] = useState<MapLens>('grid')
   const [filters, setFilters] = useState<GridFilters>(DEFAULT_FILTERS)
   const [layers, setLayers] = useState<Record<LayerId, boolean>>(() =>
     Object.fromEntries(LAYER_META.map((l) => [l.id, l.defaultOn])) as Record<LayerId, boolean>
@@ -203,6 +211,15 @@ export function GridMapApp() {
       return all.filter((x) => ['Load', 'Gen', 'Voltage', 'Current', 'Congest', 'Alerts'].includes(x.k))
     return all.slice(0, 6)
   }, [kpis, filters.role])
+
+  if (lens === 'grid') {
+    return (
+      <div className="gmap fadein t1" id="grid-map">
+        <MapLensBar lens={lens} setLens={setLens} />
+        <UtilityGridMap />
+      </div>
+    )
+  }
 
   if (lens === 'build') {
     return (
