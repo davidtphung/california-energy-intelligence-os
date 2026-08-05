@@ -25,7 +25,7 @@ export function ResearchWorkspace() {
         s.summary.toLowerCase().includes(q) ||
         s.tags.some((t) => t.toLowerCase().includes(q))
       return matchQ && (orgFilter === 'all' || s.organization === orgFilter)
-    })
+    }).sort((a, b) => b.year - a.year || a.title.localeCompare(b.title))
   }, [query, orgFilter])
 
   const citations = useMemo(() => {

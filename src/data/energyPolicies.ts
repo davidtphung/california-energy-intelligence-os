@@ -54,15 +54,16 @@ export interface EnergyPolicy {
   cite?: string
 }
 
+/** Eras newest-first for timeline UI (current decade on top) */
 export const POLICY_ERAS: { id: PolicyEra; label: string; range: string }[] = [
-  { id: 'pre-1900', label: 'Pre-1900', range: 'Founding to industrial power' },
-  { id: '1900-1930', label: '1900-1930', range: 'Utility rise and early regulation' },
-  { id: 'new-deal', label: 'New Deal', range: '1930s-1940s public power' },
-  { id: 'postwar', label: 'Postwar boom', range: '1950s-1960s buildout' },
-  { id: '1970s-crisis', label: '1970s crisis', range: 'Oil shocks and conservation' },
-  { id: 'deregulation', label: 'Markets era', range: '1980s-1990s restructuring' },
-  { id: 'climate-2000s', label: 'Climate 2000s', range: 'RPS and early climate law' },
   { id: 'current', label: 'Current decade', range: '2015-present' },
+  { id: 'climate-2000s', label: 'Climate 2000s', range: 'RPS and early climate law' },
+  { id: 'deregulation', label: 'Markets era', range: '1980s-1990s restructuring' },
+  { id: '1970s-crisis', label: '1970s crisis', range: 'Oil shocks and conservation' },
+  { id: 'postwar', label: 'Postwar boom', range: '1950s-1960s buildout' },
+  { id: 'new-deal', label: 'New Deal', range: '1930s-1940s public power' },
+  { id: '1900-1930', label: '1900-1930', range: 'Utility rise and early regulation' },
+  { id: 'pre-1900', label: 'Pre-1900', range: 'Founding to industrial power' },
 ]
 
 export const POLICY_LEVELS: { id: PolicyLevel; label: string }[] = [
@@ -1630,5 +1631,6 @@ export function filterPolicies(
         p.themes.some((t) => t.includes(q))
       )
     })
-    .sort((a, b) => a.year - b.year || a.title.localeCompare(b.title))
+    // Latest first, then title
+    .sort((a, b) => b.year - a.year || a.title.localeCompare(b.title))
 }

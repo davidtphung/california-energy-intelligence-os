@@ -45,7 +45,8 @@ export function PolicyPanel() {
   const [theme, setTheme] = useState<PolicyTheme | 'all'>('all')
   const [stateAbbr, setStateAbbr] = useState<string | 'all'>('all')
   const [query, setQuery] = useState('')
-  const [selectedId, setSelectedId] = useState<string>(ENERGY_POLICIES[0]?.id ?? '')
+  // Empty id → detail pane defaults to newest matching policy
+  const [selectedId, setSelectedId] = useState<string>('')
 
   const filtered = useMemo(
     () =>
@@ -295,8 +296,11 @@ export function PolicyPanel() {
       <div className="grid-2" style={{ alignItems: 'start' }}>
         <section className="block">
           <p className="kicker">Timeline</p>
-          <h2 className="page-h2">By era</h2>
-          <p className="sub">Click a policy for detail. Scroll eras from founding electrification to IRA and local codes.</p>
+          <h2 className="page-h2">By era · latest first</h2>
+          <p className="sub">
+            Newest policies on top (current decade down to pre-1900). Within each era, years run
+            latest to oldest. Click a row for detail.
+          </p>
 
           <div className="policy-timeline">
             {byEra.map((e) => (
