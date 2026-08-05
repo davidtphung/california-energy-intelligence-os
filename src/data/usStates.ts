@@ -12,6 +12,7 @@ export type USRegion =
   | 'Pacific'
   | 'Mountain'
   | 'Alaska / Hawaii'
+  | 'Caribbean'
 
 export type GridOperator =
   | 'CAISO'
@@ -108,6 +109,7 @@ export const US_STATES: USStateEnergy[] = [
   { fips: '54', abbr: 'WV', name: 'West Virginia', region: 'Southeast', grid: 'PJM', lon: -80.6, lat: 38.6, capacityGw: 16, generationTwh: 65, peakGw: 5, cleanPct: 12, primary: 'Coal', secondary: 'Gas', nuclearGw: 0, solarGw: 0.2, windGw: 0.7, gasGw: 2, coalGw: 11, hydroGw: 0.3, storageGw: 0.02, note: 'Coal export baseload to PJM.' },
   { fips: '55', abbr: 'WI', name: 'Wisconsin', region: 'Midwest', grid: 'MISO', lon: -89.8, lat: 44.5, capacityGw: 20, generationTwh: 62, peakGw: 14, cleanPct: 32, primary: 'Gas', secondary: 'Coal', nuclearGw: 1.2, solarGw: 1.5, windGw: 1.0, gasGw: 8, coalGw: 5, hydroGw: 0.5, storageGw: 0.1, note: 'MISO; nuclear + thermal mix.' },
   { fips: '56', abbr: 'WY', name: 'Wyoming', region: 'Mountain', grid: 'WECC (non-CAISO)', lon: -107.5, lat: 43.0, capacityGw: 12, generationTwh: 48, peakGw: 2.5, cleanPct: 28, primary: 'Coal', secondary: 'Wind', nuclearGw: 0, solarGw: 0.2, windGw: 2.5, gasGw: 1, coalGw: 6.5, hydroGw: 0.3, storageGw: 0.05, note: 'Coal exporter; wind growth for West.' },
+  { fips: '72', abbr: 'PR', name: 'Puerto Rico', region: 'Caribbean', grid: 'Multiple / other', lon: -66.5, lat: 18.22, capacityGw: 5.8, generationTwh: 18, peakGw: 3.0, cleanPct: 8, primary: 'Oil / residual', secondary: 'Gas', nuclearGw: 0, solarGw: 0.7, windGw: 0.15, gasGw: 1.2, coalGw: 0.5, hydroGw: 0.1, storageGw: 0.15, note: 'PREPA / LUMA island grid; heavy oil and distillate legacy; solar + storage recovery build after Maria and grid reforms.' },
 ]
 
 export const US_REGIONS: USRegion[] = [
@@ -119,6 +121,7 @@ export const US_REGIONS: USRegion[] = [
   'Pacific',
   'Mountain',
   'Alaska / Hawaii',
+  'Caribbean',
 ]
 
 export const GRID_OPS: GridOperator[] = [
@@ -134,7 +137,7 @@ export const GRID_OPS: GridOperator[] = [
   'Multiple / other',
 ]
 
-/** Project lon/lat to SVG for contiguous US + AK/HI insets */
+/** Project lon/lat to SVG for contiguous US + AK / HI / PR insets */
 export function projectUS(
   lon: number,
   lat: number,
@@ -152,6 +155,12 @@ export function projectUS(
     const x = 180 + ((lon + 162) / 8) * 80
     const y = 380 + ((22.5 - lat) / 4) * 40
     return { x: Math.min(280, Math.max(170, x)), y: Math.min(440, Math.max(370, y)) }
+  }
+  // Puerto Rico inset (Caribbean)
+  if (lon > -68 && lon < -65 && lat > 17 && lat < 19) {
+    const x = 320 + ((lon + 67.5) / 2.5) * 70
+    const y = 390 + ((18.6 - lat) / 1.2) * 35
+    return { x: Math.min(410, Math.max(310, x)), y: Math.min(440, Math.max(375, y)) }
   }
   // Contiguous US
   const minLon = -125

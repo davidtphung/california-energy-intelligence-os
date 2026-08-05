@@ -38,7 +38,7 @@ export function USAMap({ states, selected, onSelect, metric = 'cleanPct' }: Prop
         viewBox={`0 0 ${W} ${H}`}
         className="usamap-svg"
         role="img"
-        aria-label="United States energy map. Select a state."
+        aria-label="United States and Puerto Rico energy map. Select a jurisdiction."
       >
         <rect width={W} height={H} fill="var(--bg)" />
 
@@ -50,7 +50,7 @@ export function USAMap({ states, selected, onSelect, metric = 'cleanPct' }: Prop
           strokeWidth={1.2}
         />
 
-        {/* AK / HI inset frames */}
+        {/* AK / HI / PR inset frames */}
         <rect x={24} y={300} width={150} height={140} rx={4} fill="none" stroke="var(--line-soft)" strokeDasharray="3 3" />
         <text x={32} y={316} fill="var(--mute)" fontSize={10} fontFamily="var(--font-mono)">
           AK
@@ -58,6 +58,10 @@ export function USAMap({ states, selected, onSelect, metric = 'cleanPct' }: Prop
         <rect x={168} y={360} width={120} height={80} rx={4} fill="none" stroke="var(--line-soft)" strokeDasharray="3 3" />
         <text x={176} y={376} fill="var(--mute)" fontSize={10} fontFamily="var(--font-mono)">
           HI
+        </text>
+        <rect x={304} y={360} width={120} height={80} rx={4} fill="none" stroke="var(--line-soft)" strokeDasharray="3 3" />
+        <text x={312} y={376} fill="var(--mute)" fontSize={10} fontFamily="var(--font-mono)">
+          PR
         </text>
 
         {states.map((s) => {

@@ -75,8 +75,8 @@ export function StatesCatalogPanel() {
       <div className="intro">
         <strong>United States catalog</strong>
         <p>
-          All 50 states with energy capacity, peak, clean share, and primary fuel. California is the
-          home workspace; use this map to navigate the other 49 and compare grids.
+          All 50 states plus Puerto Rico: capacity, peak, clean share, trade, and primary fuel.
+          California is the home workspace; use this map to navigate other jurisdictions.
         </p>
       </div>
 
@@ -84,7 +84,7 @@ export function StatesCatalogPanel() {
         <div className="metric" style={{ cursor: 'default' }}>
           <span className="metric-label">States shown</span>
           <span className="metric-value">{t.count}</span>
-          <span className="metric-hint">of 50</span>
+          <span className="metric-hint">of 51 (50 + PR)</span>
         </div>
         <div className="metric" style={{ cursor: 'default' }}>
           <span className="metric-label">Capacity</span>
@@ -207,8 +207,8 @@ export function StatesCatalogPanel() {
           <p className="kicker">Map</p>
           <h2 className="page-h2">Navigate the USA</h2>
           <p className="sub">
-            Click a state. Dot size and color follow the map metric ({metric}). AK and HI sit in
-            insets.
+            Click a state or Puerto Rico. Dot size and color follow the map metric ({metric}). AK, HI,
+            and PR sit in insets.
           </p>
           <USAMap
             states={filtered.length ? filtered : US_STATES}
@@ -376,8 +376,8 @@ export function StatesCatalogPanel() {
         <p className="kicker">Catalog</p>
         <h2 className="page-h2">All states</h2>
         <p className="sub">
-          Smart list of {filtered.length} states. Other 49 (ex-CA) total capacity{' '}
-          {totals(other49).capacityGw.toFixed(0)} GW in the full sample.
+          Smart list of {filtered.length} jurisdictions (states + PR). Other mainland/territory sample
+          capacity (ex-CA) {totals(other49).capacityGw.toFixed(0)} GW.
         </p>
         <div className="table-wrap">
           <table className="data-table">

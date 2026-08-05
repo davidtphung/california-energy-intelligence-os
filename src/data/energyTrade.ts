@@ -69,6 +69,14 @@ export const STATE_TRADE: Record<string, StateTrade> = {
   WV: { abbr: 'WV', importsTwh: 4, exportsTwh: 35, importFrom: ['OH', 'VA', 'PA'], exportTo: ['VA', 'MD', 'PA', 'OH'], note: 'Coal baseload export to PJM.' },
   WI: { abbr: 'WI', importsTwh: 14, exportsTwh: 8, importFrom: ['IL', 'MN', 'MI'], exportTo: ['IL', 'MN'], note: 'Often net importer from IL nuclear.' },
   WY: { abbr: 'WY', importsTwh: 2, exportsTwh: 22, importFrom: ['MT', 'CO'], exportTo: ['CO', 'UT', 'ID', 'CA path'], note: 'Coal + wind export state.' },
+  PR: {
+    abbr: 'PR',
+    importsTwh: 0,
+    exportsTwh: 0,
+    importFrom: [],
+    exportTo: [],
+    note: 'Islanded PREPA/LUMA system; no AC interstate electricity trade. Energy imports are liquid fuels (oil, diesel, LNG feedstock), not grid kWh.',
+  },
 }
 
 export function tradeOf(abbr: string): StateTrade {
