@@ -184,3 +184,54 @@ export function totals(states: USStateEnergy[]) {
     count: states.length,
   }
 }
+
+export function stateByAbbr(abbr: string): USStateEnergy | undefined {
+  return US_STATES.find((s) => s.abbr.toUpperCase() === abbr.toUpperCase())
+}
+
+/** 1 = highest for the metric among all states */
+export function rankOf(
+  abbr: string,
+  metric: keyof Pick<
+    USStateEnergy,
+    | 'capacityGw'
+    | 'generationTwh'
+    | 'peakGw'
+    | 'cleanPct'
+    | 'solarGw'
+    | 'windGw'
+    | 'nuclearGw'
+    | 'storageGw'
+  >
+): { rank: number; of: number; value: number } {
+  const sorted = [...US_STATES].sort(
+    (a, b) => (b[metric] as number) - (a[metric] as number)
+  )
+  const idx = sorted.findIndex((s) => s.abbr === abbr)
+  const row = sorted[idx] ?? sorted[0]
+  return { rank: idx + 1, of: sorted.length, value: row[metric] as number }
+}
+
+export function regionTotals(region: USRegion) {
+  return totals(US_STATES.filter((s) => s.region === region))
+}
+
+export function gridTotals(grid: GridOperator) {
+  return totals(US_STATES.filter((s) => s.grid === grid))
+}
+
+export function fuelStack(s: USStateEnergy) {
+  const parts = [
+    { key: 'Nuclear', gw: s.nuclearGw, color: '#7c3aed' },
+    { key: 'Solar', gw: s.solarGw, color: '#b45309' },
+    { key: 'Wind', gw: s.windGw, color: '#0369a1' },
+    { key: 'Hydro', gw: s.hydroGw, color: '#0e7490' },
+    { key: 'Gas', gw: s.gasGw, color: '#78716c' },
+    { key: 'Coal', gw: s.coalGw, color: '#44403c' },
+    { key: 'Storage', gw: s.storageGw, color: '#166534' },
+  ]
+  const sum = parts.reduce((a, p) => a + p.gw, 0) || 1
+  return parts
+    .filter((p) => p.gw > 0)
+    .map((p) => ({ ...p, pct: (p.gw / sum) * 100 }))
+}

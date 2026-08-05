@@ -22,7 +22,7 @@ import { tradeOf, withTrade, tradeTotals } from '../../data/energyTrade'
 type SortKey = 'name' | 'capacityGw' | 'cleanPct' | 'peakGw' | 'generationTwh'
 
 export function StatesCatalogPanel() {
-  const { setDrilldown, setView } = useApp()
+  const { openStateDetail } = useApp()
   const [query, setQuery] = useState('')
   const [region, setRegion] = useState<USRegion | 'all'>('all')
   const [grid, setGrid] = useState<GridOperator | 'all'>('all')
@@ -65,9 +65,10 @@ export function StatesCatalogPanel() {
   )
   const focusTrade = focus ? tradeOf(focus.abbr) : null
 
-  const selectState = (abbr: string) => {
+  /** Open full dedicated state page */
+  const openState = (abbr: string) => {
     setSelected(abbr)
-    setDrilldown(`state:${abbr}`)
+    openStateDetail(abbr)
   }
 
   return (
@@ -213,7 +214,7 @@ export function StatesCatalogPanel() {
           <USAMap
             states={filtered.length ? filtered : US_STATES}
             selected={selected}
-            onSelect={selectState}
+            onSelect={openState}
             metric={metric}
           />
         </section>
@@ -234,6 +235,9 @@ export function StatesCatalogPanel() {
                 <Badge>{focus.grid}</Badge>
                 {focus.abbr === 'CA' && <Badge variant="success">Home workspace</Badge>}
               </div>
+              <Button size="sm" style={{ marginBottom: 12 }} onClick={() => openState(focus.abbr)}>
+                Open full {focus.abbr} page
+              </Button>
               <table className="list-table">
                 <tbody>
                   <tr>
@@ -326,18 +330,6 @@ export function StatesCatalogPanel() {
                   </p>
                 </>
               )}
-              {focus.abbr === 'CA' && (
-                <Button
-                  size="sm"
-                  style={{ marginTop: 10 }}
-                  onClick={() => {
-                    setView('overview')
-                    window.history.replaceState(null, '', '#overview')
-                  }}
-                >
-                  Open California workspace
-                </Button>
-              )}
             </>
           ) : (
             <p className="sub">No states match filters.</p>
@@ -353,12 +345,12 @@ export function StatesCatalogPanel() {
         <p className="sub">
           Filtered set: {tradeSum.importsTwh} TWh imports · {tradeSum.exportsTwh} TWh exports · net{' '}
           {tradeSum.netExportTwh >= 0 ? '+' : ''}
-          {tradeSum.netExportTwh} TWh. California detail below the national chart.
+          {tradeSum.netExportTwh} TWh. Click a bar to open that state&apos;s page.
         </p>
         <ImportExportChart
           states={filtered.length ? filtered : US_STATES}
           selectedAbbr={selected}
-          onSelect={selectState}
+          onSelect={openState}
         />
       </section>
 
@@ -400,7 +392,7 @@ export function StatesCatalogPanel() {
               {tradeRows.map((s) => (
                 <tr
                   key={s.abbr}
-                  onClick={() => selectState(s.abbr)}
+                  onClick={() => openState(s.abbr)}
                   style={{
                     cursor: 'pointer',
                     background: s.abbr === selected ? 'var(--fill)' : undefined,

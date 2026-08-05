@@ -35,7 +35,7 @@ function LiveClock() {
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const { theme, toggleTheme, view, setView, filters } = useApp()
+  const { theme, toggleTheme, view, setView, filters, openStateDetail } = useApp()
 
   const go = (id: AppView, hash: string) => {
     setView(id)
@@ -45,14 +45,22 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const applyHash = () => {
-      const h = window.location.hash.replace('#', '')
-      const match = NAV.find((n) => n.hash === h)
+      const raw = window.location.hash.replace('#', '')
+      // Dedicated state pages: #state/CA or #state/PR
+      if (raw.startsWith('state/')) {
+        const abbr = raw.slice('state/'.length).split(/[/?#]/)[0]
+        if (abbr && abbr.length >= 2) {
+          openStateDetail(abbr)
+          return
+        }
+      }
+      const match = NAV.find((n) => n.hash === raw)
       if (match) setView(match.id)
     }
     applyHash()
     window.addEventListener('hashchange', applyHash)
     return () => window.removeEventListener('hashchange', applyHash)
-  }, [setView])
+  }, [setView, openStateDetail])
 
   const handleExport = () => {
     exportJson(
@@ -85,9 +93,17 @@ export function AppShell({ children }: { children: ReactNode }) {
             <li key={item.id}>
               <button
                 type="button"
-                className={view === item.id ? 'active' : undefined}
+                className={
+                  view === item.id || (view === 'state-detail' && item.id === 'states')
+                    ? 'active'
+                    : undefined
+                }
                 onClick={() => go(item.id, item.hash)}
-                aria-current={view === item.id ? 'page' : undefined}
+                aria-current={
+                  view === item.id || (view === 'state-detail' && item.id === 'states')
+                    ? 'page'
+                    : undefined
+                }
               >
                 {item.label}
               </button>

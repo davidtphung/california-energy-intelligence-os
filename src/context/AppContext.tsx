@@ -29,6 +29,10 @@ interface AppContextValue {
   setMode: (m: AppMode) => void
   view: AppView
   setView: (v: AppView) => void
+  /** Two-letter state / PR abbr when viewing dedicated state page */
+  selectedStateAbbr: string | null
+  /** Open dedicated state detail page (hash #state/CA) */
+  openStateDetail: (abbr: string) => void
   filters: Filters
   setFilters: (f: Partial<Filters>) => void
   scenarios: Scenario[]
@@ -65,11 +69,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
   })
   const [mode, setMode] = useState<AppMode>('analyst')
   const [view, setView] = useState<AppView>('overview')
+  const [selectedStateAbbr, setSelectedStateAbbr] = useState<string | null>(null)
   const [filters, setFiltersState] = useState<Filters>(defaultFilters)
   const [scenarios, setScenarios] = useState<Scenario[]>(PRESET_SCENARIOS)
   const [notes, setNotes] = useState<Note[]>(INITIAL_NOTES)
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [drilldown, setDrilldown] = useState<string | null>(null)
+
+  const openStateDetail = useCallback((abbr: string) => {
+    const a = abbr.toUpperCase()
+    setSelectedStateAbbr(a)
+    setView('state-detail')
+    setDrilldown(`state:${a}`)
+    window.history.replaceState(null, '', `#state/${a}`)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [])
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
@@ -158,6 +172,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setMode,
       view,
       setView,
+      selectedStateAbbr,
+      openStateDetail,
       filters,
       setFilters,
       scenarios,
@@ -177,6 +193,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       toggleTheme,
       mode,
       view,
+      selectedStateAbbr,
+      openStateDetail,
       filters,
       setFilters,
       scenarios,

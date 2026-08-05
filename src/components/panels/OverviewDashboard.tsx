@@ -1,385 +1,485 @@
 import { useMemo, useState } from 'react'
-import { useApp } from '../../context/AppContext'
 import {
-  getCapacityByTech,
-  getGenerationBySource,
-  getHourlySeries,
-  getKPIs,
-  getRegionalCapacity,
-  getTransmissionFlows,
-  PLANTS,
-  POLICY_TARGETS,
-} from '../../data/mockData'
+  US_STATES,
+  US_REGIONS,
+  GRID_OPS,
+  totals,
+  regionTotals,
+  gridTotals,
+  type USRegion,
+} from '../../data/usStates'
+import { tradeTotals, withTrade } from '../../data/energyTrade'
+import { useApp } from '../../context/AppContext'
+import { USAMap } from '../charts/USAMap'
+import { ImportExportChart } from '../charts/ImportExportChart'
 import { Badge } from '../ui/Badge'
 import { Select } from '../ui/Select'
-import { Tabs } from '../ui/Tabs'
 import { Button } from '../ui/Button'
-import { CapacityBarChart } from '../charts/CapacityBarChart'
-import { GenerationMixChart } from '../charts/GenerationMixChart'
-import { LoadGenerationChart } from '../charts/LoadGenerationChart'
-import { FlowView } from '../charts/FlowView'
-import { CAMap } from '../charts/CAMap'
-import { EnergyPathwayMap } from '../charts/EnergyPathwayMap'
-import { BaseloadDensityTimeline } from '../charts/BaseloadDensityTimeline'
-import { CaliforniaTradeDetail } from '../charts/ImportExportChart'
 import { LiveGridPanel } from './LiveGridPanel'
-import { TECH_LABELS, formatNumber } from '../../lib/utils'
-import type { Technology, CARegion } from '../../types'
+
+type MapMetric = 'cleanPct' | 'capacityGw' | 'peakGw' | 'solarGw' | 'windGw'
 
 export function OverviewDashboard() {
-  const { filters, setFilters, setDrilldown, drilldown, setView } = useApp()
-  const [mixTab, setMixTab] = useState('stacked')
+  const { openStateDetail, setView } = useApp()
+  const [metric, setMetric] = useState<MapMetric>('cleanPct')
+  const [regionFocus, setRegionFocus] = useState<USRegion | 'all'>('all')
+  const [selected, setSelected] = useState<string | null>(null)
 
-  const kpis = useMemo(() => getKPIs(filters), [filters])
-  const capacity = useMemo(() => getCapacityByTech(filters), [filters])
-  const generation = useMemo(() => getGenerationBySource(filters), [filters])
-  const hourly = useMemo(() => getHourlySeries(filters), [filters])
-  const flows = useMemo(() => getTransmissionFlows(), [])
-  const regional = useMemo(() => getRegionalCapacity(filters), [filters])
+  const us = useMemo(() => totals(US_STATES), [])
+  const tradeSum = useMemo(() => tradeTotals(US_STATES.map((s) => s.abbr)), [])
+
+  const mapStates = useMemo(() => {
+    if (regionFocus === 'all') return US_STATES
+    return US_STATES.filter((s) => s.region === regionFocus)
+  }, [regionFocus])
+
+  const topCapacity = useMemo(
+    () => [...US_STATES].sort((a, b) => b.capacityGw - a.capacityGw).slice(0, 8),
+    []
+  )
+  const topClean = useMemo(
+    () => [...US_STATES].sort((a, b) => b.cleanPct - a.cleanPct).slice(0, 8),
+    []
+  )
+  const topWind = useMemo(
+    () => [...US_STATES].sort((a, b) => b.windGw - a.windGw).slice(0, 6),
+    []
+  )
+  const topSolar = useMemo(
+    () => [...US_STATES].sort((a, b) => b.solarGw - a.solarGw).slice(0, 6),
+    []
+  )
+  const topStorage = useMemo(
+    () => [...US_STATES].sort((a, b) => b.storageGw - a.storageGw).slice(0, 6),
+    []
+  )
+
+  const regionRows = useMemo(
+    () =>
+      US_REGIONS.map((r) => ({
+        region: r,
+        ...regionTotals(r),
+      })).filter((r) => r.count > 0),
+    []
+  )
+
+  const gridRows = useMemo(
+    () =>
+      GRID_OPS.map((g) => ({
+        grid: g,
+        ...gridTotals(g),
+      }))
+        .filter((g) => g.count > 0)
+        .sort((a, b) => b.capacityGw - a.capacityGw),
+    []
+  )
+
+  const tradeLeaders = useMemo(() => {
+    const rows = withTrade(US_STATES)
+    return {
+      exporters: [...rows].sort((a, b) => b.netExportTwh - a.netExportTwh).slice(0, 6),
+      importers: [...rows].sort((a, b) => a.netExportTwh - b.netExportTwh).slice(0, 6),
+    }
+  }, [])
+
+  const onState = (abbr: string) => {
+    setSelected(abbr)
+    openStateDetail(abbr)
+  }
 
   return (
-    <div>
-      <div className="intro fadein t1">
-        <strong>Energy Intelligence System</strong>
+    <div id="overview" className="fadein t1">
+      <div className="intro">
+        <strong>United States energy overview</strong>
         <p>
-          Live CAISO grid telemetry for today, plus research and scenario tools for California
-          electricity systems.
+          All 50 states plus Puerto Rico: capacity, peak, clean share, grids, regions, and trade.
+          Click any state for a dedicated profile page.
         </p>
       </div>
 
-      <LiveGridPanel />
-
-      <hr className="rule" />
-
-      <div className="fadein t2">
-        <BaseloadDensityTimeline />
+      <div className="metric-strip">
+        <div className="metric" style={{ cursor: 'default' }}>
+          <span className="metric-label">Jurisdictions</span>
+          <span className="metric-value">{us.count}</span>
+          <span className="metric-hint">50 states + PR</span>
+        </div>
+        <div className="metric" style={{ cursor: 'default' }}>
+          <span className="metric-label">Nameplate</span>
+          <span className="metric-value">
+            {us.capacityGw.toFixed(0)}
+            <span className="metric-unit">GW</span>
+          </span>
+          <span className="metric-hint">summed sample capacity</span>
+        </div>
+        <div className="metric" style={{ cursor: 'default' }}>
+          <span className="metric-label">Generation</span>
+          <span className="metric-value">
+            {us.generationTwh.toFixed(0)}
+            <span className="metric-unit">TWh</span>
+          </span>
+          <span className="metric-hint">annual sample total</span>
+        </div>
+        <div className="metric" style={{ cursor: 'default' }}>
+          <span className="metric-label">Avg clean</span>
+          <span className="metric-value">
+            {us.cleanAvg.toFixed(0)}
+            <span className="metric-unit">%</span>
+          </span>
+          <span className="metric-hint">
+            trade net {tradeSum.netExportTwh >= 0 ? '+' : ''}
+            {tradeSum.netExportTwh} TWh
+          </span>
+        </div>
       </div>
 
+      {/* Map */}
+      <section className="block fadein t2">
+        <div className="block-head">
+          <div>
+            <p className="kicker">Map</p>
+            <h2 className="page-h2">Click a state for its page</h2>
+            <p className="sub" style={{ marginBottom: 0 }}>
+              Dot size and color follow the map metric. AK, HI, and PR sit in insets.
+            </p>
+          </div>
+          <div className="btn-row">
+            <Select
+              label="Metric"
+              value={metric}
+              onChange={(e) => setMetric(e.target.value as MapMetric)}
+              options={[
+                { value: 'cleanPct', label: 'Clean %' },
+                { value: 'capacityGw', label: 'Capacity GW' },
+                { value: 'peakGw', label: 'Peak GW' },
+                { value: 'solarGw', label: 'Solar GW' },
+                { value: 'windGw', label: 'Wind GW' },
+              ]}
+            />
+            <Select
+              label="Region"
+              value={regionFocus}
+              onChange={(e) => setRegionFocus(e.target.value as USRegion | 'all')}
+              options={[
+                { value: 'all', label: 'All regions' },
+                ...US_REGIONS.map((r) => ({ value: r, label: r })),
+              ]}
+            />
+          </div>
+        </div>
+        <USAMap
+          states={mapStates.length ? mapStates : US_STATES}
+          selected={selected}
+          onSelect={onState}
+          metric={metric}
+        />
+        <div className="state-abbr-grid" style={{ marginTop: '0.85rem' }}>
+          {US_STATES.map((s) => (
+            <button
+              key={s.abbr}
+              type="button"
+              className={`state-abbr-btn${selected === s.abbr ? ' is-on' : ''}`}
+              onClick={() => onState(s.abbr)}
+              title={`${s.name} · open page`}
+            >
+              {s.abbr}
+            </button>
+          ))}
+        </div>
+      </section>
+
       <hr className="rule" />
 
+      {/* Regions */}
       <section className="block fadein t3">
-        <p className="kicker">Trade · California</p>
-        <h2 className="page-h2">Import and export energy</h2>
-        <p className="sub">
-          Annual electricity interchange sample for CA. Full 50-state chart lives under USA.
-        </p>
-        <CaliforniaTradeDetail />
-        <Button
-          size="sm"
-          style={{ marginTop: 12 }}
+        <p className="kicker">Regions</p>
+        <h2 className="page-h2">All US census-style energy regions</h2>
+        <p className="sub">Click a region to filter the map, or open a state from the leaders below.</p>
+        <div className="ov-region-grid">
+          {regionRows.map((r) => (
+            <button
+              key={r.region}
+              type="button"
+              className={`ov-region-card${regionFocus === r.region ? ' is-on' : ''}`}
+              onClick={() => setRegionFocus(r.region)}
+            >
+              <span className="ov-region-name">{r.region}</span>
+              <span className="mono ov-region-stat">
+                {r.count} · {r.capacityGw.toFixed(0)} GW · {r.cleanAvg.toFixed(0)}% clean
+              </span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <hr className="rule" />
+
+      {/* Grids */}
+      <section className="block">
+        <p className="kicker">Grids · ISOs</p>
+        <h2 className="page-h2">Balancing footprints</h2>
+        <p className="sub">Capacity rolled up by primary grid / ISO label on each state.</p>
+        <div className="table-wrap">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Grid / ISO</th>
+                <th style={{ textAlign: 'right' }}>States</th>
+                <th style={{ textAlign: 'right' }}>Cap GW</th>
+                <th style={{ textAlign: 'right' }}>Gen TWh</th>
+                <th style={{ textAlign: 'right' }}>Avg clean</th>
+              </tr>
+            </thead>
+            <tbody>
+              {gridRows.map((g) => (
+                <tr key={g.grid}>
+                  <td style={{ fontWeight: 600, color: 'var(--highlight)' }}>{g.grid}</td>
+                  <td className="num">{g.count}</td>
+                  <td className="num">{g.capacityGw.toFixed(0)}</td>
+                  <td className="num">{g.generationTwh.toFixed(0)}</td>
+                  <td className="num">{g.cleanAvg.toFixed(0)}%</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <hr className="rule" />
+
+      {/* Leaders */}
+      <div className="grid-2">
+        <section className="block">
+          <p className="kicker">Leaders</p>
+          <h2 className="page-h2">Largest capacity</h2>
+          <ol className="ov-rank-list">
+            {topCapacity.map((s, i) => (
+              <li key={s.abbr}>
+                <button type="button" className="ov-rank-btn" onClick={() => onState(s.abbr)}>
+                  <span className="mono muted">{i + 1}</span>
+                  <span className="ov-rank-name">
+                    <strong>{s.abbr}</strong> {s.name}
+                  </span>
+                  <span className="mono">{s.capacityGw} GW</span>
+                </button>
+              </li>
+            ))}
+          </ol>
+        </section>
+        <section className="block">
+          <p className="kicker">Leaders</p>
+          <h2 className="page-h2">Cleanest share</h2>
+          <ol className="ov-rank-list">
+            {topClean.map((s, i) => (
+              <li key={s.abbr}>
+                <button type="button" className="ov-rank-btn" onClick={() => onState(s.abbr)}>
+                  <span className="mono muted">{i + 1}</span>
+                  <span className="ov-rank-name">
+                    <strong>{s.abbr}</strong> {s.name}
+                  </span>
+                  <span className="mono">{s.cleanPct}%</span>
+                </button>
+              </li>
+            ))}
+          </ol>
+        </section>
+      </div>
+
+      <div className="grid-3">
+        <section className="block">
+          <p className="kicker">Solar</p>
+          <h2 className="page-h2">Top fleets</h2>
+          <ol className="ov-rank-list">
+            {topSolar.map((s, i) => (
+              <li key={s.abbr}>
+                <button type="button" className="ov-rank-btn" onClick={() => onState(s.abbr)}>
+                  <span className="mono muted">{i + 1}</span>
+                  <span className="ov-rank-name">
+                    <strong>{s.abbr}</strong>
+                  </span>
+                  <span className="mono">{s.solarGw} GW</span>
+                </button>
+              </li>
+            ))}
+          </ol>
+        </section>
+        <section className="block">
+          <p className="kicker">Wind</p>
+          <h2 className="page-h2">Top fleets</h2>
+          <ol className="ov-rank-list">
+            {topWind.map((s, i) => (
+              <li key={s.abbr}>
+                <button type="button" className="ov-rank-btn" onClick={() => onState(s.abbr)}>
+                  <span className="mono muted">{i + 1}</span>
+                  <span className="ov-rank-name">
+                    <strong>{s.abbr}</strong>
+                  </span>
+                  <span className="mono">{s.windGw} GW</span>
+                </button>
+              </li>
+            ))}
+          </ol>
+        </section>
+        <section className="block">
+          <p className="kicker">Storage</p>
+          <h2 className="page-h2">Top fleets</h2>
+          <ol className="ov-rank-list">
+            {topStorage.map((s, i) => (
+              <li key={s.abbr}>
+                <button type="button" className="ov-rank-btn" onClick={() => onState(s.abbr)}>
+                  <span className="mono muted">{i + 1}</span>
+                  <span className="ov-rank-name">
+                    <strong>{s.abbr}</strong>
+                  </span>
+                  <span className="mono">{s.storageGw} GW</span>
+                </button>
+              </li>
+            ))}
+          </ol>
+        </section>
+      </div>
+
+      <hr className="rule" />
+
+      {/* Trade */}
+      <section className="block">
+        <div className="block-head">
+          <div>
+            <p className="kicker">Trade</p>
+            <h2 className="page-h2">Import and export energy</h2>
+            <p className="sub" style={{ marginBottom: 0 }}>
+              National sample: {tradeSum.importsTwh} TWh imports · {tradeSum.exportsTwh} TWh exports
+              · net {tradeSum.netExportTwh >= 0 ? '+' : ''}
+              {tradeSum.netExportTwh} TWh. Click a bar or state for its page.
+            </p>
+          </div>
+          <Button
+            size="sm"
+            onClick={() => {
+              setView('states')
+              window.history.replaceState(null, '', '#states')
+            }}
+          >
+            Full trade catalog
+          </Button>
+        </div>
+        <ImportExportChart states={US_STATES} selectedAbbr={selected} onSelect={onState} />
+        <div className="grid-2" style={{ marginTop: '1.25rem' }}>
+          <div>
+            <p className="kicker">Top net exporters</p>
+            <ol className="ov-rank-list">
+              {tradeLeaders.exporters.map((s, i) => (
+                <li key={s.abbr}>
+                  <button type="button" className="ov-rank-btn" onClick={() => onState(s.abbr)}>
+                    <span className="mono muted">{i + 1}</span>
+                    <span className="ov-rank-name">
+                      <strong>{s.abbr}</strong> {s.name}
+                    </span>
+                    <span className="mono">+{s.netExportTwh} TWh</span>
+                  </button>
+                </li>
+              ))}
+            </ol>
+          </div>
+          <div>
+            <p className="kicker">Top net importers</p>
+            <ol className="ov-rank-list">
+              {tradeLeaders.importers.map((s, i) => (
+                <li key={s.abbr}>
+                  <button type="button" className="ov-rank-btn" onClick={() => onState(s.abbr)}>
+                    <span className="mono muted">{i + 1}</span>
+                    <span className="ov-rank-name">
+                      <strong>{s.abbr}</strong> {s.name}
+                    </span>
+                    <span className="mono">{s.netExportTwh} TWh</span>
+                  </button>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </div>
+      </section>
+
+      <hr className="rule" />
+
+      {/* All states table */}
+      <section className="block">
+        <p className="kicker">Directory</p>
+        <h2 className="page-h2">Every state and Puerto Rico</h2>
+        <p className="sub">Open any row for a dedicated state page with fleet, trade, and peers.</p>
+        <div className="table-wrap">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>State</th>
+                <th>Region</th>
+                <th>Grid</th>
+                <th style={{ textAlign: 'right' }}>Cap GW</th>
+                <th style={{ textAlign: 'right' }}>Peak GW</th>
+                <th style={{ textAlign: 'right' }}>TWh</th>
+                <th style={{ textAlign: 'right' }}>Clean %</th>
+                <th>Primary</th>
+              </tr>
+            </thead>
+            <tbody>
+              {[...US_STATES]
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((s) => (
+                  <tr
+                    key={s.abbr}
+                    onClick={() => onState(s.abbr)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <td style={{ fontWeight: 600, color: 'var(--highlight)' }}>
+                      {s.abbr}{' '}
+                      <span style={{ fontWeight: 500, color: 'var(--ink-2)' }}>{s.name}</span>
+                    </td>
+                    <td className="muted">{s.region}</td>
+                    <td className="muted">{s.grid}</td>
+                    <td className="num">{s.capacityGw}</td>
+                    <td className="num">{s.peakGw}</td>
+                    <td className="num">{s.generationTwh}</td>
+                    <td className="num">{s.cleanPct}</td>
+                    <td>{s.primary}</td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <hr className="rule" />
+
+      {/* CA live spotlight */}
+      <section className="block">
+        <div className="block-head">
+          <div>
+            <p className="kicker">California · live</p>
+            <h2 className="page-h2">CAISO today&apos;s grid</h2>
+            <p className="sub" style={{ marginBottom: 0 }}>
+              Home workspace with live ISO telemetry. Full California profile:{' '}
+              <button type="button" className="linkish" onClick={() => onState('CA')}>
+                open CA page
+              </button>
+              .
+            </p>
+          </div>
+          <Badge variant="success">Live feed</Badge>
+        </div>
+        <LiveGridPanel />
+      </section>
+
+      <p className="footer-line">
+        Overview · 50 states + PR · EIA-scale samples · click any state for a dedicated page ·{' '}
+        <button
+          type="button"
+          className="linkish"
           onClick={() => {
             setView('states')
             window.history.replaceState(null, '', '#states')
           }}
         >
-          Open USA trade chart
-        </Button>
-      </section>
-
-      <hr className="rule" />
-
-      <p className="kicker">Reference · sample</p>
-      <h2 className="page-h2">Modeled system snapshot</h2>
-      <p className="sub">
-        The metrics below remain scenario-scale placeholders for multi-year planning. Live CAISO
-        values are above.
-      </p>
-
-      <div className="metric-strip fadein t2">
-        <button type="button" className="metric" onClick={() => setDrilldown('kpi:peak-load')}>
-          <span className="metric-label">Peak load</span>
-          <span className="metric-value">
-            {kpis.peakLoadGw}
-            <span className="metric-unit">GW</span>
-          </span>
-          <span className="metric-hint">+2.1% vs prior year</span>
+          USA catalog
         </button>
-        <button type="button" className="metric" onClick={() => setDrilldown('kpi:clean-share')}>
-          <span className="metric-label">Clean share</span>
-          <span className="metric-value">
-            {kpis.cleanEnergySharePct}
-            <span className="metric-unit">%</span>
-          </span>
-          <span className="metric-hint">+3.4% vs prior year</span>
-        </button>
-        <button type="button" className="metric" onClick={() => setDrilldown('kpi:reserve')}>
-          <span className="metric-label">Reserve margin</span>
-          <span className="metric-value">
-            {kpis.reserveMarginPct}
-            <span className="metric-unit">%</span>
-          </span>
-          <span className="metric-hint">−0.8% vs prior year</span>
-        </button>
-        <button type="button" className="metric" onClick={() => setDrilldown('kpi:emissions')}>
-          <span className="metric-label">Emissions</span>
-          <span className="metric-value">
-            {kpis.emissionsMt}
-            <span className="metric-unit">Mt</span>
-          </span>
-          <span className="metric-hint">−4.2% vs prior year</span>
-        </button>
-      </div>
-
-      <div className="fadein t3">
-        <div className="block-head">
-          <div>
-            <p className="kicker">Grid</p>
-            <h2 className="page-h2">System read</h2>
-            <p className="sub" style={{ marginBottom: 0 }}>
-              {filters.year}
-              {filters.region !== 'all' ? ` · ${filters.region}` : ' · statewide'}
-              {drilldown ? ` · ${drilldown}` : ''}
-            </p>
-          </div>
-          <div className="btn-row">
-            <button
-              type="button"
-              className="btn btn-sm"
-              onClick={() => {
-                setView('scenarios')
-                window.history.replaceState(null, '', '#scenario')
-              }}
-            >
-              Open scenario
-            </button>
-            {drilldown && (
-              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setDrilldown(null)}>
-                Clear
-              </button>
-            )}
-          </div>
-        </div>
-
-        <div className="filters">
-          <Select
-            label="Year"
-            value={filters.year}
-            onChange={(e) => setFilters({ year: Number(e.target.value) })}
-            options={[2024, 2025, 2026, 2027, 2028, 2029, 2030].map((y) => ({
-              value: y,
-              label: String(y),
-            }))}
-          />
-          <Select
-            label="Month"
-            value={filters.month}
-            onChange={(e) =>
-              setFilters({ month: e.target.value === 'all' ? 'all' : Number(e.target.value) })
-            }
-            options={[
-              { value: 'all', label: 'All' },
-              ...Array.from({ length: 12 }, (_, i) => ({
-                value: i + 1,
-                label: new Date(2000, i).toLocaleString('en', { month: 'short' }),
-              })),
-            ]}
-          />
-          <Select
-            label="Tech"
-            value={filters.technology}
-            onChange={(e) => setFilters({ technology: e.target.value as Technology | 'all' })}
-            options={[
-              { value: 'all', label: 'All' },
-              ...Object.entries(TECH_LABELS).map(([k, v]) => ({ value: k, label: v })),
-            ]}
-          />
-          <Select
-            label="Region"
-            value={filters.region}
-            onChange={(e) => setFilters({ region: e.target.value as CARegion | 'all' })}
-            options={[
-              { value: 'all', label: 'Statewide' },
-              'Northern CA',
-              'Bay Area',
-              'Central Valley',
-              'Central Coast',
-              'Southern CA',
-              'Desert / Inland Empire',
-            ].map((r) => (typeof r === 'string' ? { value: r, label: r } : r))}
-          />
-        </div>
-
-        <table className="list-table" style={{ marginBottom: '1.25rem' }}>
-          <tbody>
-            <tr>
-              <th scope="row">Capacity</th>
-              <td>
-                {kpis.totalCapacityGw} GW nameplate · battery {kpis.batteryCapacityGw} GW · net
-                imports {kpis.netImportsGw} GW
-              </td>
-            </tr>
-            <tr>
-              <th scope="row">Storage day</th>
-              <td>~{kpis.batteryDischargeGwh} GWh discharge on a sample peak evening</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <hr className="rule fadein t3" />
-
-      <div className="fadein t3">
-        <EnergyPathwayMap />
-      </div>
-
-      <hr className="rule" />
-
-      <div className="grid-2 fadein t4">
-        <section className="block">
-          <p className="kicker">Capacity</p>
-          <h2 className="page-h2">By technology</h2>
-          <p className="sub">Nameplate GW - click a bar to drill down.</p>
-          <div className="chart-box">
-            <CapacityBarChart data={capacity} height={240} />
-          </div>
-        </section>
-        <section className="block">
-          <div className="block-head">
-            <div>
-              <p className="kicker">Generation</p>
-              <h2 className="page-h2">Sample day mix</h2>
-            </div>
-            <Tabs
-              tabs={[
-                { id: 'stacked', label: 'Stacked' },
-                { id: 'load', label: 'Load vs gen' },
-              ]}
-              active={mixTab}
-              onChange={setMixTab}
-            />
-          </div>
-          <div className="chart-box chart-box-legend">
-            <GenerationMixChart data={hourly} stacked={mixTab === 'stacked'} height={280} />
-          </div>
-        </section>
-      </div>
-
-      <div className="grid-2">
-        <section className="block">
-          <p className="kicker">Shape</p>
-          <h2 className="page-h2">Load & generation</h2>
-          <p className="sub">Net demand with solar and wind contribution.</p>
-          <div className="chart-box chart-box-legend">
-            <LoadGenerationChart data={hourly} height={260} />
-          </div>
-        </section>
-        <section className="block">
-          <p className="kicker">Share</p>
-          <h2 className="page-h2">Annualized energy</h2>
-          <p className="sub">Click a row to focus that technology.</p>
-          {generation
-            .slice()
-            .sort((a, b) => b.share - a.share)
-            .map((g) => (
-              <button
-                key={g.technology}
-                type="button"
-                className="share-row"
-                onClick={() => setDrilldown(`gen:${g.technology}`)}
-              >
-                <span className="mono muted" style={{ width: '5.5rem', fontSize: '0.7rem' }}>
-                  {TECH_LABELS[g.technology]}
-                </span>
-                <div className="progress-track">
-                  <div className="progress-fill" style={{ width: `${g.share}%` }} />
-                </div>
-                <span className="mono" style={{ width: '2.75rem', textAlign: 'right', color: 'var(--highlight)' }}>
-                  {g.share.toFixed(1)}%
-                </span>
-                <span className="mono muted" style={{ width: '3.25rem', textAlign: 'right' }}>
-                  {formatNumber(g.mwh / 1e6, 1)} TWh
-                </span>
-              </button>
-            ))}
-        </section>
-      </div>
-
-      <hr className="rule" />
-
-      <div className="grid-3">
-        <section className="block">
-          <p className="kicker">Place</p>
-          <h2 className="page-h2">Regions</h2>
-          <p className="sub">Click to filter the view.</p>
-          <CAMap data={regional} />
-        </section>
-        <section className="block">
-          <p className="kicker">Interties</p>
-          <h2 className="page-h2">Flows</h2>
-          <p className="sub">Imports, exports, internal paths.</p>
-          <FlowView flows={flows} />
-        </section>
-        <section className="block">
-          <p className="kicker">Policy</p>
-          <h2 className="page-h2">Targets</h2>
-          <table className="list-table">
-            <tbody>
-              {POLICY_TARGETS.map((t) => (
-                <tr key={t.id}>
-                  <th scope="row">{t.year}</th>
-                  <td>
-                    {t.name} - {t.targetValue}
-                    {t.unit}
-                    <div className="mono muted" style={{ marginTop: 2 }}>
-                      {t.source}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </section>
-      </div>
-
-      <hr className="rule" />
-
-      <section className="block">
-        <p className="kicker">Registry</p>
-        <h2 className="page-h2">Notable plants</h2>
-        <p className="sub">Sample nameplate entries from the plant registry.</p>
-        <div className="table-wrap">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Plant</th>
-                <th>Tech</th>
-                <th>Region</th>
-                <th style={{ textAlign: 'right' }}>MW</th>
-                <th>Operator</th>
-                <th>Online</th>
-              </tr>
-            </thead>
-            <tbody>
-              {PLANTS.filter(
-                (p) =>
-                  (filters.technology === 'all' || p.technology === filters.technology) &&
-                  (filters.region === 'all' || p.region === filters.region)
-              ).map((p) => (
-                <tr key={p.id}>
-                  <td style={{ color: 'var(--highlight)', fontWeight: 500 }}>{p.name}</td>
-                  <td>
-                    <Badge>{TECH_LABELS[p.technology]}</Badge>
-                  </td>
-                  <td>{p.region}</td>
-                  <td className="num">{p.capacityMw}</td>
-                  <td>{p.operator}</td>
-                  <td className="mono muted">{p.onlineYear}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      <p className="footer-line">
-        Overview · mock CEC / CAISO / EIA-scale values ·{' '}
-        <a href="#scenario" onClick={() => setView('scenarios')}>
-          Scenario
-        </a>{' '}
-        ·{' '}
-        <a href="#research" onClick={() => setView('research')}>
-          Research
-        </a>
       </p>
     </div>
   )
