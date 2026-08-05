@@ -1,0 +1,201 @@
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react'
+import type {
+  AppMode,
+  AppView,
+  Filters,
+  Note,
+  Scenario,
+  ScenarioAssumptions,
+} from '../types'
+import {
+  NOTES as INITIAL_NOTES,
+  PRESET_SCENARIOS,
+  buildScenario,
+  recomputeScenario,
+} from '../data/mockData'
+
+interface AppContextValue {
+  theme: 'light' | 'dark'
+  toggleTheme: () => void
+  mode: AppMode
+  setMode: (m: AppMode) => void
+  view: AppView
+  setView: (v: AppView) => void
+  filters: Filters
+  setFilters: (f: Partial<Filters>) => void
+  scenarios: Scenario[]
+  activeScenario: Scenario
+  setActiveScenarioId: (id: string) => void
+  updateAssumptions: (a: Partial<ScenarioAssumptions>) => void
+  saveScenarioPreset: (name: string, description?: string) => void
+  notes: Note[]
+  addNote: (note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => void
+  sidebarOpen: boolean
+  setSidebarOpen: (o: boolean) => void
+  drilldown: string | null
+  setDrilldown: (d: string | null) => void
+}
+
+const AppContext = createContext<AppContextValue | null>(null)
+
+const defaultFilters: Filters = {
+  year: 2025,
+  month: 'all',
+  technology: 'all',
+  region: 'all',
+  scenarioId: 'base',
+}
+
+export function AppProvider({ children }: { children: ReactNode }) {
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window === 'undefined') return 'dark'
+    const stored = localStorage.getItem('ceios-theme') as 'light' | 'dark' | null
+    if (stored) return stored
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  })
+  const [mode, setMode] = useState<AppMode>('analyst')
+  const [view, setView] = useState<AppView>('overview')
+  const [filters, setFiltersState] = useState<Filters>(defaultFilters)
+  const [scenarios, setScenarios] = useState<Scenario[]>(PRESET_SCENARIOS)
+  const [notes, setNotes] = useState<Note[]>(INITIAL_NOTES)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [drilldown, setDrilldown] = useState<string | null>(null)
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', theme === 'dark')
+    localStorage.setItem('ceios-theme', theme)
+  }, [theme])
+
+  useEffect(() => {
+    if (mode === 'planner') setView('scenarios')
+    else if (mode === 'engineer') setView('data-engineering')
+    else if (mode === 'developer') setView('developer')
+    else setView('overview')
+  }, [mode])
+
+  const toggleTheme = useCallback(() => {
+    setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
+  }, [])
+
+  const setFilters = useCallback((f: Partial<Filters>) => {
+    setFiltersState((prev) => ({ ...prev, ...f }))
+  }, [])
+
+  const activeScenario = useMemo(
+    () => scenarios.find((s) => s.id === filters.scenarioId) ?? scenarios[0],
+    [scenarios, filters.scenarioId]
+  )
+
+  const setActiveScenarioId = useCallback((id: string) => {
+    setFiltersState((prev) => ({ ...prev, scenarioId: id }))
+  }, [])
+
+  const updateAssumptions = useCallback(
+    (partial: Partial<ScenarioAssumptions>) => {
+      setScenarios((prev) => {
+        const current = prev.find((s) => s.id === filters.scenarioId)
+        if (!current) return prev
+
+        const nextAssumptions = { ...current.assumptions, ...partial }
+
+        if (current.isPreset) {
+          const cloned = buildScenario(
+            `${current.name} (edited)`,
+            nextAssumptions,
+            current.description
+          )
+          // Schedule filter update after state commit
+          queueMicrotask(() => {
+            setFiltersState((f) => ({ ...f, scenarioId: cloned.id }))
+          })
+          return [...prev, cloned]
+        }
+
+        return prev.map((s) =>
+          s.id === current.id ? recomputeScenario(s, nextAssumptions) : s
+        )
+      })
+    },
+    [filters.scenarioId]
+  )
+
+  const saveScenarioPreset = useCallback(
+    (name: string, description = 'Saved scenario preset') => {
+      const base = scenarios.find((s) => s.id === filters.scenarioId) ?? scenarios[0]
+      const saved = buildScenario(name, base.assumptions, description)
+      setScenarios((prev) => [...prev, saved])
+      setFiltersState((f) => ({ ...f, scenarioId: saved.id }))
+    },
+    [scenarios, filters.scenarioId]
+  )
+
+  const addNote = useCallback((note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const now = new Date().toISOString()
+    setNotes((prev) => [
+      {
+        ...note,
+        id: `n-${Date.now()}`,
+        createdAt: now,
+        updatedAt: now,
+      },
+      ...prev,
+    ])
+  }, [])
+
+  const value = useMemo(
+    () => ({
+      theme,
+      toggleTheme,
+      mode,
+      setMode,
+      view,
+      setView,
+      filters,
+      setFilters,
+      scenarios,
+      activeScenario,
+      setActiveScenarioId,
+      updateAssumptions,
+      saveScenarioPreset,
+      notes,
+      addNote,
+      sidebarOpen,
+      setSidebarOpen,
+      drilldown,
+      setDrilldown,
+    }),
+    [
+      theme,
+      toggleTheme,
+      mode,
+      view,
+      filters,
+      setFilters,
+      scenarios,
+      activeScenario,
+      setActiveScenarioId,
+      updateAssumptions,
+      saveScenarioPreset,
+      notes,
+      addNote,
+      sidebarOpen,
+      drilldown,
+    ]
+  )
+
+  return <AppContext.Provider value={value}>{children}</AppContext.Provider>
+}
+
+export function useApp() {
+  const ctx = useContext(AppContext)
+  if (!ctx) throw new Error('useApp must be used within AppProvider')
+  return ctx
+}
