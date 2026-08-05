@@ -1,12 +1,15 @@
 import { useMemo, useState } from 'react'
 import {
   ENERGY_POLICIES,
+  LAW_FORMS,
   POLICY_ERAS,
   POLICY_LEVELS,
   POLICY_THEMES,
   filterPolicies,
   policyStats,
+  resolveLawForm,
   type EnergyPolicy,
+  type LawForm,
   type PolicyEra,
   type PolicyLevel,
   type PolicyStatus,
@@ -31,15 +34,22 @@ function statusVariant(
   return 'default'
 }
 
-function levelVariant(l: PolicyLevel): 'default' | 'success' | 'warning' | 'info' {
+function levelVariant(
+  l: PolicyLevel
+): 'default' | 'success' | 'warning' | 'danger' | 'info' {
+  if (l === 'constitutional') return 'danger'
   if (l === 'federal') return 'info'
+  if (l === 'regulatory') return 'info'
+  if (l === 'tribal') return 'warning'
   if (l === 'state') return 'success'
-  return 'warning'
+  if (l === 'local') return 'warning'
+  return 'default'
 }
 
 export function PolicyPanel() {
   const { openStateDetail, setDrilldown } = useApp()
   const [level, setLevel] = useState<PolicyLevel | 'all'>('all')
+  const [lawForm, setLawForm] = useState<LawForm | 'all'>('all')
   const [era, setEra] = useState<PolicyEra | 'all'>('all')
   const [status, setStatus] = useState<PolicyStatus | 'all'>('all')
   const [theme, setTheme] = useState<PolicyTheme | 'all'>('all')
@@ -52,13 +62,14 @@ export function PolicyPanel() {
     () =>
       filterPolicies(ENERGY_POLICIES, {
         level,
+        lawForm,
         era,
         status,
         theme,
         stateAbbr,
         query,
       }),
-    [level, era, status, theme, stateAbbr, query]
+    [level, lawForm, era, status, theme, stateAbbr, query]
   )
 
   const stats = useMemo(() => policyStats(filtered), [filtered])
@@ -107,17 +118,17 @@ export function PolicyPanel() {
   return (
     <div id="policy" className="fadein t1">
       <div className="intro">
-        <strong>Energy policy · federal, state, local, and territories</strong>
+        <strong>Energy and usage law · all levels</strong>
         <p>
-          Federal statutes and FERC orders, plus a keystone policy for every US state, the District
-          of Columbia, Puerto Rico, Guam, the U.S. Virgin Islands, American Samoa, and the Northern
-          Mariana Islands - historical through current. Educational sample - not legal advice.
+          Full legal stack for energy supply and energy usage: constitutional, federal statutes,
+          agency regulations and orders, tribal, state, local, and market tariffs - plus keystones
+          for every state and territory. Newest first. Educational sample - not legal advice.
         </p>
       </div>
 
       <div className="metric-strip">
         <div className="metric" style={{ cursor: 'default' }}>
-          <span className="metric-label">Policies shown</span>
+          <span className="metric-label">Laws shown</span>
           <span className="metric-value">{stats.count}</span>
           <span className="metric-hint">of {allStats.count} in catalog</span>
         </div>
@@ -129,20 +140,44 @@ export function PolicyPanel() {
           </span>
         </div>
         <div className="metric" style={{ cursor: 'default' }}>
-          <span className="metric-label">Federal / state / local</span>
-          <span className="metric-value" style={{ fontSize: '1rem' }}>
-            {stats.byLevel.federal}/{stats.byLevel.state}/{stats.byLevel.local}
-          </span>
-          <span className="metric-hint">active {stats.byStatus.active}</span>
+          <span className="metric-label">Law levels</span>
+          <span className="metric-value">{POLICY_LEVELS.length}</span>
+          <span className="metric-hint">const → market tariffs</span>
         </div>
         <div className="metric" style={{ cursor: 'default' }}>
           <span className="metric-label">Year span</span>
           <span className="metric-value" style={{ fontSize: '1.1rem' }}>
             {stats.count ? `${stats.yearMin}-${stats.yearMax}` : '-'}
           </span>
-          <span className="metric-hint">filtered set</span>
+          <span className="metric-hint">active {stats.byStatus.active}</span>
         </div>
       </div>
+
+      <section className="block">
+        <p className="kicker">Hierarchy</p>
+        <h2 className="page-h2">All levels of energy and usage law</h2>
+        <p className="sub">
+          Click a level to filter. Higher rows generally preempt lower ones when Congress or the
+          Constitution occupies the field.
+        </p>
+        <div className="policy-level-grid">
+          {POLICY_LEVELS.map((l) => (
+            <button
+              key={l.id}
+              type="button"
+              className={`policy-level-card${level === l.id ? ' is-on' : ''}`}
+              onClick={() => setLevel(level === l.id ? 'all' : l.id)}
+            >
+              <span className="policy-level-rank mono">{l.rank}</span>
+              <span className="policy-level-name">{l.label}</span>
+              <span className="policy-level-count mono">
+                {allStats.byLevel[l.id] ?? 0} entries
+              </span>
+              <span className="policy-level-blurb muted">{l.blurb}</span>
+            </button>
+          ))}
+        </div>
+      </section>
 
       <section className="block">
         <p className="kicker">Jurisdictions</p>
@@ -196,12 +231,21 @@ export function PolicyPanel() {
           style={{ minWidth: '12rem' }}
         />
         <Select
-          label="Level"
+          label="Law level"
           value={level}
           onChange={(e) => setLevel(e.target.value as PolicyLevel | 'all')}
           options={[
             { value: 'all', label: 'All levels' },
-            ...POLICY_LEVELS.map((l) => ({ value: l.id, label: l.label })),
+            ...POLICY_LEVELS.map((l) => ({ value: l.id, label: `${l.rank}. ${l.label}` })),
+          ]}
+        />
+        <Select
+          label="Form of law"
+          value={lawForm}
+          onChange={(e) => setLawForm(e.target.value as LawForm | 'all')}
+          options={[
+            { value: 'all', label: 'All forms' },
+            ...LAW_FORMS.map((f) => ({ value: f.id, label: f.label })),
           ]}
         />
         <Select
@@ -252,6 +296,7 @@ export function PolicyPanel() {
                   title: p.title,
                   short: p.short,
                   level: p.level,
+                  law_form: resolveLawForm(p),
                   jurisdiction: p.jurisdiction,
                   state: p.stateAbbr ?? '',
                   era: p.era,
@@ -260,7 +305,7 @@ export function PolicyPanel() {
                   instruments: p.instruments.join('|'),
                   cite: p.cite ?? '',
                 })),
-                'us-energy-policies.csv'
+                'us-energy-usage-law.csv'
               )
             }
           >
@@ -272,25 +317,49 @@ export function PolicyPanel() {
         </div>
       </div>
 
-      {/* Level chips */}
       <div className="state-chip-row" style={{ marginBottom: '1rem' }}>
         <button
           type="button"
-          className={`state-chip${level === 'all' ? ' is-on' : ''}`}
-          onClick={() => setLevel('all')}
+          className={`state-chip${theme === 'all' ? ' is-on' : ''}`}
+          onClick={() => setTheme('all')}
         >
-          All levels
+          All themes
         </button>
-        {POLICY_LEVELS.map((l) => (
-          <button
-            key={l.id}
-            type="button"
-            className={`state-chip${level === l.id ? ' is-on' : ''}`}
-            onClick={() => setLevel(l.id)}
-          >
-            {l.label} ({allStats.byLevel[l.id]})
-          </button>
-        ))}
+        <button
+          type="button"
+          className={`state-chip${theme === 'usage' ? ' is-on' : ''}`}
+          onClick={() => setTheme('usage')}
+        >
+          Energy usage
+        </button>
+        <button
+          type="button"
+          className={`state-chip${theme === 'demand' ? ' is-on' : ''}`}
+          onClick={() => setTheme('demand')}
+        >
+          Demand response
+        </button>
+        <button
+          type="button"
+          className={`state-chip${theme === 'efficiency' ? ' is-on' : ''}`}
+          onClick={() => setTheme('efficiency')}
+        >
+          Efficiency
+        </button>
+        <button
+          type="button"
+          className={`state-chip${theme === 'rates' ? ' is-on' : ''}`}
+          onClick={() => setTheme('rates')}
+        >
+          Rates
+        </button>
+        <button
+          type="button"
+          className={`state-chip${theme === 'buildings' ? ' is-on' : ''}`}
+          onClick={() => setTheme('buildings')}
+        >
+          Buildings
+        </button>
       </div>
 
       <div className="grid-2" style={{ alignItems: 'start' }}>
@@ -343,7 +412,13 @@ export function PolicyPanel() {
             <>
               <h2 className="page-h2">{selected.title}</h2>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: 10 }}>
-                <Badge variant={levelVariant(selected.level)}>{selected.level}</Badge>
+                <Badge variant={levelVariant(selected.level)}>
+                  {POLICY_LEVELS.find((l) => l.id === selected.level)?.label ?? selected.level}
+                </Badge>
+                <Badge>
+                  {LAW_FORMS.find((f) => f.id === resolveLawForm(selected))?.label ??
+                    resolveLawForm(selected)}
+                </Badge>
                 <Badge variant={statusVariant(selected.status)}>{selected.status}</Badge>
                 <Badge>
                   {selected.year}
@@ -373,6 +448,19 @@ export function PolicyPanel() {
                           </button>
                         </>
                       )}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Law level</th>
+                    <td>
+                      {POLICY_LEVELS.find((l) => l.id === selected.level)?.label ?? selected.level}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Form of law</th>
+                    <td>
+                      {LAW_FORMS.find((f) => f.id === resolveLawForm(selected))?.label ??
+                        resolveLawForm(selected)}
                     </td>
                   </tr>
                   <tr>
@@ -426,9 +514,9 @@ export function PolicyPanel() {
                 <th>Year</th>
                 <th>Short name</th>
                 <th>Level</th>
+                <th>Form</th>
                 <th>Jurisdiction</th>
                 <th>Status</th>
-                <th>Era</th>
                 <th>Themes</th>
               </tr>
             </thead>
@@ -445,14 +533,17 @@ export function PolicyPanel() {
                   <td className="num mono">{p.year}</td>
                   <td style={{ fontWeight: 600, color: 'var(--highlight)' }}>{p.short}</td>
                   <td>
-                    <Badge variant={levelVariant(p.level)}>{p.level}</Badge>
+                    <Badge variant={levelVariant(p.level)}>
+                      {POLICY_LEVELS.find((l) => l.id === p.level)?.label ?? p.level}
+                    </Badge>
+                  </td>
+                  <td className="muted">
+                    {LAW_FORMS.find((f) => f.id === resolveLawForm(p))?.label ??
+                      resolveLawForm(p)}
                   </td>
                   <td className="muted">{p.jurisdiction}</td>
                   <td>
                     <Badge variant={statusVariant(p.status)}>{p.status}</Badge>
-                  </td>
-                  <td className="muted">
-                    {POLICY_ERAS.find((e) => e.id === p.era)?.label ?? p.era}
                   </td>
                   <td className="muted">{p.themes.slice(0, 3).join(', ')}</td>
                 </tr>

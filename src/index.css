@@ -2690,3 +2690,57 @@ hr,
 #policy .metric-value {
   white-space: nowrap;
 }
+
+.policy-level-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11.5rem, 1fr));
+  gap: 0.55rem;
+  min-width: 0;
+}
+
+.policy-level-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.2rem;
+  padding: 0.7rem 0.75rem;
+  border: 1px solid var(--line-soft);
+  border-radius: 6px;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+  min-width: 0;
+  transition: background var(--ease), border-color var(--ease);
+}
+
+.policy-level-card:hover,
+.policy-level-card.is-on {
+  background: var(--fill);
+  border-color: var(--line);
+}
+
+.policy-level-rank {
+  font-size: 0.68rem;
+  color: var(--mute);
+}
+
+.policy-level-name {
+  font-size: 0.88rem;
+  font-weight: 650;
+  color: var(--highlight);
+  white-space: nowrap;
+}
+
+.policy-level-count {
+  font-size: 0.72rem;
+  color: var(--mute);
+  white-space: nowrap;
+}
+
+.policy-level-blurb {
+  font-size: 0.72rem;
+  line-height: 1.35;
+  margin-top: 0.15rem;
+}

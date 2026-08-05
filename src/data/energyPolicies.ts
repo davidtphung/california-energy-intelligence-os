@@ -1,12 +1,35 @@
 /**
- * US energy policy catalog: federal, state, and local - historical through current.
- * Includes a keystone policy for every state, DC, and major territories.
- * Educational sample for navigation; not legal advice. Wire to CRS, NCSL, DSIRE in production.
+ * US energy & usage law catalog across the full legal stack:
+ * constitution → statute → regulation → tribal → state → local → market tariffs.
+ * Includes keystones for every state/territory. Educational sample - not legal advice.
  */
 
 import { buildJurisdictionKeystonePolicies } from './jurisdictionPolicies'
 
-export type PolicyLevel = 'federal' | 'state' | 'local'
+/** Jurisdiction tier (who makes the rule) */
+export type PolicyLevel =
+  | 'constitutional'
+  | 'federal'
+  | 'regulatory'
+  | 'tribal'
+  | 'state'
+  | 'local'
+  | 'market'
+
+/** Form of law (how it binds) */
+export type LawForm =
+  | 'constitution'
+  | 'statute'
+  | 'regulation'
+  | 'agency-order'
+  | 'executive'
+  | 'ordinance'
+  | 'tariff'
+  | 'compact'
+  | 'treaty'
+  | 'common-law'
+  | 'guidance'
+
 export type PolicyStatus = 'historical' | 'superseded' | 'active' | 'proposed'
 export type PolicyEra =
   | 'pre-1900'
@@ -34,6 +57,8 @@ export type PolicyTheme =
   | 'siting'
   | 'buildings'
   | 'transport'
+  | 'usage'
+  | 'demand'
 
 export interface EnergyPolicy {
   id: string
@@ -42,6 +67,8 @@ export interface EnergyPolicy {
   title: string
   short: string
   level: PolicyLevel
+  /** Form of law - defaults inferred from level if omitted on older rows */
+  lawForm?: LawForm
   /** Nation, state name, or city / county */
   jurisdiction: string
   stateAbbr?: string
@@ -66,14 +93,75 @@ export const POLICY_ERAS: { id: PolicyEra; label: string; range: string }[] = [
   { id: 'pre-1900', label: 'Pre-1900', range: 'Founding to industrial power' },
 ]
 
-export const POLICY_LEVELS: { id: PolicyLevel; label: string }[] = [
-  { id: 'federal', label: 'Federal' },
-  { id: 'state', label: 'State' },
-  { id: 'local', label: 'Local' },
+/** Hierarchy of law for energy & usage (display order: highest authority first) */
+export const POLICY_LEVELS: {
+  id: PolicyLevel
+  label: string
+  rank: number
+  blurb: string
+}[] = [
+  {
+    id: 'constitutional',
+    label: 'Constitutional',
+    rank: 1,
+    blurb: 'US and state constitutions; commerce, supremacy, police power, takings',
+  },
+  {
+    id: 'federal',
+    label: 'Federal statute',
+    rank: 2,
+    blurb: 'Acts of Congress on power, fuel, nuclear, efficiency, environment',
+  },
+  {
+    id: 'regulatory',
+    label: 'Federal regulatory',
+    rank: 3,
+    blurb: 'FERC, EPA, DOE, NRC rules and orders implementing statutes',
+  },
+  {
+    id: 'tribal',
+    label: 'Tribal',
+    rank: 4,
+    blurb: 'Tribal sovereignty, energy resource agreements, tribal utility codes',
+  },
+  {
+    id: 'state',
+    label: 'State',
+    rank: 5,
+    blurb: 'State statutes, constitutions, and PUC regulations on retail power and usage',
+  },
+  {
+    id: 'local',
+    label: 'Local',
+    rank: 6,
+    blurb: 'City and county ordinances, building codes, franchises, CCA/aggregation',
+  },
+  {
+    id: 'market',
+    label: 'Market / tariff',
+    rank: 7,
+    blurb: 'ISO/RTO tariffs, utility retail tariffs, interconnection manuals',
+  },
+]
+
+export const LAW_FORMS: { id: LawForm; label: string }[] = [
+  { id: 'constitution', label: 'Constitution' },
+  { id: 'statute', label: 'Statute' },
+  { id: 'regulation', label: 'Regulation (CFR / code)' },
+  { id: 'agency-order', label: 'Agency order' },
+  { id: 'executive', label: 'Executive order' },
+  { id: 'ordinance', label: 'Ordinance' },
+  { id: 'tariff', label: 'Tariff / market rule' },
+  { id: 'compact', label: 'Interstate compact' },
+  { id: 'treaty', label: 'Treaty / international' },
+  { id: 'common-law', label: 'Common law / case law' },
+  { id: 'guidance', label: 'Guidance / soft law' },
 ]
 
 export const POLICY_THEMES: { id: PolicyTheme; label: string }[] = [
   { id: 'electrification', label: 'Electrification' },
+  { id: 'usage', label: 'Energy usage' },
+  { id: 'demand', label: 'Demand response' },
   { id: 'rates', label: 'Rates' },
   { id: 'markets', label: 'Markets' },
   { id: 'nuclear', label: 'Nuclear' },
@@ -89,6 +177,29 @@ export const POLICY_THEMES: { id: PolicyTheme; label: string }[] = [
   { id: 'buildings', label: 'Buildings' },
   { id: 'transport', label: 'Transport' },
 ]
+
+export function defaultLawForm(level: PolicyLevel): LawForm {
+  switch (level) {
+    case 'constitutional':
+      return 'constitution'
+    case 'federal':
+      return 'statute'
+    case 'regulatory':
+      return 'regulation'
+    case 'tribal':
+      return 'statute'
+    case 'state':
+      return 'statute'
+    case 'local':
+      return 'ordinance'
+    case 'market':
+      return 'tariff'
+  }
+}
+
+export function resolveLawForm(p: EnergyPolicy): LawForm {
+  return p.lawForm ?? defaultLawForm(p.level)
+}
 
 const ENERGY_POLICIES_CORE: EnergyPolicy[] = [
   // - - Federal · early - -
@@ -435,7 +546,8 @@ const ENERGY_POLICIES_CORE: EnergyPolicy[] = [
     year: 1996,
     title: 'FERC Order 888 (open access transmission)',
     short: 'Order 888',
-    level: 'federal',
+    level: 'regulatory',
+    lawForm: 'agency-order',
     jurisdiction: 'United States',
     era: 'deregulation',
     status: 'active',
@@ -451,7 +563,8 @@ const ENERGY_POLICIES_CORE: EnergyPolicy[] = [
     year: 1999,
     title: 'FERC Order 2000 (RTO formation)',
     short: 'Order 2000',
-    level: 'federal',
+    level: 'regulatory',
+    lawForm: 'agency-order',
     jurisdiction: 'United States',
     era: 'deregulation',
     status: 'active',
@@ -515,7 +628,8 @@ const ENERGY_POLICIES_CORE: EnergyPolicy[] = [
     year: 2011,
     title: 'FERC Order 1000 (regional transmission planning)',
     short: 'Order 1000',
-    level: 'federal',
+    level: 'regulatory',
+    lawForm: 'agency-order',
     jurisdiction: 'United States',
     era: 'climate-2000s',
     status: 'active',
@@ -532,7 +646,8 @@ const ENERGY_POLICIES_CORE: EnergyPolicy[] = [
     endYear: 2019,
     title: 'Clean Power Plan (EPA)',
     short: 'Clean Power Plan',
-    level: 'federal',
+    level: 'regulatory',
+    lawForm: 'regulation',
     jurisdiction: 'United States',
     era: 'climate-2000s',
     status: 'superseded',
@@ -548,7 +663,8 @@ const ENERGY_POLICIES_CORE: EnergyPolicy[] = [
     year: 2020,
     title: 'FERC Order 2222 (DER aggregation)',
     short: 'Order 2222',
-    level: 'federal',
+    level: 'regulatory',
+    lawForm: 'agency-order',
     jurisdiction: 'United States',
     era: 'current',
     status: 'active',
@@ -628,7 +744,8 @@ const ENERGY_POLICIES_CORE: EnergyPolicy[] = [
     year: 2024,
     title: 'FERC Order 1920 (long-term transmission planning)',
     short: 'Order 1920',
-    level: 'federal',
+    level: 'regulatory',
+    lawForm: 'agency-order',
     jurisdiction: 'United States',
     era: 'current',
     status: 'active',
@@ -1569,6 +1686,486 @@ const ENERGY_POLICIES_CORE: EnergyPolicy[] = [
     instruments: ['TERA', 'grants', 'sovereign regulation'],
     cite: 'EPAct tribal provisions / DOE Office of Indian Energy',
   },
+
+  // - - All levels of law: constitutional → market (energy production + usage) - -
+  {
+    id: 'con-commerce',
+    year: 1789,
+    title: 'US Constitution Commerce Clause (energy markets foundation)',
+    short: 'Commerce Clause',
+    level: 'constitutional',
+    lawForm: 'constitution',
+    jurisdiction: 'United States',
+    era: 'pre-1900',
+    status: 'active',
+    themes: ['markets', 'transmission'],
+    summary:
+      'Article I, Section 8 powers over interstate commerce underpin federal authority over wholesale power, gas pipelines, and multi-state grids.',
+    impact: 'Legal basis for Federal Power Act jurisdiction and FERC authority over interstate energy commerce.',
+    instruments: ['constitutional power'],
+    cite: 'U.S. Const. art. I, § 8, cl. 3',
+  },
+  {
+    id: 'con-supremacy',
+    year: 1789,
+    title: 'Supremacy Clause (federal energy law preemption)',
+    short: 'Supremacy Clause',
+    level: 'constitutional',
+    lawForm: 'constitution',
+    jurisdiction: 'United States',
+    era: 'pre-1900',
+    status: 'active',
+    themes: ['markets', 'siting'],
+    summary:
+      'Federal statutes and treaties preempt conflicting state and local energy rules when Congress has occupied the field or conflict exists.',
+    impact: 'Frames FERC vs state PUC fights and appliance-standard preemption (EPCA).',
+    instruments: ['preemption'],
+    cite: 'U.S. Const. art. VI, cl. 2',
+  },
+  {
+    id: 'con-takings',
+    year: 1791,
+    title: 'Fifth Amendment Takings (utility property and stranded costs)',
+    short: 'Takings Clause',
+    level: 'constitutional',
+    lawForm: 'constitution',
+    jurisdiction: 'United States',
+    era: 'pre-1900',
+    status: 'active',
+    themes: ['rates', 'markets'],
+    summary:
+      'Just compensation and due process limit confiscatory rate orders and guide stranded-cost recovery after restructuring.',
+    impact: 'Rate-of-return regulation must allow a reasonable return on used-and-useful property.',
+    instruments: ['constitutional limit', 'case law'],
+    cite: 'U.S. Const. amend. V; Hope / Bluefield line',
+  },
+  {
+    id: 'con-state-police',
+    year: 1789,
+    title: 'State police power over health, safety, and retail energy use',
+    short: 'State police power',
+    level: 'constitutional',
+    lawForm: 'constitution',
+    jurisdiction: 'United States',
+    era: 'pre-1900',
+    status: 'active',
+    themes: ['usage', 'buildings', 'rates'],
+    summary:
+      'States retain police power to regulate public utilities, building energy use, and local health/safety absent federal preemption.',
+    impact: 'Legal home of retail rate regulation, RPS, and building energy codes.',
+    instruments: ['state sovereignty', 'Tenth Amendment practice'],
+    cite: 'U.S. Const. amend. X; Munn v. Illinois tradition',
+  },
+  {
+    id: 'cl-munn',
+    year: 1877,
+    title: 'Munn v. Illinois (public interest rate regulation)',
+    short: 'Munn v. Illinois',
+    level: 'constitutional',
+    lawForm: 'common-law',
+    jurisdiction: 'United States',
+    era: 'pre-1900',
+    status: 'active',
+    themes: ['rates'],
+    summary:
+      'Supreme Court upholds state regulation of businesses affected with a public interest - foundation for utility rate regulation.',
+    impact: 'Enables modern PUC cost-of-service regulation of electricity and gas.',
+    instruments: ['case law'],
+    cite: '94 U.S. 113 (1877)',
+  },
+  {
+    id: 'cl-hope',
+    year: 1944,
+    title: 'FPC v. Hope Natural Gas (end-result rate doctrine)',
+    short: 'Hope doctrine',
+    level: 'constitutional',
+    lawForm: 'common-law',
+    jurisdiction: 'United States',
+    era: 'new-deal',
+    status: 'active',
+    themes: ['rates'],
+    summary:
+      'Court focuses on whether overall rate levels are just and reasonable, not a single formula - still cited in rate cases.',
+    impact: 'Flexible but litigated standard for wholesale and retail rate design.',
+    instruments: ['case law', 'just and reasonable rates'],
+    cite: '320 U.S. 591 (1944)',
+  },
+  {
+    id: 'reg-doe-appliance',
+    year: 1975,
+    title: 'DOE appliance and equipment efficiency standards (EPCA program)',
+    short: 'DOE appliance standards',
+    level: 'regulatory',
+    lawForm: 'regulation',
+    jurisdiction: 'United States',
+    era: '1970s-crisis',
+    status: 'active',
+    themes: ['efficiency', 'usage', 'buildings'],
+    summary:
+      'Department of Energy sets national energy conservation standards for appliances and equipment; EPCA often preempts conflicting state standards.',
+    impact: 'Largest long-run driver of end-use energy savings in US buildings.',
+    instruments: ['federal efficiency standards', 'preemption'],
+    cite: '10 C.F.R. Parts 429-431; EPCA',
+  },
+  {
+    id: 'reg-epa-matts',
+    year: 2012,
+    title: 'EPA Mercury and Air Toxics Standards (MATS) for power plants',
+    short: 'EPA MATS',
+    level: 'regulatory',
+    lawForm: 'regulation',
+    jurisdiction: 'United States',
+    era: 'climate-2000s',
+    status: 'active',
+    themes: ['environment', 'fossil'],
+    summary:
+      'Hazardous air pollutant standards for coal- and oil-fired electric generating units under Clean Air Act §112.',
+    impact: 'Accelerated coal controls and retirements; ongoing litigation and revisions.',
+    instruments: ['emissions standards'],
+    cite: '40 C.F.R. Part 63 Subpart UUUUU',
+  },
+  {
+    id: 'reg-nrc-part50',
+    year: 1956,
+    title: 'NRC reactor licensing (10 C.F.R. Parts 50/52)',
+    short: 'NRC licensing',
+    level: 'regulatory',
+    lawForm: 'regulation',
+    jurisdiction: 'United States',
+    era: 'postwar',
+    status: 'active',
+    themes: ['nuclear', 'security'],
+    summary:
+      'Nuclear Regulatory Commission rules for construction and operating licenses and design certifications.',
+    impact: 'Federal exclusive field for commercial nuclear safety licensing.',
+    instruments: ['license', 'design certification'],
+    cite: '10 C.F.R. Parts 50, 52',
+  },
+  {
+    id: 'reg-ferc-745',
+    year: 2011,
+    title: 'FERC Order 745 (demand response compensation)',
+    short: 'Order 745 DR',
+    level: 'regulatory',
+    lawForm: 'agency-order',
+    jurisdiction: 'United States',
+    era: 'climate-2000s',
+    status: 'active',
+    themes: ['demand', 'usage', 'markets', 'rates'],
+    summary:
+      'Requires RTOs/ISOs to pay demand response resources full LMP when cost-effective; upheld in EPSA v. FERC (2016).',
+    impact: 'Core federal rule linking energy usage (load reduction) to wholesale markets.',
+    instruments: ['market rule', 'DR compensation'],
+    cite: 'FERC Order 745; 577 U.S. 260',
+  },
+  {
+    id: 'reg-ferc-841',
+    year: 2018,
+    title: 'FERC Order 841 (electric storage in markets)',
+    short: 'Order 841 storage',
+    level: 'regulatory',
+    lawForm: 'agency-order',
+    jurisdiction: 'United States',
+    era: 'current',
+    status: 'active',
+    themes: ['storage', 'markets'],
+    summary:
+      'Removes barriers so electric storage resources can participate in RTO/ISO capacity, energy, and ancillary markets.',
+    impact: 'Accelerates wholesale storage participation nationwide.',
+    instruments: ['market participation rules'],
+    cite: 'FERC Order 841',
+  },
+  {
+    id: 'reg-nerc',
+    year: 2005,
+    title: 'NERC mandatory reliability standards (Ero under EPAct 2005)',
+    short: 'NERC reliability',
+    level: 'regulatory',
+    lawForm: 'regulation',
+    jurisdiction: 'United States',
+    era: 'climate-2000s',
+    status: 'active',
+    themes: ['security', 'transmission'],
+    summary:
+      'Electric Reliability Organization standards become mandatory and enforceable for bulk-power system users, owners, and operators.',
+    impact: 'Operational law of the grid; penalties for violations.',
+    instruments: ['mandatory standards', 'penalties'],
+    cite: '16 U.S.C. § 824o; NERC Standards',
+  },
+  {
+    id: 'eo-14057',
+    year: 2021,
+    title: 'Executive Order 14057 (federal sustainability / clean electricity usage)',
+    short: 'EO 14057',
+    level: 'regulatory',
+    lawForm: 'executive',
+    jurisdiction: 'United States',
+    era: 'current',
+    status: 'active',
+    themes: ['usage', 'electrification', 'renewables'],
+    summary:
+      'Directs federal agencies on carbon-free electricity procurement and zero-emission vehicle fleets for federal operations.',
+    impact: 'Federal government as large energy user sets procurement demand signals.',
+    instruments: ['executive order', 'procurement'],
+    cite: 'E.O. 14057',
+  },
+  {
+    id: 'st-usage-puc',
+    year: 1907,
+    title: 'State PUC cost-of-service and retail rate design (general model)',
+    short: 'State PUC rates',
+    level: 'state',
+    lawForm: 'regulation',
+    jurisdiction: 'US states',
+    era: '1900-1930',
+    status: 'active',
+    themes: ['rates', 'usage'],
+    summary:
+      'State public utility commissions set retail rates, customer classes, and increasingly time-of-use and demand charges that shape energy usage.',
+    impact: 'Primary law of household and business electricity and gas bills.',
+    instruments: ['rate cases', 'tariff schedules'],
+    cite: 'State utility codes; Hope/Bluefield practice',
+  },
+  {
+    id: 'st-usage-iecc',
+    year: 1998,
+    title: 'IECC / ASHRAE model building energy codes (state adoption)',
+    short: 'Building energy codes',
+    level: 'state',
+    lawForm: 'statute',
+    jurisdiction: 'US states',
+    era: 'deregulation',
+    status: 'active',
+    themes: ['buildings', 'efficiency', 'usage'],
+    summary:
+      'States adopt and update International Energy Conservation Code or ASHRAE 90.1 for new construction energy usage limits.',
+    impact: 'Locks in decades of building energy use at permit time.',
+    instruments: ['building energy code'],
+    cite: 'IECC; ASHRAE 90.1; state adoptions',
+  },
+  {
+    id: 'st-usage-nm',
+    year: 2000,
+    title: 'State net metering and successor tariffs (usage export rules)',
+    short: 'Net metering law',
+    level: 'state',
+    lawForm: 'statute',
+    jurisdiction: 'US states',
+    era: 'climate-2000s',
+    status: 'active',
+    themes: ['usage', 'rates', 'renewables'],
+    summary:
+      'State statutes and PUC decisions set retail export credits for rooftop solar - classic energy usage / bill-offset law now shifting to net billing in many states.',
+    impact: 'Determines household solar economics and midday export behavior.',
+    instruments: ['net metering', 'successor tariffs'],
+    cite: 'State net metering statutes; DSIRE',
+  },
+  {
+    id: 'st-usage-ee',
+    year: 2005,
+    title: 'Energy efficiency resource standards (EERS) and utility EE programs',
+    short: 'State EERS / EE',
+    level: 'state',
+    lawForm: 'statute',
+    jurisdiction: 'US states',
+    era: 'climate-2000s',
+    status: 'active',
+    themes: ['efficiency', 'usage', 'equity'],
+    summary:
+      'Many states require utilities to acquire energy savings (kWh and therms) through customer programs - direct regulation of usage reduction.',
+    impact: 'Utility-funded rebates and codes & standards claims cut load growth.',
+    instruments: ['EERS', 'EE portfolios', 'decoupling'],
+    cite: 'State EERS statutes; ACEEE scorecard',
+  },
+  {
+    id: 'mkt-caiso-tariff',
+    year: 1998,
+    title: 'CAISO FERC Electric Tariff (market and interconnection rules)',
+    short: 'CAISO tariff',
+    level: 'market',
+    lawForm: 'tariff',
+    jurisdiction: 'California ISO',
+    stateAbbr: 'CA',
+    era: 'deregulation',
+    status: 'active',
+    themes: ['markets', 'transmission', 'storage'],
+    summary:
+      'FERC-jurisdictional tariff governing day-ahead and real-time markets, congestion, and generator interconnection in CAISO.',
+    impact: 'Operational law for wholesale energy, AS, and resource interconnection in California.',
+    instruments: ['ISO tariff', 'BPM manuals'],
+    cite: 'CAISO FERC Electric Tariff',
+  },
+  {
+    id: 'mkt-pjm-tariff',
+    year: 1997,
+    title: 'PJM Open Access Transmission Tariff and Operating Agreement',
+    short: 'PJM OATT',
+    level: 'market',
+    lawForm: 'tariff',
+    jurisdiction: 'PJM Interconnection',
+    era: 'deregulation',
+    status: 'active',
+    themes: ['markets', 'transmission', 'demand'],
+    summary:
+      'Governs transmission service, capacity market (RPM), energy markets, and demand response participation across 13 states + DC.',
+    impact: 'Largest US RTO rulebook for wholesale power and capacity.',
+    instruments: ['OATT', 'Operating Agreement'],
+    cite: 'PJM Tariffs (FERC)',
+  },
+  {
+    id: 'mkt-ercot-protocols',
+    year: 2001,
+    title: 'ERCOT Nodal Protocols (Texas wholesale market rules)',
+    short: 'ERCOT protocols',
+    level: 'market',
+    lawForm: 'tariff',
+    jurisdiction: 'ERCOT / Texas',
+    stateAbbr: 'TX',
+    era: 'deregulation',
+    status: 'active',
+    themes: ['markets', 'security'],
+    summary:
+      'ERCOT protocols (PUCT-overseen, largely outside FERC) set nodal energy market, ancillary services, and reliability rules for most of Texas.',
+    impact: 'Energy-only market design with scarcity pricing and post-Uri reforms.',
+    instruments: ['market protocols'],
+    cite: 'ERCOT Nodal Protocols; PUCT',
+  },
+  {
+    id: 'mkt-retail-tariff',
+    year: 1915,
+    title: 'Investor-owned utility retail tariffs (residential, C&I, TOU)',
+    short: 'Utility retail tariffs',
+    level: 'market',
+    lawForm: 'tariff',
+    jurisdiction: 'US utilities',
+    era: '1900-1930',
+    status: 'active',
+    themes: ['rates', 'usage', 'demand'],
+    summary:
+      'PUC-approved tariff books set kWh charges, demand charges, fixed customer charges, and time-of-use periods that price energy usage.',
+    impact: 'Day-to-day law of electricity and gas consumption for most customers.',
+    instruments: ['retail tariff', 'TOU', 'demand charges'],
+    cite: 'State-approved utility tariff schedules',
+  },
+  {
+    id: 'mkt-interconnect',
+    year: 2005,
+    title: 'Utility distribution interconnection manuals (DG / storage)',
+    short: 'Interconnection manuals',
+    level: 'market',
+    lawForm: 'tariff',
+    jurisdiction: 'US utilities',
+    era: 'climate-2000s',
+    status: 'active',
+    themes: ['usage', 'renewables', 'storage'],
+    summary:
+      'Utility handbooks and Rule 21-style tariffs set technical and process rules for customer solar, storage, and load interconnection.',
+    impact: 'Soft-cost and timeline law for behind-the-meter energy usage tech.',
+    instruments: ['interconnection tariff', 'screens'],
+    cite: 'e.g. CA Rule 21; IEEE 1547 practice',
+  },
+  {
+    id: 'trib-tera',
+    year: 2005,
+    title: 'Tribal Energy Resource Agreements (EPAct) and tribal utility codes',
+    short: 'Tribal TERA / codes',
+    level: 'tribal',
+    lawForm: 'statute',
+    jurisdiction: 'Tribal nations (US)',
+    era: 'climate-2000s',
+    status: 'active',
+    themes: ['equity', 'siting', 'renewables'],
+    summary:
+      'Federal TERA framework plus tribal codes regulate energy development and utilities on tribal lands under sovereignty.',
+    impact: 'Parallel legal layer to state PUC law for many energy projects.',
+    instruments: ['TERA', 'tribal code', 'BIA process'],
+    cite: '25 U.S.C. tribal energy provisions',
+  },
+  {
+    id: 'treaty-columbia',
+    year: 1961,
+    title: 'Columbia River Treaty (US-Canada hydro coordination)',
+    short: 'Columbia River Treaty',
+    level: 'federal',
+    lawForm: 'treaty',
+    jurisdiction: 'United States / Canada',
+    era: 'postwar',
+    status: 'active',
+    themes: ['transmission', 'markets'],
+    summary:
+      'Bilateral treaty shapes Columbia Basin flood control and power benefits affecting Northwest hydro and California imports.',
+    impact: 'International law layer on the largest US hydro system.',
+    instruments: ['treaty', 'power benefits'],
+    cite: 'Columbia River Treaty (1961/1964)',
+  },
+  {
+    id: 'loc-usage-benchmark',
+    year: 2019,
+    title: 'Building energy benchmarking and performance standards (multi-city)',
+    short: 'Building BPS / benchmarking',
+    level: 'local',
+    lawForm: 'ordinance',
+    jurisdiction: 'US cities',
+    era: 'current',
+    status: 'active',
+    themes: ['usage', 'buildings', 'efficiency'],
+    summary:
+      'Local laws require large buildings to report energy use and meet escalating performance targets (e.g. NYC LL97, other BPS cities).',
+    impact: 'Direct legal limits on operational energy usage of existing buildings.',
+    instruments: ['benchmarking', 'building performance standard'],
+    cite: 'City BPS ordinances',
+  },
+  {
+    id: 'loc-usage-franchise',
+    year: 1885,
+    title: 'Municipal electric/gas franchise ordinances',
+    short: 'Utility franchises',
+    level: 'local',
+    lawForm: 'ordinance',
+    jurisdiction: 'US cities',
+    era: 'pre-1900',
+    status: 'active',
+    themes: ['rates', 'usage'],
+    summary:
+      'Cities grant rights-of-way and service franchises that condition utility presence, fees, and sometimes undergrounding or climate terms.',
+    impact: 'Local leverage over distribution utilities and street energy infrastructure.',
+    instruments: ['franchise agreement'],
+    cite: 'Municipal franchise ordinances',
+  },
+  {
+    id: 'fed-epca-preempt',
+    year: 1975,
+    title: 'EPCA appliance preemption (limits state/local product rules)',
+    short: 'EPCA preemption',
+    level: 'federal',
+    lawForm: 'statute',
+    jurisdiction: 'United States',
+    era: '1970s-crisis',
+    status: 'active',
+    themes: ['usage', 'buildings', 'efficiency'],
+    summary:
+      'Energy Policy and Conservation Act often preempts state and local regulations concerning energy use of covered products - central to gas-ban litigation.',
+    impact: 'Shapes how cities may regulate appliances and building fuel choice.',
+    instruments: ['statutory preemption'],
+    cite: '42 U.S.C. § 6297; related case law',
+  },
+  {
+    id: 'fed-pura',
+    year: 1978,
+    title: 'PURPA Title I (state consideration of rate design & usage policies)',
+    short: 'PURPA Title I rates',
+    level: 'federal',
+    lawForm: 'statute',
+    jurisdiction: 'United States',
+    era: '1970s-crisis',
+    status: 'active',
+    themes: ['rates', 'usage', 'efficiency'],
+    summary:
+      'Requires state regulators to consider federal standards on rate design, declining block rates, and load management - early federal nudge on usage pricing.',
+    impact: 'Pushed TOU and cost-based rate design debates into state dockets.',
+    instruments: ['federal standards for state consideration'],
+    cite: '16 U.S.C. § 2621 et seq.',
+  },
 ]
 
 /** Core catalog + one keystone per state / DC / territory (56 jurisdictions) */
@@ -1578,19 +2175,31 @@ export const ENERGY_POLICIES: EnergyPolicy[] = [
 ]
 
 export function policyStats(list: EnergyPolicy[] = ENERGY_POLICIES) {
-  const byLevel = { federal: 0, state: 0, local: 0 }
+  const byLevel: Record<PolicyLevel, number> = {
+    constitutional: 0,
+    federal: 0,
+    regulatory: 0,
+    tribal: 0,
+    state: 0,
+    local: 0,
+    market: 0,
+  }
   const byStatus = { historical: 0, superseded: 0, active: 0, proposed: 0 }
+  const byForm: Partial<Record<LawForm, number>> = {}
   for (const p of list) {
-    byLevel[p.level]++
+    byLevel[p.level] = (byLevel[p.level] ?? 0) + 1
     byStatus[p.status]++
+    const f = resolveLawForm(p)
+    byForm[f] = (byForm[f] ?? 0) + 1
   }
   const years = list.map((p) => p.year)
   return {
     count: list.length,
     byLevel,
     byStatus,
-    yearMin: Math.min(...years),
-    yearMax: Math.max(...years),
+    byForm,
+    yearMin: years.length ? Math.min(...years) : 0,
+    yearMax: years.length ? Math.max(...years) : 0,
   }
 }
 
@@ -1598,6 +2207,7 @@ export function filterPolicies(
   list: EnergyPolicy[],
   opts: {
     level?: PolicyLevel | 'all'
+    lawForm?: LawForm | 'all'
     era?: PolicyEra | 'all'
     status?: PolicyStatus | 'all'
     theme?: PolicyTheme | 'all'
@@ -1608,6 +2218,9 @@ export function filterPolicies(
   const q = (opts.query ?? '').trim().toLowerCase()
   return list
     .filter((p) => (opts.level && opts.level !== 'all' ? p.level === opts.level : true))
+    .filter((p) =>
+      opts.lawForm && opts.lawForm !== 'all' ? resolveLawForm(p) === opts.lawForm : true
+    )
     .filter((p) => (opts.era && opts.era !== 'all' ? p.era === opts.era : true))
     .filter((p) => (opts.status && opts.status !== 'all' ? p.status === opts.status : true))
     .filter((p) =>
@@ -1616,11 +2229,15 @@ export function filterPolicies(
     .filter((p) =>
       opts.stateAbbr && opts.stateAbbr !== 'all'
         ? p.stateAbbr === opts.stateAbbr ||
-          (opts.stateAbbr === 'US' && p.level === 'federal')
+          (opts.stateAbbr === 'US' &&
+            (p.level === 'federal' ||
+              p.level === 'regulatory' ||
+              p.level === 'constitutional'))
         : true
     )
     .filter((p) => {
       if (!q) return true
+      const form = resolveLawForm(p)
       return (
         p.title.toLowerCase().includes(q) ||
         p.short.toLowerCase().includes(q) ||
@@ -1628,7 +2245,9 @@ export function filterPolicies(
         p.summary.toLowerCase().includes(q) ||
         p.impact.toLowerCase().includes(q) ||
         p.instruments.some((i) => i.toLowerCase().includes(q)) ||
-        p.themes.some((t) => t.includes(q))
+        p.themes.some((t) => t.includes(q)) ||
+        p.level.includes(q) ||
+        form.includes(q)
       )
     })
     // Latest first, then title
