@@ -9,6 +9,7 @@ import {
   type USStateEnergy,
 } from '../../data/usStates'
 import { USAMap } from '../charts/USAMap'
+import { ImportExportChart, CaliforniaTradeDetail } from '../charts/ImportExportChart'
 import { Badge } from '../ui/Badge'
 import { Select } from '../ui/Select'
 import { Input } from '../ui/Input'
@@ -16,6 +17,7 @@ import { Button } from '../ui/Button'
 import { Download } from 'lucide-react'
 import { exportCsv, exportJson } from '../../lib/utils'
 import { useApp } from '../../context/AppContext'
+import { tradeOf, withTrade, tradeTotals } from '../../data/energyTrade'
 
 type SortKey = 'name' | 'capacityGw' | 'cleanPct' | 'peakGw' | 'generationTwh'
 
@@ -56,6 +58,12 @@ export function StatesCatalogPanel() {
 
   const t = totals(filtered)
   const other49 = useMemo(() => US_STATES.filter((s) => s.abbr !== 'CA'), [])
+  const tradeRows = useMemo(() => withTrade(filtered), [filtered])
+  const tradeSum = useMemo(
+    () => tradeTotals(filtered.map((s) => s.abbr)),
+    [filtered]
+  )
+  const focusTrade = focus ? tradeOf(focus.abbr) : null
 
   const selectState = (abbr: string) => {
     setSelected(abbr)
@@ -160,7 +168,7 @@ export function StatesCatalogPanel() {
             icon={<Download className="h-3.5 w-3.5" />}
             onClick={() =>
               exportCsv(
-                filtered.map((s) => ({
+                tradeRows.map((s) => ({
                   abbr: s.abbr,
                   name: s.name,
                   region: s.region,
@@ -169,6 +177,9 @@ export function StatesCatalogPanel() {
                   generation_twh: s.generationTwh,
                   peak_gw: s.peakGw,
                   clean_pct: s.cleanPct,
+                  imports_twh: s.importsTwh,
+                  exports_twh: s.exportsTwh,
+                  net_export_twh: s.netExportTwh,
                   primary: s.primary,
                   secondary: s.secondary,
                   nuclear_gw: s.nuclearGw,
@@ -179,7 +190,7 @@ export function StatesCatalogPanel() {
                   hydro_gw: s.hydroGw,
                   storage_gw: s.storageGw,
                 })),
-                'us-states-energy.csv'
+                'us-states-energy-trade.csv'
               )
             }
           >
@@ -273,6 +284,48 @@ export function StatesCatalogPanel() {
                   </tr>
                 </tbody>
               </table>
+              {focusTrade && (
+                <>
+                  <p className="kicker" style={{ marginTop: '1rem' }}>
+                    Electricity trade
+                  </p>
+                  <table className="list-table">
+                    <tbody>
+                      <tr>
+                        <th scope="row">Imports</th>
+                        <td className="mono" style={{ color: 'var(--highlight)' }}>
+                          {focusTrade.importsTwh} TWh/yr
+                        </td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Exports</th>
+                        <td className="mono">{focusTrade.exportsTwh} TWh/yr</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Net export</th>
+                        <td className="mono">
+                          {focusTrade.exportsTwh - focusTrade.importsTwh >= 0 ? '+' : ''}
+                          {focusTrade.exportsTwh - focusTrade.importsTwh} TWh
+                          {focusTrade.exportsTwh - focusTrade.importsTwh >= 0
+                            ? ' (exporter)'
+                            : ' (importer)'}
+                        </td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Import from</th>
+                        <td>{focusTrade.importFrom.join(' · ') || 'none listed'}</td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Export to</th>
+                        <td>{focusTrade.exportTo.join(' · ') || 'none listed'}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                  <p className="sub" style={{ marginTop: 8 }}>
+                    {focusTrade.note}
+                  </p>
+                </>
+              )}
               {focus.abbr === 'CA' && (
                 <Button
                   size="sm"
@@ -295,6 +348,31 @@ export function StatesCatalogPanel() {
       <hr className="rule" />
 
       <section className="block">
+        <p className="kicker">Trade</p>
+        <h2 className="page-h2">Import and export energy</h2>
+        <p className="sub">
+          Filtered set: {tradeSum.importsTwh} TWh imports · {tradeSum.exportsTwh} TWh exports · net{' '}
+          {tradeSum.netExportTwh >= 0 ? '+' : ''}
+          {tradeSum.netExportTwh} TWh. California detail below the national chart.
+        </p>
+        <ImportExportChart
+          states={filtered.length ? filtered : US_STATES}
+          selectedAbbr={selected}
+          onSelect={selectState}
+        />
+      </section>
+
+      <hr className="rule" />
+
+      <section className="block">
+        <p className="kicker">California focus</p>
+        <h2 className="page-h2">CA import / export detail</h2>
+        <CaliforniaTradeDetail />
+      </section>
+
+      <hr className="rule" />
+
+      <section className="block">
         <p className="kicker">Catalog</p>
         <h2 className="page-h2">All states</h2>
         <p className="sub">
@@ -312,14 +390,14 @@ export function StatesCatalogPanel() {
                 <th style={{ textAlign: 'right' }}>Peak GW</th>
                 <th style={{ textAlign: 'right' }}>TWh</th>
                 <th style={{ textAlign: 'right' }}>Clean %</th>
+                <th style={{ textAlign: 'right' }}>Import</th>
+                <th style={{ textAlign: 'right' }}>Export</th>
+                <th style={{ textAlign: 'right' }}>Net</th>
                 <th>Primary</th>
-                <th style={{ textAlign: 'right' }}>Solar</th>
-                <th style={{ textAlign: 'right' }}>Wind</th>
-                <th style={{ textAlign: 'right' }}>Gas</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map((s) => (
+              {tradeRows.map((s) => (
                 <tr
                   key={s.abbr}
                   onClick={() => selectState(s.abbr)}
@@ -338,10 +416,13 @@ export function StatesCatalogPanel() {
                   <td className="num">{s.peakGw}</td>
                   <td className="num">{s.generationTwh}</td>
                   <td className="num">{s.cleanPct}</td>
+                  <td className="num">{s.importsTwh}</td>
+                  <td className="num">{s.exportsTwh}</td>
+                  <td className="num">
+                    {s.netExportTwh >= 0 ? '+' : ''}
+                    {s.netExportTwh}
+                  </td>
                   <td>{s.primary}</td>
-                  <td className="num">{s.solarGw}</td>
-                  <td className="num">{s.windGw}</td>
-                  <td className="num">{s.gasGw}</td>
                 </tr>
               ))}
             </tbody>

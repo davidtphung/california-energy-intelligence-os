@@ -13,6 +13,7 @@ import {
 import { Badge } from '../ui/Badge'
 import { Select } from '../ui/Select'
 import { Tabs } from '../ui/Tabs'
+import { Button } from '../ui/Button'
 import { CapacityBarChart } from '../charts/CapacityBarChart'
 import { GenerationMixChart } from '../charts/GenerationMixChart'
 import { LoadGenerationChart } from '../charts/LoadGenerationChart'
@@ -20,6 +21,7 @@ import { FlowView } from '../charts/FlowView'
 import { CAMap } from '../charts/CAMap'
 import { EnergyPathwayMap } from '../charts/EnergyPathwayMap'
 import { BaseloadDensityTimeline } from '../charts/BaseloadDensityTimeline'
+import { CaliforniaTradeDetail } from '../charts/ImportExportChart'
 import { LiveGridPanel } from './LiveGridPanel'
 import { TECH_LABELS, formatNumber } from '../../lib/utils'
 import type { Technology, CARegion } from '../../types'
@@ -56,6 +58,27 @@ export function OverviewDashboard() {
       <div className="fadein t2">
         <BaseloadDensityTimeline />
       </div>
+
+      <hr className="rule" />
+
+      <section className="block fadein t3">
+        <p className="kicker">Trade · California</p>
+        <h2 className="page-h2">Import and export energy</h2>
+        <p className="sub">
+          Annual electricity interchange sample for CA. Full 50-state chart lives under USA.
+        </p>
+        <CaliforniaTradeDetail />
+        <Button
+          size="sm"
+          style={{ marginTop: 12 }}
+          onClick={() => {
+            setView('states')
+            window.history.replaceState(null, '', '#states')
+          }}
+        >
+          Open USA trade chart
+        </Button>
+      </section>
 
       <hr className="rule" />
 
