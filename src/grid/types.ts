@@ -155,9 +155,9 @@ export const LAYER_META: {
   { id: 'demand', label: 'Demand load', short: 'Demand', defaultOn: true },
   { id: 'generation', label: 'Generation', short: 'Gen', defaultOn: true },
   { id: 'flow', label: 'Transmission flow', short: 'Flow', defaultOn: true },
-  { id: 'density', label: 'Power density', short: 'Density', defaultOn: false },
-  { id: 'voltage', label: 'Voltage bands', short: 'Voltage', defaultOn: false },
-  { id: 'current', label: 'Current hotspots', short: 'Current', defaultOn: false },
+  { id: 'density', label: 'Power density', short: 'Density', defaultOn: true },
+  { id: 'voltage', label: 'Voltage bands', short: 'Voltage', defaultOn: true },
+  { id: 'current', label: 'Current hotspots', short: 'Current', defaultOn: true },
   { id: 'storage', label: 'Storage / SOC', short: 'Storage', defaultOn: true },
   { id: 'alerts', label: 'Alerts & outages', short: 'Alerts', defaultOn: true },
 ]

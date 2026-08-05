@@ -3,7 +3,7 @@
  * Isochrone-like density for power systems: flow, load, voltage, current, storage.
  */
 
-import { useMemo, useState, useCallback, useEffect } from 'react'
+import { useMemo, useState, useCallback } from 'react'
 import {
   Download,
   Pause,
@@ -26,7 +26,6 @@ import {
   metricRange,
   metricValue,
   operatorActions,
-  suggestLayers,
   valueToColor,
 } from '../../grid/metrics'
 import { useGridStream } from '../../grid/useGridStream'
@@ -93,21 +92,6 @@ export function GridMapApp() {
 
   const deltaText = useMemo(() => explainDelta(prevFrame, frame), [prevFrame, frame])
   const actions = useMemo(() => operatorActions(frame), [frame])
-
-  // Auto layer suggest on zoom
-  useEffect(() => {
-    const suggested = suggestLayers(zoom)
-    setLayers((prev) => {
-      const next = { ...prev }
-      // only auto-enable when zooming in new layers; don't force off user base prefs hard
-      for (const id of suggested) {
-        if (id === 'voltage' || id === 'current' || id === 'density') {
-          next[id] = zoom >= 1.2
-        }
-      }
-      return next
-    })
-  }, [zoom])
 
   const setF = useCallback((p: Partial<GridFilters>) => {
     setFilters((f) => ({ ...f, ...p }))
@@ -380,7 +364,18 @@ export function GridMapApp() {
               onChange={(e) => setZoom(Number(e.target.value))}
               className="gmap-range"
             />
-            <p className="gmap-hint">Higher zoom enables voltage & current detail layers.</p>
+            <p className="gmap-hint">All layers on by default — toggle to focus a single view.</p>
+            <button
+              type="button"
+              className="gmap-compare-btn"
+              onClick={() =>
+                setLayers(
+                  Object.fromEntries(LAYER_META.map((l) => [l.id, true])) as Record<LayerId, boolean>
+                )
+              }
+            >
+              All layers on
+            </button>
           </aside>
         )}
 
