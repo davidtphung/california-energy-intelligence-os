@@ -18,6 +18,7 @@ import { GenerationMixChart } from '../charts/GenerationMixChart'
 import { LoadGenerationChart } from '../charts/LoadGenerationChart'
 import { FlowView } from '../charts/FlowView'
 import { CAMap } from '../charts/CAMap'
+import { EnergyPathwayMap } from '../charts/EnergyPathwayMap'
 import { TECH_LABELS, formatNumber } from '../../lib/utils'
 import type { Technology, CARegion } from '../../types'
 
@@ -179,6 +180,12 @@ export function OverviewDashboard() {
       </div>
 
       <hr className="rule fadein t3" />
+
+      <div className="fadein t3">
+        <EnergyPathwayMap />
+      </div>
+
+      <hr className="rule" />
 
       <div className="grid-2 fadein t4">
         <section className="block">

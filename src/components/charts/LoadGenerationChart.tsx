@@ -36,13 +36,20 @@ export function LoadGenerationChart({ data, height = 280 }: Props) {
         onClick={() => setDrilldown('load-generation')}
       >
         <CartesianGrid strokeDasharray="3 3" stroke={grid} vertical={false} />
-        <XAxis dataKey="hour" tick={{ fill: tick, fontSize: 10 }} axisLine={false} tickLine={false} />
+        <XAxis
+          dataKey="hour"
+          tick={{ fill: tick, fontSize: 10 }}
+          axisLine={false}
+          tickLine={false}
+          interval={2}
+          minTickGap={18}
+        />
         <YAxis
           tick={{ fill: tick, fontSize: 11 }}
           axisLine={false}
           tickLine={false}
           unit=" MW"
-          width={56}
+          width={52}
         />
         <Tooltip
           contentStyle={{
@@ -52,7 +59,7 @@ export function LoadGenerationChart({ data, height = 280 }: Props) {
             fontSize: 12,
           }}
         />
-        <Legend wrapperStyle={{ fontSize: 11 }} />
+        <Legend wrapperStyle={{ fontSize: 11, paddingTop: 8 }} iconType="plainline" iconSize={12} />
         <Line type="monotone" dataKey="load" name="Load" stroke="#f43f5e" strokeWidth={2.5} dot={false} />
         <Line
           type="monotone"

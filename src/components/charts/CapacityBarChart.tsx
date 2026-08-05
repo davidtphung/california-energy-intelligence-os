@@ -17,11 +17,24 @@ interface Props {
   height?: number
 }
 
+const SHORT: Record<string, string> = {
+  solar: 'Solar',
+  wind: 'Wind',
+  hydro: 'Hydro',
+  natural_gas: 'Gas',
+  nuclear: 'Nuke',
+  geothermal: 'Geo',
+  biomass: 'Bio',
+  battery: 'BESS',
+  other: 'Other',
+}
+
 export function CapacityBarChart({ data, height = 280 }: Props) {
   const { setDrilldown, theme } = useApp()
   const chartData = data.map((d) => ({
     ...d,
-    name: TECH_LABELS[d.technology],
+    name: SHORT[d.technology] ?? TECH_LABELS[d.technology],
+    full: TECH_LABELS[d.technology],
     gw: Math.round((d.capacityMw / 1000) * 10) / 10,
   }))
   const tick = theme === 'dark' ? '#8a8478' : '#7a7468'
@@ -29,7 +42,7 @@ export function CapacityBarChart({ data, height = 280 }: Props) {
 
   return (
     <ResponsiveContainer width="100%" height={height}>
-      <BarChart data={chartData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+      <BarChart data={chartData} margin={{ top: 12, right: 4, left: 0, bottom: 4 }}>
         <CartesianGrid strokeDasharray="3 3" stroke={grid} vertical={false} />
         <XAxis
           dataKey="name"
@@ -37,16 +50,14 @@ export function CapacityBarChart({ data, height = 280 }: Props) {
           axisLine={false}
           tickLine={false}
           interval={0}
-          angle={-25}
-          textAnchor="end"
-          height={60}
+          height={28}
         />
         <YAxis
           tick={{ fill: tick, fontSize: 11 }}
           axisLine={false}
           tickLine={false}
           unit=" GW"
-          width={48}
+          width={44}
         />
         <Tooltip
           contentStyle={{
@@ -55,11 +66,14 @@ export function CapacityBarChart({ data, height = 280 }: Props) {
             borderRadius: 2,
             fontSize: 12,
           }}
-          formatter={(value) => [`${value} GW`, 'Capacity']}
+          formatter={(value, _n, item) => {
+            const full = (item?.payload as { full?: string } | undefined)?.full
+            return [`${value} GW`, full ?? 'Capacity']
+          }}
         />
         <Bar
           dataKey="gw"
-          radius={[6, 6, 0, 0]}
+          radius={[2, 2, 0, 0]}
           cursor="pointer"
           onClick={(_data, index) => {
             const tech = chartData[index]?.technology

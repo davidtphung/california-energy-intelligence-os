@@ -55,13 +55,20 @@ export function GenerationMixChart({ data, height = 300, stacked = true }: Props
           onClick={() => setDrilldown('generation-mix')}
         >
           <CartesianGrid strokeDasharray="3 3" stroke={grid} vertical={false} />
-          <XAxis dataKey="hour" tick={{ fill: tick, fontSize: 10 }} axisLine={false} tickLine={false} />
+          <XAxis
+            dataKey="hour"
+            tick={{ fill: tick, fontSize: 10 }}
+            axisLine={false}
+            tickLine={false}
+            interval={2}
+            minTickGap={18}
+          />
           <YAxis
             tick={{ fill: tick, fontSize: 11 }}
             axisLine={false}
             tickLine={false}
             unit=" MW"
-            width={56}
+            width={52}
           />
           <Tooltip
             contentStyle={{
@@ -71,7 +78,11 @@ export function GenerationMixChart({ data, height = 300, stacked = true }: Props
               fontSize: 12,
             }}
           />
-          <Legend wrapperStyle={{ fontSize: 11 }} />
+          <Legend
+            wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
+            iconType="circle"
+            iconSize={8}
+          />
           {STACK.map((s) => (
             <Area
               key={s.key}
