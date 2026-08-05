@@ -2222,7 +2222,7 @@ hr,
   display: block;
   width: 100%;
   height: auto;
-  max-height: min(28rem, 55vh);
+  max-height: min(34rem, 62vh);
   border: 1px solid var(--line-soft);
   border-radius: 4px;
   background: var(--bg);
@@ -2265,6 +2265,19 @@ hr,
   font-size: 0.74rem;
   color: var(--mute);
   font-family: var(--font-mono);
+}
+
+.usamap-tip-hint {
+  display: block;
+  margin-top: 0.28rem;
+  font-size: 0.68rem;
+  color: var(--mute-2);
+  letter-spacing: 0.02em;
+}
+
+.usamap-node .usamap-dot {
+  cursor: pointer;
+  transition: r 0.12s ease, fill-opacity 0.12s ease, stroke-width 0.12s ease;
 }
 
 /* - -  National overview + state detail pages - -  */

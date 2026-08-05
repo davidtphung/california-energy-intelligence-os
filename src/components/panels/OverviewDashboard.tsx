@@ -10,18 +10,16 @@ import {
 } from '../../data/usStates'
 import { tradeTotals, withTrade } from '../../data/energyTrade'
 import { useApp } from '../../context/AppContext'
-import { USAMap } from '../charts/USAMap'
+import { USAMap, type USAMapMetric } from '../charts/USAMap'
 import { ImportExportChart } from '../charts/ImportExportChart'
 import { Badge } from '../ui/Badge'
 import { Select } from '../ui/Select'
 import { Button } from '../ui/Button'
 import { LiveGridPanel } from './LiveGridPanel'
 
-type MapMetric = 'cleanPct' | 'capacityGw' | 'peakGw' | 'solarGw' | 'windGw'
-
 export function OverviewDashboard() {
   const { openStateDetail, setView } = useApp()
-  const [metric, setMetric] = useState<MapMetric>('cleanPct')
+  const [metric, setMetric] = useState<USAMapMetric>('generationTwh')
   const [regionFocus, setRegionFocus] = useState<USRegion | 'all'>('all')
   const [selected, setSelected] = useState<string | null>(null)
 
@@ -137,22 +135,26 @@ export function OverviewDashboard() {
         <div className="block-head">
           <div>
             <p className="kicker">Map</p>
-            <h2 className="page-h2">Click a state for its page</h2>
+            <h2 className="page-h2">Capacity and output by state</h2>
             <p className="sub" style={{ marginBottom: 0 }}>
-              Dot size and color follow the map metric. AK, HI, and PR sit in insets.
+              Bubble <strong>area</strong> is nameplate capacity (GW). Bubble <strong>color</strong>{' '}
+              is the selected output metric (default annual generation). AK, HI, and PR sit in
+              insets. Click any state for its page.
             </p>
           </div>
           <div className="btn-row">
             <Select
-              label="Metric"
+              label="Color by"
               value={metric}
-              onChange={(e) => setMetric(e.target.value as MapMetric)}
+              onChange={(e) => setMetric(e.target.value as USAMapMetric)}
               options={[
+                { value: 'generationTwh', label: 'Generation TWh' },
+                { value: 'cf', label: 'Capacity factor' },
+                { value: 'peakGw', label: 'Peak load GW' },
                 { value: 'cleanPct', label: 'Clean %' },
-                { value: 'capacityGw', label: 'Capacity GW' },
-                { value: 'peakGw', label: 'Peak GW' },
                 { value: 'solarGw', label: 'Solar GW' },
                 { value: 'windGw', label: 'Wind GW' },
+                { value: 'capacityGw', label: 'Capacity (color too)' },
               ]}
             />
             <Select

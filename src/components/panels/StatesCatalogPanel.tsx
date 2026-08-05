@@ -8,7 +8,7 @@ import {
   type GridOperator,
   type USStateEnergy,
 } from '../../data/usStates'
-import { USAMap } from '../charts/USAMap'
+import { USAMap, type USAMapMetric } from '../charts/USAMap'
 import { ImportExportChart, CaliforniaTradeDetail } from '../charts/ImportExportChart'
 import { Badge } from '../ui/Badge'
 import { Select } from '../ui/Select'
@@ -26,9 +26,7 @@ export function StatesCatalogPanel() {
   const [query, setQuery] = useState('')
   const [region, setRegion] = useState<USRegion | 'all'>('all')
   const [grid, setGrid] = useState<GridOperator | 'all'>('all')
-  const [metric, setMetric] = useState<'cleanPct' | 'capacityGw' | 'peakGw' | 'solarGw' | 'windGw'>(
-    'cleanPct'
-  )
+  const [metric, setMetric] = useState<USAMapMetric>('generationTwh')
   const [sortKey, setSortKey] = useState<SortKey>('capacityGw')
   const [selected, setSelected] = useState<string | null>('CA')
 
@@ -140,15 +138,17 @@ export function StatesCatalogPanel() {
           ]}
         />
         <Select
-          label="Map metric"
+          label="Map color"
           value={metric}
-          onChange={(e) => setMetric(e.target.value as typeof metric)}
+          onChange={(e) => setMetric(e.target.value as USAMapMetric)}
           options={[
+            { value: 'generationTwh', label: 'Generation TWh' },
+            { value: 'cf', label: 'Capacity factor' },
+            { value: 'peakGw', label: 'Peak load GW' },
             { value: 'cleanPct', label: 'Clean %' },
-            { value: 'capacityGw', label: 'Capacity GW' },
-            { value: 'peakGw', label: 'Peak GW' },
             { value: 'solarGw', label: 'Solar GW' },
             { value: 'windGw', label: 'Wind GW' },
+            { value: 'capacityGw', label: 'Capacity (color too)' },
           ]}
         />
         <Select
@@ -208,8 +208,7 @@ export function StatesCatalogPanel() {
           <p className="kicker">Map</p>
           <h2 className="page-h2">Navigate the USA</h2>
           <p className="sub">
-            Click a state or Puerto Rico. Dot size and color follow the map metric ({metric}). AK, HI,
-            and PR sit in insets.
+            Bubble area is capacity (GW). Color is {metric === 'generationTwh' ? 'annual generation' : metric === 'cf' ? 'approx. capacity factor' : metric}. AK, HI, and PR sit in insets.
           </p>
           <USAMap
             states={filtered.length ? filtered : US_STATES}
