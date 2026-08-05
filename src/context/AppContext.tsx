@@ -72,6 +72,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark')
     localStorage.setItem('ceios-theme', theme)
+    // Keep browser chrome / mobile address bar aligned with app theme
+    const color = theme === 'dark' ? '#020617' : '#0ea5e9'
+    document
+      .querySelectorAll('meta[name="theme-color"]')
+      .forEach((el) => el.setAttribute('content', color))
   }, [theme])
 
   useEffect(() => {

@@ -1,5 +1,22 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <rect width="32" height="32" rx="8" fill="#0ea5e9"/>
-  <path d="M8 20 L12 12 L16 18 L20 10 L24 16" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <circle cx="24" cy="10" r="2" fill="#fbbf24"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="California Energy Intelligence OS">
+  <defs>
+    <linearGradient id="cei-bg" x1="4" y1="2" x2="28" y2="30" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0ea5e9"/>
+      <stop offset="1" stop-color="#10b981"/>
+    </linearGradient>
+    <linearGradient id="cei-glow" x1="16" y1="4" x2="16" y2="28" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffffff" stop-opacity="0.22"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <!-- Rounded tile matching app logo (sky → emerald) -->
+  <rect width="32" height="32" rx="9" fill="url(#cei-bg)"/>
+  <rect width="32" height="32" rx="9" fill="url(#cei-glow)"/>
+  <!-- Soft slate edge for dark-theme tabs -->
+  <rect x="0.5" y="0.5" width="31" height="31" rx="8.5" fill="none" stroke="#0f172a" stroke-opacity="0.12"/>
+  <!-- Zap bolt (matches Lucide Zap used in app chrome) -->
+  <path
+    d="M18.2 5.5 9.8 17.2h5.1l-1.1 9.3 8.4-11.7h-5.1L18.2 5.5z"
+    fill="#ffffff"
+  />
 </svg>
