@@ -4612,3 +4612,118 @@ html[data-theme='dark'] .gmap-map-wrap:hover {
     /* still hidden whole footer on desktop; rail shows compact counter */
   }
 }
+
+/* Future deficit timeline + sparklines */
+.fbal-timeline {
+  margin: 0.35rem 0 0.75rem;
+  padding: 0.65rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg);
+}
+
+.fbal-timeline-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  min-height: 6rem;
+}
+
+.fbal-tl-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: 0.25rem;
+  border-radius: var(--radius-sm);
+  color: var(--ink-2);
+  transition: background var(--ease);
+}
+
+.fbal-tl-col:hover,
+.fbal-tl-col.is-on {
+  background: var(--fill);
+}
+
+.fbal-tl-val {
+  font-size: 0.72rem;
+  font-weight: 650;
+  color: var(--highlight);
+}
+
+.fbal-tl-bar {
+  width: 100%;
+  max-width: 2.5rem;
+  border-radius: 3px 3px 0 0;
+  min-height: 4px;
+  transition: height var(--ease-soft);
+}
+
+.fbal-tl-year {
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.fbal-tl-states {
+  font-size: 0.62rem;
+}
+
+.fbal-entering {
+  font-size: 0.82rem;
+  color: var(--ink-2);
+  margin: 0 0 0.65rem;
+  line-height: 1.4;
+}
+
+.fbal-entering strong {
+  color: var(--highlight);
+}
+
+.fbal-spark {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.25rem;
+  height: 3rem;
+  margin-top: 0.35rem;
+}
+
+.fbal-spark-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.15rem;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  height: 100%;
+}
+
+.fbal-spark-col span {
+  display: block;
+  width: 100%;
+  max-width: 1.25rem;
+  background: var(--danger);
+  border-radius: 2px 2px 0 0;
+  opacity: 0.75;
+  min-height: 2px;
+}
+
+.fbal-spark-col.is-on span {
+  opacity: 1;
+  background: #e11d48;
+}
+
+.fbal-spark-col em {
+  font-style: normal;
+  font-size: 0.6rem;
+  color: var(--mute);
+  font-family: var(--font-mono);
+}

@@ -66,7 +66,7 @@ function MapLensBar({
     { id: 'live', label: 'Live grid' },
     { id: 'grid', label: 'Grid / utilities' },
     { id: 'build', label: 'Construction' },
-    { id: 'future', label: 'Future balance' },
+    { id: 'future', label: 'Future deficits' },
   ]
   return (
     <div
