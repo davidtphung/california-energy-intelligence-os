@@ -37,6 +37,7 @@ export type AppView =
   | 'data-engineering'
   | 'developer'
   | 'about'
+  | 'thesis'
 
 export type PortfolioKind =
   | 'IOU'

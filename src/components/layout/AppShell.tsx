@@ -19,6 +19,7 @@ const NAV: { id: AppView; label: string; hash: string }[] = [
   { id: 'fossil', label: 'Fuels', hash: 'fossil' },
   { id: 'policy', label: 'Policy', hash: 'policy' },
   { id: 'scenarios', label: 'Scenario', hash: 'scenario' },
+  { id: 'thesis', label: 'Thesis', hash: 'thesis' },
   { id: 'about', label: 'About', hash: 'about' },
 ]
 
@@ -26,7 +27,7 @@ const HASH_ALIASES: Record<string, AppView> = {
   overview: 'map',
   gas: 'fossil',
   consistency: 'consistency',
-  research: 'research',
+  research: 'thesis',
   data: 'data-engineering',
   dev: 'developer',
   map: 'map',
@@ -34,6 +35,7 @@ const HASH_ALIASES: Record<string, AppView> = {
   'about/donate': 'about',
   'about/how': 'about',
   'about/sources': 'about',
+  thesis: 'thesis',
 }
 
 function LiveClock() {

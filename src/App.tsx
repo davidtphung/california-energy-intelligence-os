@@ -10,10 +10,10 @@ import { FossilFuelsPanel } from './components/panels/FossilFuelsPanel'
 import { PolicyPanel } from './components/panels/PolicyPanel'
 import { ConsistencyPanel } from './components/panels/ConsistencyPanel'
 import { ScenarioPlanner } from './components/panels/ScenarioPlanner'
-import { ResearchWorkspace } from './components/panels/ResearchWorkspace'
 import { DataEngineering } from './components/panels/DataEngineering'
 import { DeveloperPanel } from './components/panels/DeveloperPanel'
 import { AboutPanel } from './components/panels/AboutPanel'
+import { ThesisLibraryPanel } from './components/panels/ThesisLibraryPanel'
 
 function ViewRouter() {
   const { view } = useApp()
@@ -48,7 +48,8 @@ function ViewRouter() {
       panel = <ScenarioPlanner />
       break
     case 'research':
-      panel = <ResearchWorkspace />
+    case 'thesis':
+      panel = <ThesisLibraryPanel />
       break
     case 'data-engineering':
       panel = <DataEngineering />
