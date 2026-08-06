@@ -1,7 +1,7 @@
 /**
  * Major US generating plants across every technology category:
  * coal, natural gas, nuclear, wind, solar, hydro, geothermal, biomass, battery, other.
- * Nameplate MW are EIA / operator-scale samples for map UX — not a live inventory.
+ * Nameplate MW are EIA / operator-scale samples for map UX (not a live inventory).
  * Wire to EIA-860 plant file in production.
  */
 
@@ -55,7 +55,7 @@ export const US_NON_HYDRO_PLANTS: UsEnergyPlant[] = [
   { id: 'n-peach-bottom', name: 'Peach Bottom', technology: 'nuclear', stateAbbr: 'PA', stateName: 'Pennsylvania', capacityMw: 2785, outputMw: 2600, latitude: 39.759, longitude: -76.269, operator: 'Constellation', detail: 'BWR', onlineYear: 1974, region: 'Mid-Atlantic' },
   { id: 'n-browns-ferry', name: 'Browns Ferry', technology: 'nuclear', stateAbbr: 'AL', stateName: 'Alabama', capacityMw: 3450, outputMw: 3200, latitude: 34.704, longitude: -87.119, operator: 'TVA', detail: 'BWR · 3 units', onlineYear: 1974, region: 'Southeast' },
   { id: 'n-south-texas', name: 'South Texas Project', technology: 'nuclear', stateAbbr: 'TX', stateName: 'Texas', capacityMw: 2708, outputMw: 2550, latitude: 28.795, longitude: -96.048, operator: 'STPNOC', detail: 'PWR', onlineYear: 1988, region: 'Texas' },
-  { id: 'n-vogtle', name: 'Vogtle', technology: 'nuclear', stateAbbr: 'GA', stateName: 'Georgia', capacityMw: 4540, outputMw: 4200, latitude: 33.143, longitude: -81.762, operator: 'Southern Nuclear', detail: 'PWR · Units 1–4', onlineYear: 1987, region: 'Southeast', note: 'Units 3–4 AP1000s online 2023–24.' },
+  { id: 'n-vogtle', name: 'Vogtle', technology: 'nuclear', stateAbbr: 'GA', stateName: 'Georgia', capacityMw: 4540, outputMw: 4200, latitude: 33.143, longitude: -81.762, operator: 'Southern Nuclear', detail: 'PWR · Units 1-4', onlineYear: 1987, region: 'Southeast', note: 'Units 3-4 AP1000s online 2023-24.' },
   { id: 'n-comanche-peak', name: 'Comanche Peak', technology: 'nuclear', stateAbbr: 'TX', stateName: 'Texas', capacityMw: 2400, outputMw: 2250, latitude: 32.298, longitude: -97.785, operator: 'Luminant', detail: 'PWR', onlineYear: 1990, region: 'Texas' },
   { id: 'n-diablo', name: 'Diablo Canyon', technology: 'nuclear', stateAbbr: 'CA', stateName: 'California', capacityMw: 2256, outputMw: 2100, latitude: 35.211, longitude: -120.856, operator: 'PG&E', detail: 'PWR · 2 units', onlineYear: 1985, region: 'Pacific' },
   { id: 'n-byron', name: 'Byron', technology: 'nuclear', stateAbbr: 'IL', stateName: 'Illinois', capacityMw: 2347, outputMw: 2200, latitude: 42.074, longitude: -89.282, operator: 'Constellation', detail: 'PWR', onlineYear: 1985, region: 'Midwest' },
@@ -65,7 +65,7 @@ export const US_NON_HYDRO_PLANTS: UsEnergyPlant[] = [
   { id: 'n-mcguire', name: 'McGuire', technology: 'nuclear', stateAbbr: 'NC', stateName: 'North Carolina', capacityMw: 2316, outputMw: 2180, latitude: 35.433, longitude: -80.948, operator: 'Duke Energy', detail: 'PWR', onlineYear: 1981, region: 'Southeast' },
   { id: 'n-catawba', name: 'Catawba', technology: 'nuclear', stateAbbr: 'SC', stateName: 'South Carolina', capacityMw: 2310, outputMw: 2170, latitude: 35.051, longitude: -81.07, operator: 'Duke Energy', detail: 'PWR', onlineYear: 1985, region: 'Southeast' },
   { id: 'n-oyster-creek', name: 'Oconee', technology: 'nuclear', stateAbbr: 'SC', stateName: 'South Carolina', capacityMw: 2554, outputMw: 2400, latitude: 34.794, longitude: -82.899, operator: 'Duke Energy', detail: 'PWR · 3 units', onlineYear: 1973, region: 'Southeast' },
-  { id: 'n-watts-bar', name: 'Watts Bar', technology: 'nuclear', stateAbbr: 'TN', stateName: 'Tennessee', capacityMw: 2338, outputMw: 2200, latitude: 35.602, longitude: -84.79, operator: 'TVA', detail: 'PWR · Units 1–2', onlineYear: 1996, region: 'Southeast' },
+  { id: 'n-watts-bar', name: 'Watts Bar', technology: 'nuclear', stateAbbr: 'TN', stateName: 'Tennessee', capacityMw: 2338, outputMw: 2200, latitude: 35.602, longitude: -84.79, operator: 'TVA', detail: 'PWR · Units 1-2', onlineYear: 1996, region: 'Southeast' },
   { id: 'n-sequoyah', name: 'Sequoyah', technology: 'nuclear', stateAbbr: 'TN', stateName: 'Tennessee', capacityMw: 2332, outputMw: 2190, latitude: 35.226, longitude: -85.092, operator: 'TVA', detail: 'PWR', onlineYear: 1981, region: 'Southeast' },
   { id: 'n-nine-mile', name: 'Nine Mile Point', technology: 'nuclear', stateAbbr: 'NY', stateName: 'New York', capacityMw: 1927, outputMw: 1800, latitude: 43.521, longitude: -76.41, operator: 'Constellation', detail: 'BWR', onlineYear: 1969, region: 'Northeast' },
   { id: 'n-millstone', name: 'Millstone', technology: 'nuclear', stateAbbr: 'CT', stateName: 'Connecticut', capacityMw: 2098, outputMw: 1970, latitude: 41.311, longitude: -72.168, operator: 'Dominion', detail: 'PWR', onlineYear: 1975, region: 'Northeast' },

@@ -644,7 +644,7 @@ export function FossilFuelsPanel() {
             <p className="muted" style={{ fontSize: '0.72rem', marginTop: 6 }}>
               Units: {activeMeta.unitProd} (production / use) · {activeMeta.unitCap} (capacity) ·{' '}
               {activeMeta.unitExport} (trade). {tableRows.length} annual rows from{' '}
-              {activeMeta.startYear}–{tableRows[0]?.year}.
+              {activeMeta.startYear}-{tableRows[0]?.year}.
             </p>
           </section>
         </>

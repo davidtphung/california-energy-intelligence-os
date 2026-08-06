@@ -155,7 +155,7 @@ export function PortfoliosPanel() {
             Portfolio map
           </h1>
           <p className="mapcentric-lede">
-            Plants and fleets on the map. Click a site — capacity, tech, and portfolio data flow into
+            Plants and fleets on the map. Click a site. Capacity, tech, and portfolio data flow into
             the drawer. Lines show selected portfolio connections.
           </p>
         </div>
@@ -301,7 +301,7 @@ export function PortfoliosPanel() {
             large
             onSelectAsset={onSelectAsset}
           />
-          {/* Capacity stack under map — visual data flow by tech */}
+          {/* Capacity stack under map : visual data flow by tech */}
           {techFlow.length > 0 && (
             <div className="mapcentric-under">
               <p className="kicker">Capacity on map</p>
@@ -501,7 +501,7 @@ export function PortfoliosPanel() {
         <h2 className="page-h2">Capacity by energy source</h2>
         <p className="sub">
           Nameplate in the current portfolio filter (state fleets + CA LSEs + major plant catalogs).
-          Full mix — coal through storage.
+          Full mix: coal through storage.
         </p>
         {byTech.length > 0 ? (
           <>

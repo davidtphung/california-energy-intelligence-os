@@ -94,7 +94,7 @@ export function UtilityGridMap() {
           </h2>
           <p className="mapcentric-lede">
             Three interconnections · ISO/RTO and regional footprints · utility companies · seams and
-            interties. Overlaps show multi-zone operators. Schematic map — not legal service-area GIS.
+            interties. Overlaps show multi-zone operators. Schematic map (not legal service-area GIS).
           </p>
         </div>
         <div className="mapcentric-kpis">

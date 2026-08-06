@@ -57,7 +57,7 @@ export function AboutPanel() {
             policy history, and scenarios.
           </p>
           <p className="sub" style={{ maxWidth: '40rem' }}>
-            Figures are educational samples scaled to EIA / ISO / operator public ranges—not a
+            Figures are educational samples scaled to EIA / ISO / operator public ranges, not a
             substitute for official filings, real-time SCADA, or your utility&apos;s IRP.
           </p>
           <div className="btn-row" style={{ marginTop: '1rem' }}>
@@ -124,11 +124,11 @@ export function AboutPanel() {
             </li>
             <li>
               <strong>Construction.</strong> Flagship generation and storage projects under build or
-              late pipeline—filter by tech and status; size encodes MW.
+              late pipeline, filter by tech and status; size encodes MW.
             </li>
             <li>
               <strong>Future balance.</strong> State-level peak demand vs firm supply trajectories
-              (2025–2045 sample path) with deficit/surplus coloring and intelligence copy.
+              (2025-2045 sample path) with deficit/surplus coloring and intelligence copy.
             </li>
             <li>
               <strong>USA / Assets / Fuels / Policy / Scenario.</strong> National catalog, multi-tech

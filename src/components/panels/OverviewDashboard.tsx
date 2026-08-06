@@ -220,7 +220,7 @@ export function OverviewDashboard() {
             <p className="kicker">Hydrocarbons · fossil fuels</p>
             <h2 className="page-h2">Production, capacity, and exports</h2>
             <p className="sub" style={{ marginBottom: 0 }}>
-              Crude oil (1859–), natural gas (1900–), coal (1800–), petroleum products (1920–). Gas
+              Crude oil (1859-), natural gas (1900-), coal (1800-), petroleum products (1920-). Gas
               dry production {gas.productionBcfd.toFixed(1)} Bcf/d · net gas exports{' '}
               {gas.netExportsBcfd.toFixed(1)} Bcf/d ({gas.year}).
             </p>

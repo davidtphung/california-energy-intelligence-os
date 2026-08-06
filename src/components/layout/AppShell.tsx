@@ -10,7 +10,7 @@ import {
 } from '../../data/mockData'
 import { exportJson } from '../../lib/utils'
 
-/** Primary modes only — secondary tools stay addressable by hash */
+/** Primary modes only : secondary tools stay addressable by hash */
 const NAV: { id: AppView; label: string; hash: string }[] = [
   { id: 'map', label: 'Map', hash: 'map' },
   { id: 'states', label: 'USA', hash: 'states' },

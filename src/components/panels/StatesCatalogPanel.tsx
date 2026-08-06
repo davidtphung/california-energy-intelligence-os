@@ -57,7 +57,7 @@ export function StatesCatalogPanel() {
   )
   const focusTrade = focus ? tradeOf(focus.abbr) : null
 
-  /** Select on map — data flows into drawer; full page is explicit */
+  /** Select on map : data flows into drawer; full page is explicit */
   const selectState = (abbr: string) => setSelected(abbr)
   const openState = (abbr: string) => {
     setSelected(abbr)
@@ -86,7 +86,7 @@ export function StatesCatalogPanel() {
             National energy map
           </h1>
           <p className="mapcentric-lede">
-            Capacity and generation across jurisdictions. Click a bubble — metrics and fuel mix flow
+            Capacity and generation across jurisdictions. Click a bubble. Metrics and fuel mix flow
             from the map into the side panel.
           </p>
         </div>

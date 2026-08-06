@@ -165,7 +165,7 @@ export function buildTopology(): GridTopology {
     if (lines.some((l) => l.id === id || l.id === `ln-${b.id}-${a.id}`)) return
     lines.push({
       id,
-      name: `${a.stateAbbr}–${b.stateAbbr} corridor`,
+      name: `${a.stateAbbr}-${b.stateAbbr} corridor`,
       fromId: a.id,
       toId: b.id,
       kind: 'intertie',
@@ -175,7 +175,7 @@ export function buildTopology(): GridTopology {
     })
   }
 
-  // Connect each major hub to 2–3 nearest majors
+  // Connect each major hub to 2-3 nearest majors
   for (const a of major) {
     const others = major
       .filter((b) => b.id !== a.id)
@@ -397,7 +397,7 @@ export function sampleFrame(t: number, mode: GridMode = 'live'): GridFrame {
       : crit > 0
         ? `Live: ${(totalLoad / 1000).toFixed(0)} GW load · ${crit} critical alert${crit === 1 ? '' : 's'} · ${hot} constrained corridor${hot === 1 ? '' : 's'}. Prioritize outages and overload paths.`
         : hot > 0
-          ? `Live: balanced at ${(totalLoad / 1000).toFixed(0)} GW load. ${hot} corridors near limit — watch redispatch and storage discharge.`
+          ? `Live: balanced at ${(totalLoad / 1000).toFixed(0)} GW load. ${hot} corridors near limit. Watch redispatch and storage discharge.`
           : `Live: healthy. Load ${(totalLoad / 1000).toFixed(0)} GW · gen ${(totalGen / 1000).toFixed(0)} GW · no critical alerts. Density highest in coastal and ERCOT load pockets.`
 
   return {

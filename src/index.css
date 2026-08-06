@@ -544,7 +544,7 @@ hr,
   margin: 1.25rem 0;
 }
 
-/* View entrance — soft rise + fade */
+/* View entrance - soft rise + fade */
 .fadein {
   animation: fadein var(--dur-slow) var(--ease-out) both;
 }
@@ -3970,7 +3970,7 @@ button,
   transform: scale(0.97);
 }
 
-/* KPI tiles — lift on hover when clickable */
+/* KPI tiles - lift on hover when clickable */
 .gmap-kpi-item,
 .mapcentric-kpi,
 .metric {
@@ -4296,7 +4296,7 @@ textarea:focus {
   outline: none;
 }
 
-/* Scrollbars (webkit) — quiet */
+/* Scrollbars (webkit) - quiet */
 .mapcentric-drawer::-webkit-scrollbar,
 .gmap-drawer::-webkit-scrollbar,
 .gmap-side::-webkit-scrollbar,

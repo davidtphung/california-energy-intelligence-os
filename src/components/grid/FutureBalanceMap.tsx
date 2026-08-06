@@ -1,5 +1,5 @@
 /**
- * Intelligent future balance map — demand, firm supply, deficit / surplus by state.
+ * Intelligent future balance map : demand, firm supply, deficit / surplus by state.
  */
 
 import { useMemo, useState } from 'react'
@@ -67,7 +67,7 @@ export function FutureBalanceMap() {
           </h2>
           <p className="mapcentric-lede">
             Peak demand vs firm supply through {BALANCE_YEARS[BALANCE_YEARS.length - 1]}. Red =
-            shortfall · green/blue = surplus. Sample trajectories — not official IRPs.
+            shortfall · green/blue = surplus. Sample trajectories (not official IRPs).
           </p>
         </div>
         <div className="mapcentric-kpis">

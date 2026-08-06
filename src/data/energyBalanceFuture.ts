@@ -1,7 +1,7 @@
 /**
  * US future energy balance · demand, supply, and deficit by state.
  * Educational sample trajectories (electrification, data centers, renewables,
- * coal exit). Not an IRP forecast — wire EIA AEO / NREL / ISO plans in production.
+ * coal exit). Not an IRP forecast. Wire EIA AEO / NREL / ISO plans in production.
  */
 
 import { US_STATES, type USStateEnergy } from './usStates'
@@ -168,11 +168,11 @@ export function nationalBalance(year: BalanceYear, states = US_STATES): National
 
   let summary: string
   if (deficitGw < 20) {
-    summary = `${year}: National firm supply roughly covers peak. ${statesDeficit} states still tight or short — watch data-center corridors.`
+    summary = `${year}: National firm supply roughly covers peak. ${statesDeficit} states still tight or short. Watch data-center corridors.`
   } else if (deficitGw < 80) {
     summary = `${year}: Aggregate firm shortfall ~${deficitGw.toFixed(0)} GW across ${statesDeficit} states. Build storage, transmission, and firm clean generation.`
   } else {
-    summary = `${year}: Structural deficit risk ~${deficitGw.toFixed(0)} GW firm. ${statesCritical} critical states — accelerate supply and demand response.`
+    summary = `${year}: Structural deficit risk ~${deficitGw.toFixed(0)} GW firm. ${statesCritical} critical states. Accelerate supply and demand response.`
   }
 
   return {

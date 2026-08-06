@@ -288,7 +288,7 @@ export function GridMapApp() {
         </button>
       </div>
 
-      {/* KPI strip — remaining + live clock */}
+      {/* KPI strip : remaining + live clock */}
       <div className="gmap-kpi" role="region" aria-label="System KPIs">
         {kpiItems.map((k) => (
           <div key={k.k} className="gmap-kpi-item">
@@ -445,7 +445,7 @@ export function GridMapApp() {
               onChange={(e) => setZoom(Number(e.target.value))}
               className="gmap-range"
             />
-            <p className="gmap-hint">All layers on by default — toggle to focus a single view.</p>
+            <p className="gmap-hint">All layers on by default. Toggle to focus a single view.</p>
             <button
               type="button"
               className="gmap-compare-btn"
@@ -702,7 +702,7 @@ export function GridMapApp() {
               <div>
                 <p className="kicker">Detail</p>
                 <h2 className="page-h2" style={{ fontSize: '1.15rem' }}>
-                  {selected?.name ?? '—'}
+                  {selected?.name ?? 'None'}
                 </h2>
               </div>
               <button

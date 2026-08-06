@@ -1,6 +1,6 @@
 /**
  * US grid division: interconnects, ISO/RTO footprints, major utilities,
- * and interties. Approximate footprints for map UX — not legal service-area GIS.
+ * and interties. Approximate footprints for map UX (not legal service-area GIS).
  * Wire to NERC, EIA-861, FERC Form 714, ISO master files in production.
  */
 
@@ -148,7 +148,7 @@ export const GRID_ZONES: GridZone[] = [
     color: '#06b6d4',
     states: ['MN', 'WI', 'IA', 'IL', 'IN', 'MI', 'MO', 'AR', 'LA', 'MS', 'ND', 'SD', 'MT'],
     peakGw: 130,
-    note: 'North–south footprint; seams with PJM, SPP; MISO South industrial load.',
+    note: 'North-south footprint; seams with PJM, SPP; MISO South industrial load.',
   },
   {
     id: 'spp',
@@ -272,7 +272,7 @@ export const UTILITIES: UtilityCompany[] = [
 
   // PJM
   { id: 'exelon', name: 'Exelon / Constellation utilities', short: 'Exelon', kind: 'iou', zoneId: 'pjm', alsoZones: ['nyiso', 'isone'], lon: -76.6, lat: 39.3, states: ['IL', 'PA', 'MD', 'NJ', 'DC'], customersM: 10, note: 'Utility family + nuclear fleet; multi-RTO footprint overlap.' },
-  { id: 'aep', name: 'American Electric Power', short: 'AEP', kind: 'iou', zoneId: 'pjm', alsoZones: ['spp', 'ercot'], lon: -83.0, lat: 39.0, states: ['OH', 'WV', 'VA', 'OK', 'TX', 'AR'], customersM: 5.5, note: 'Multi-state; PJM core + SPP/ERCOT edges — classic overlap utility.' },
+  { id: 'aep', name: 'American Electric Power', short: 'AEP', kind: 'iou', zoneId: 'pjm', alsoZones: ['spp', 'ercot'], lon: -83.0, lat: 39.0, states: ['OH', 'WV', 'VA', 'OK', 'TX', 'AR'], customersM: 5.5, note: 'Multi-state; PJM core + SPP/ERCOT edges. Classic overlap utility.' },
   { id: 'firstenergy', name: 'FirstEnergy', short: 'FirstEnergy', kind: 'iou', zoneId: 'pjm', lon: -81.5, lat: 41.0, states: ['OH', 'PA', 'WV', 'MD', 'NJ'], customersM: 6, note: 'Ohio / Mid-Atlantic PJM utilities.' },
   { id: 'dominion', name: 'Dominion Energy', short: 'Dominion', kind: 'iou', zoneId: 'pjm', alsoZones: ['serc'], lon: -77.5, lat: 37.5, states: ['VA', 'NC', 'SC'], customersM: 3.5, note: 'VA data-center load; Carolina regulated ops (SERC).' },
   { id: 'pseg', name: 'PSEG', short: 'PSEG', kind: 'iou', zoneId: 'pjm', lon: -74.2, lat: 40.7, states: ['NJ'], customersM: 2.3, note: 'New Jersey IOU / nuclear.' },
@@ -290,13 +290,13 @@ export const UTILITIES: UtilityCompany[] = [
   { id: 'evergy', name: 'Evergy', short: 'Evergy', kind: 'iou', zoneId: 'spp', lon: -94.6, lat: 39.1, states: ['KS', 'MO'], customersM: 1.6, note: 'Kansas / Missouri SPP.' },
 
   // Northeast
-  { id: 'national-grid', name: 'National Grid (US)', short: 'Nat Grid', kind: 'iou', zoneId: 'isone', alsoZones: ['nyiso'], lon: -71.1, lat: 42.3, states: ['MA', 'NY', 'RI'], customersM: 3.4, note: 'New England + upstate NY — ISO-NE / NYISO overlap company.' },
+  { id: 'national-grid', name: 'National Grid (US)', short: 'Nat Grid', kind: 'iou', zoneId: 'isone', alsoZones: ['nyiso'], lon: -71.1, lat: 42.3, states: ['MA', 'NY', 'RI'], customersM: 3.4, note: 'New England + upstate NY. ISO-NE / NYISO overlap company.' },
   { id: 'eversource', name: 'Eversource', short: 'Eversource', kind: 'iou', zoneId: 'isone', lon: -72.7, lat: 41.8, states: ['CT', 'MA', 'NH'], customersM: 4.4, note: 'New England IOU.' },
   { id: 'coned', name: 'Con Edison', short: 'ConEd', kind: 'iou', zoneId: 'nyiso', lon: -73.98, lat: 40.75, states: ['NY'], customersM: 3.5, note: 'NYC / Westchester.' },
   { id: 'nypa', name: 'NY Power Authority', short: 'NYPA', kind: 'federal', zoneId: 'nyiso', lon: -73.8, lat: 42.9, states: ['NY'], note: 'State authority; hydro + transmission.' },
 
   // ISOs as operators (not retail utilities)
-  { id: 'iso-caiso', name: 'CAISO (operator)', short: 'CAISO ops', kind: 'iso', zoneId: 'caiso', lon: -121.2, lat: 38.7, states: ['CA'], note: 'Grid operator — not an LSE.' },
+  { id: 'iso-caiso', name: 'CAISO (operator)', short: 'CAISO ops', kind: 'iso', zoneId: 'caiso', lon: -121.2, lat: 38.7, states: ['CA'], note: 'Grid operator (not an LSE).' },
   { id: 'iso-pjm', name: 'PJM (operator)', short: 'PJM ops', kind: 'iso', zoneId: 'pjm', lon: -75.6, lat: 40.2, states: ['PA'], note: 'RTO headquarters region.' },
   { id: 'iso-ercot', name: 'ERCOT (operator)', short: 'ERCOT ops', kind: 'iso', zoneId: 'ercot', lon: -97.7, lat: 30.3, states: ['TX'], note: 'Texas grid operator.' },
 ]
@@ -304,21 +304,21 @@ export const UTILITIES: UtilityCompany[] = [
 /** Major interties / seams between zones */
 export const GRID_INTERTIES: GridIntertie[] = [
   { id: 'coi', name: 'COI / Malin (NW → CA)', fromZone: 'wecc-nw', toZone: 'caiso', transferMw: 4800, kind: 'ac', note: 'Primary Pacific AC import path into CAISO.' },
-  { id: 'pdci', name: 'Pacific DC Intertie', fromZone: 'wecc-nw', toZone: 'caiso', transferMw: 3100, kind: 'dc', note: 'Celilo–Sylmar HVDC.' },
+  { id: 'pdci', name: 'Pacific DC Intertie', fromZone: 'wecc-nw', toZone: 'caiso', transferMw: 3100, kind: 'dc', note: 'Celilo-Sylmar HVDC.' },
   { id: 'path46', name: 'SW ties (AZ/NV → CA)', fromZone: 'wecc-sw', toZone: 'caiso', transferMw: 3500, kind: 'ac', note: 'Desert Southwest → Southern CA.' },
-  { id: 'ipp', name: 'Intermountain / IPP path', fromZone: 'wecc-rm', toZone: 'caiso', transferMw: 2400, kind: 'dc', note: 'Utah–SoCal historical coal path; conversion era.' },
-  { id: 'ercot-e', name: 'ERCOT–Eastern DC ties', fromZone: 'ercot', toZone: 'spp', transferMw: 1200, kind: 'dc', note: 'Asynchronous bridges; limited vs island size.' },
-  { id: 'ercot-m', name: 'ERCOT–Mexico ties', fromZone: 'ercot', toZone: 'ercot', transferMw: 400, kind: 'dc', note: 'Southern border (mapped as ERCOT self-edge for note).' },
-  { id: 'pjm-miso', name: 'PJM–MISO seam', fromZone: 'pjm', toZone: 'miso', transferMw: 8000, kind: 'seam', note: 'Heavy Midwest market seam; congestion frequent.' },
-  { id: 'miso-spp', name: 'MISO–SPP seam', fromZone: 'miso', toZone: 'spp', transferMw: 4000, kind: 'seam', note: 'Plains wind transfer interface.' },
-  { id: 'pjm-ny', name: 'PJM–NYISO ties', fromZone: 'pjm', toZone: 'nyiso', transferMw: 2500, kind: 'ac', note: 'Mid-Atlantic ↔ New York.' },
-  { id: 'ny-ne', name: 'NYISO–ISO-NE ties', fromZone: 'nyiso', toZone: 'isone', transferMw: 2000, kind: 'ac', note: 'New England imports often via NY.' },
-  { id: 'pjm-se', name: 'PJM–Southeast interfaces', fromZone: 'pjm', toZone: 'serc', transferMw: 3500, kind: 'ac', note: 'Carolinas / Dominion edges.' },
-  { id: 'miso-se', name: 'MISO South–Southeast', fromZone: 'miso', toZone: 'serc', transferMw: 2500, kind: 'ac', note: 'Entergy / Southern interfaces.' },
-  { id: 'spp-wecc', name: 'SPP–WECC DC / seams', fromZone: 'spp', toZone: 'wecc-rm', transferMw: 1500, kind: 'dc', note: 'East–West asynchronous / limited ties.' },
-  { id: 'nw-rm', name: 'NW–Rockies paths', fromZone: 'wecc-nw', toZone: 'wecc-rm', transferMw: 2000, kind: 'ac', note: 'Intra-WECC west–east.' },
-  { id: 'sw-rm', name: 'SW–Rockies paths', fromZone: 'wecc-sw', toZone: 'wecc-rm', transferMw: 2200, kind: 'ac', note: 'Four Corners / desert paths.' },
-  { id: 'se-internal', name: 'Southeast utility interfaces', fromZone: 'serc', toZone: 'serc', transferMw: 5000, kind: 'ac', note: 'Duke–Southern–TVA–FPL contract paths (schematic).' },
+  { id: 'ipp', name: 'Intermountain / IPP path', fromZone: 'wecc-rm', toZone: 'caiso', transferMw: 2400, kind: 'dc', note: 'Utah-SoCal historical coal path; conversion era.' },
+  { id: 'ercot-e', name: 'ERCOT-Eastern DC ties', fromZone: 'ercot', toZone: 'spp', transferMw: 1200, kind: 'dc', note: 'Asynchronous bridges; limited vs island size.' },
+  { id: 'ercot-m', name: 'ERCOT-Mexico ties', fromZone: 'ercot', toZone: 'ercot', transferMw: 400, kind: 'dc', note: 'Southern border (mapped as ERCOT self-edge for note).' },
+  { id: 'pjm-miso', name: 'PJM-MISO seam', fromZone: 'pjm', toZone: 'miso', transferMw: 8000, kind: 'seam', note: 'Heavy Midwest market seam; congestion frequent.' },
+  { id: 'miso-spp', name: 'MISO-SPP seam', fromZone: 'miso', toZone: 'spp', transferMw: 4000, kind: 'seam', note: 'Plains wind transfer interface.' },
+  { id: 'pjm-ny', name: 'PJM-NYISO ties', fromZone: 'pjm', toZone: 'nyiso', transferMw: 2500, kind: 'ac', note: 'Mid-Atlantic ↔ New York.' },
+  { id: 'ny-ne', name: 'NYISO-ISO-NE ties', fromZone: 'nyiso', toZone: 'isone', transferMw: 2000, kind: 'ac', note: 'New England imports often via NY.' },
+  { id: 'pjm-se', name: 'PJM-Southeast interfaces', fromZone: 'pjm', toZone: 'serc', transferMw: 3500, kind: 'ac', note: 'Carolinas / Dominion edges.' },
+  { id: 'miso-se', name: 'MISO South-Southeast', fromZone: 'miso', toZone: 'serc', transferMw: 2500, kind: 'ac', note: 'Entergy / Southern interfaces.' },
+  { id: 'spp-wecc', name: 'SPP-WECC DC / seams', fromZone: 'spp', toZone: 'wecc-rm', transferMw: 1500, kind: 'dc', note: 'East-West asynchronous / limited ties.' },
+  { id: 'nw-rm', name: 'NW-Rockies paths', fromZone: 'wecc-nw', toZone: 'wecc-rm', transferMw: 2000, kind: 'ac', note: 'Intra-WECC west-east.' },
+  { id: 'sw-rm', name: 'SW-Rockies paths', fromZone: 'wecc-sw', toZone: 'wecc-rm', transferMw: 2200, kind: 'ac', note: 'Four Corners / desert paths.' },
+  { id: 'se-internal', name: 'Southeast utility interfaces', fromZone: 'serc', toZone: 'serc', transferMw: 5000, kind: 'ac', note: 'Duke-Southern-TVA-FPL contract paths (schematic).' },
 ]
 
 export function zoneById(id: GridZoneId): GridZone | undefined {
