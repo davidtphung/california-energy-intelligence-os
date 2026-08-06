@@ -9,7 +9,7 @@
     {
       "source": "/api/live/(.*)",
       "headers": [
-        { "key": "Cache-Control", "value": "public, s-maxage=30, stale-while-revalidate=60" }
+        { "key": "Cache-Control", "value": "public, s-maxage=10, stale-while-revalidate=20" }
       ]
     }
   ]

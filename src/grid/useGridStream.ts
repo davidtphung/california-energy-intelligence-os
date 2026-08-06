@@ -8,7 +8,9 @@ import { buildTimeline, getTopology, sampleFrame } from './generateGrid'
 import { computeKpis } from './metrics'
 import type { GridFrame, GridMode, GridTopology } from './types'
 
-const LIVE_MS = 2500
+import { REFRESH } from '../data/refreshRates'
+
+const LIVE_MS = REFRESH.mapStreamMs
 
 export function useGridStream(mode: GridMode) {
   const topo = useMemo(() => getTopology(), [])
@@ -79,7 +81,7 @@ export function useGridStream(mode: GridMode) {
         setNow(history[next].t)
         return next
       })
-    }, 400)
+    }, REFRESH.scrubPlaybackMs)
     return () => {
       if (playRef.current) window.clearInterval(playRef.current)
     }

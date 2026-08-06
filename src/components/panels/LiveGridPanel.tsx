@@ -13,6 +13,7 @@ import {
 } from 'recharts'
 import { useLiveGrid } from '../../hooks/useLiveGrid'
 import { cleanShareFromFuel } from '../../data/liveSources'
+import { ageLabel, formatRefreshHuman, REFRESH } from '../../data/refreshRates'
 import { useApp } from '../../context/AppContext'
 import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
@@ -29,11 +30,12 @@ function fmtGw(n: number | null | undefined) {
 }
 
 export function LiveGridPanel() {
-  const { data, loading, error, refresh } = useLiveGrid(true)
+  const { data, loading, error, lastOk, ageTick, refreshIntervalMs, refresh } = useLiveGrid(true)
   const { theme } = useApp()
   const tick = theme === 'dark' ? '#8a8478' : '#7a7468'
   const grid = theme === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'
   const tipBg = theme === 'dark' ? '#000000' : '#ffffff'
+  void ageTick
 
   const caiso = data?.caiso
   const fuel = caiso?.fuel
@@ -72,7 +74,10 @@ export function LiveGridPanel() {
           <p className="sub" style={{ marginBottom: 0 }}>
             Real data from CAISO Today&apos;s Outlook CSVs
             {caiso?.asOf ? ` · as of ${caiso.asOf}` : ''}
-            {caiso?.produced ? ` · produced ${caiso.produced}` : ''}. Refreshes every 60s.
+            {caiso?.produced ? ` · produced ${caiso.produced}` : ''}. Pull every{' '}
+            {formatRefreshHuman(refreshIntervalMs)} when tab is open (backs off to{' '}
+            {formatRefreshHuman(REFRESH.caisoHiddenMs)} when hidden). Last pull:{' '}
+            {ageLabel(lastOk)} · edge cache ≤{REFRESH.edgeSMaxAgeSec}s.
           </p>
         </div>
         <div className="btn-row">

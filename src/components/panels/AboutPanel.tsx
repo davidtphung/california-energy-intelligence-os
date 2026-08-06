@@ -212,9 +212,47 @@ export function AboutPanel() {
         <section className="block about-section">
           <h2 className="page-h2">Sources &amp; methods</h2>
           <p className="sub" style={{ maxWidth: '40rem' }}>
-            Data are composite educational samples. Production should wire live APIs and official
-            series. Primary reference families:
+            Data are composite educational samples plus live CAISO pulls where wired. Primary
+            reference families and how often EIS updates:
           </p>
+          <div className="table-wrap" style={{ marginTop: '1rem' }}>
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Feed</th>
+                  <th>Update rate now</th>
+                  <th>Source</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Map stream (national graph)</td>
+                  <td>Every 0.8 s (simulated)</td>
+                  <td>Client sample path · not SCADA</td>
+                </tr>
+                <tr>
+                  <td>CAISO Today&apos;s Outlook</td>
+                  <td>Every 15 s when tab open · 90 s when hidden · edge ≤10 s</td>
+                  <td>CAISO public CSV via /api/live/caiso</td>
+                </tr>
+                <tr>
+                  <td>CA weather (Open-Meteo)</td>
+                  <td>Same pull cycle as CAISO</td>
+                  <td>open-meteo.com</td>
+                </tr>
+                <tr>
+                  <td>EIA CISO hourly</td>
+                  <td>Same cycle if VITE_EIA_API_KEY set</td>
+                  <td>EIA Open Data</td>
+                </tr>
+                <tr>
+                  <td>Demand / USA / Assets / Fuels / Thesis</td>
+                  <td>On deploy only (static catalog)</td>
+                  <td>Sample models scaled to public ranges</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
           <div className="table-wrap" style={{ marginTop: '1rem' }}>
             <table className="data-table">
               <thead>
@@ -233,7 +271,7 @@ export function AboutPanel() {
                 <tr>
                   <td>Operations &amp; markets</td>
                   <td>CAISO OASIS, ERCOT, PJM, MISO, SPP, NYISO, ISO-NE public dashboards</td>
-                  <td>Live grid simulation; optional live CAISO hooks</td>
+                  <td>Live map stream + CAISO real load badge</td>
                 </tr>
                 <tr>
                   <td>Grid structure</td>
@@ -243,7 +281,7 @@ export function AboutPanel() {
                 <tr>
                   <td>Demand outlook</td>
                   <td>EIA AEO, NREL, ISO load forecasts, IRPs</td>
-                  <td>Future balance trajectories (sample path)</td>
+                  <td>Demand tab + future balance (sample path)</td>
                 </tr>
                 <tr>
                   <td>Fossil / fuels</td>
@@ -258,7 +296,7 @@ export function AboutPanel() {
                 <tr>
                   <td>Policy</td>
                   <td>Federal statutes, FERC, state PUCs, local ordinances (summaries)</td>
-                  <td>Policy tab hierarchical timeline</td>
+                  <td>Policy hash route</td>
                 </tr>
                 <tr>
                   <td>Trade / transfers</td>

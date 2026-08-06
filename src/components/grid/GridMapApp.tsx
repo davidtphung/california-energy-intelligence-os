@@ -41,6 +41,8 @@ import {
 } from '../../grid/types'
 import { exportCsv } from '../../lib/utils'
 import { useApp } from '../../context/AppContext'
+import { useLiveGrid } from '../../hooks/useLiveGrid'
+import { ageLabel, formatRefreshHuman, REFRESH, REFRESH_COPY } from '../../data/refreshRates'
 import { FutureBalanceMap } from './FutureBalanceMap'
 import { ConstructionProjectsMap } from './ConstructionProjectsMap'
 import { UtilityGridMap } from './UtilityGridMap'
@@ -110,6 +112,14 @@ export function GridMapApp() {
   const stream = useGridStream(filters.mode)
   const { topo, frame, prevFrame, kpis, now, connected, history, histIndex, playing, setPlaying, scrubTo } =
     stream
+  // Real CAISO when live map is visible (fast poll via useLiveGrid)
+  const live = useLiveGrid(true)
+  // Re-render each second so "Xs ago" stays accurate
+  void live.ageTick
+  const caisoDemandGw =
+    live.data?.caiso?.currentDemandMw != null
+      ? live.data.caiso.currentDemandMw / 1000
+      : null
 
   const ops = useMemo(() => operatorsList(topo), [topo])
   const regs = useMemo(() => regionsList(topo), [topo])
@@ -256,10 +266,19 @@ export function GridMapApp() {
           <h1 className="page-h2" style={{ marginBottom: 4 }}>
             Live power map
           </h1>
-          <p className="mapcentric-lede">{frame.summary}</p>
+          <p className="mapcentric-lede">
+            {frame.summary} · {REFRESH_COPY.mapStream}
+            {caisoDemandGw != null
+              ? ` · CAISO load ${caisoDemandGw.toFixed(2)} GW (${ageLabel(live.lastOk)}, pull ${formatRefreshHuman(REFRESH.caisoLiveMs)})`
+              : live.loading
+                ? ' · CAISO pull…'
+                : live.error
+                  ? ' · CAISO offline'
+                  : ''}
+          </p>
         </div>
         <div className="mapcentric-kpis">
-          {kpiItems.slice(0, 4).map((k) => (
+          {kpiItems.slice(0, 3).map((k) => (
             <div key={k.k} className="mapcentric-kpi">
               <span>{k.k}</span>
               <strong>
@@ -268,6 +287,13 @@ export function GridMapApp() {
               </strong>
             </div>
           ))}
+          <div className="mapcentric-kpi">
+            <span>CAISO real</span>
+            <strong style={{ color: caisoDemandGw != null ? 'var(--ok)' : undefined }}>
+              {caisoDemandGw != null ? caisoDemandGw.toFixed(2) : '—'}
+              <em>GW</em>
+            </strong>
+          </div>
         </div>
       </header>
 
@@ -314,7 +340,7 @@ export function GridMapApp() {
         <div className="gmap-kpi-item gmap-kpi-live">
           <span className="gmap-kpi-label">
             <span className={`gmap-dot ${connected ? 'ok' : 'bad'}`} />
-            {filters.mode === 'live' ? 'Live' : filters.mode}
+            {filters.mode === 'live' ? 'Stream' : filters.mode}
           </span>
           <span className="gmap-kpi-value" style={{ fontSize: '0.95rem' }}>
             {new Date(now).toLocaleTimeString([], {
@@ -325,8 +351,24 @@ export function GridMapApp() {
           </span>
           <span className="gmap-kpi-hint">
             {filters.mode === 'live'
-              ? `fresh ≤${kpis.freshnessSec}s`
+              ? `tick ${formatRefreshHuman(REFRESH.mapStreamMs)}`
               : new Date(now).toLocaleDateString()}
+          </span>
+        </div>
+        <div className="gmap-kpi-item gmap-kpi-live">
+          <span className="gmap-kpi-label">
+            <span
+              className={`gmap-dot ${live.data?.caiso ? 'ok' : live.error ? 'bad' : ''}`}
+            />
+            CAISO
+          </span>
+          <span className="gmap-kpi-value" style={{ fontSize: '0.95rem' }}>
+            {live.loading && !live.lastOk
+              ? '…'
+              : ageLabel(live.lastOk)}
+          </span>
+          <span className="gmap-kpi-hint">
+            every {formatRefreshHuman(REFRESH.caisoLiveMs)}
           </span>
         </div>
       </div>
@@ -912,8 +954,9 @@ export function GridMapApp() {
             <>
               <span className={`gmap-dot ok`} />
               <span className="gmap-time-label">
-                Streaming · tick every 2.5s · {visibleNodes.length} nodes · {visibleLines.length}{' '}
-                corridors
+                Stream {formatRefreshHuman(REFRESH.mapStreamMs)} · CAISO{' '}
+                {formatRefreshHuman(REFRESH.caisoLiveMs)} · {visibleNodes.length} nodes ·{' '}
+                {visibleLines.length} corridors
               </span>
               <span className="gmap-time-label muted mono">{deltaText}</span>
             </>
@@ -922,8 +965,9 @@ export function GridMapApp() {
       </footer>
 
       <p className="footer-line">
-        Live map · current · voltage · power · energy · density · storage · simulated stream · wire
-        EMS / ISO WebSocket in production
+        National graph simulated every {formatRefreshHuman(REFRESH.mapStreamMs)} · CAISO Today&apos;s
+        Outlook every {formatRefreshHuman(REFRESH.caisoLiveMs)} (edge ≤{REFRESH.edgeSMaxAgeSec}s) ·
+        catalogs on deploy
       </p>
     </div>
   )
