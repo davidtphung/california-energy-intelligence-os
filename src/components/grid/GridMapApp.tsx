@@ -63,10 +63,10 @@ function MapLensBar({
   setLens: (l: MapLens) => void
 }) {
   const items: { id: MapLens; label: string }[] = [
+    { id: 'live', label: 'Live grid' },
     { id: 'grid', label: 'Grid / utilities' },
     { id: 'build', label: 'Construction' },
     { id: 'future', label: 'Future balance' },
-    { id: 'live', label: 'Live grid' },
   ]
   return (
     <div
@@ -93,7 +93,7 @@ function MapLensBar({
 
 export function GridMapApp() {
   const { theme, openStateDetail } = useApp()
-  const [lens, setLens] = useState<MapLens>('grid')
+  const [lens, setLens] = useState<MapLens>('live')
   const [filters, setFilters] = useState<GridFilters>(DEFAULT_FILTERS)
   const [layers, setLayers] = useState<Record<LayerId, boolean>>(() =>
     Object.fromEntries(LAYER_META.map((l) => [l.id, l.defaultOn])) as Record<LayerId, boolean>
