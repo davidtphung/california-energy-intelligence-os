@@ -1,15 +1,87 @@
 /**
- * About · how EIS works and data sources.
+ * About · how EIS works, sources, and donate (aligned with starlinkatlas About/Donate).
  */
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useApp } from '../../context/AppContext'
 
-type AboutTab = 'about' | 'how' | 'sources'
+type AboutTab = 'about' | 'how' | 'sources' | 'donate'
+
+const CRYPTO_METHODS = [
+  {
+    key: 'btc',
+    name: 'Bitcoin',
+    network: 'Bitcoin Network',
+    address: '3LmGHi5gvPbFYrstbBS5MTbLcQuWEBVBQq',
+  },
+  {
+    key: 'cbbtc',
+    name: 'cbBTC',
+    network: 'Base Network',
+    address: '0xF24594C7023A2a0b6dFb97F07ae1c1eb970a9816',
+  },
+  {
+    key: 'usdc',
+    name: 'USDC',
+    network: 'Base Network',
+    address: '0xb25eb698392eaE827b64EEB9cb124C62Be0D3dD7',
+  },
+  {
+    key: 'eth',
+    name: 'Ethereum',
+    network: 'Ethereum Network',
+    address: '0x1A1c37C145a1EaB58C43F003EBB55C18083b5987',
+  },
+] as const
+
+function CopyAddress({ address, label }: { address: string; label: string }) {
+  const [copied, setCopied] = useState(false)
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(address)
+      setCopied(true)
+      window.setTimeout(() => setCopied(false), 1800)
+    } catch {
+      /* ignore */
+    }
+  }
+  return (
+    <div className="donate-address-row">
+      <code className="donate-address" title={address}>
+        {address}
+      </code>
+      <button type="button" className="btn btn-sm" onClick={() => void copy()} aria-label={`Copy ${label} address`}>
+        {copied ? 'Copied' : 'Copy'}
+      </button>
+    </div>
+  )
+}
+
+function tabFromHash(): AboutTab {
+  const raw = typeof window !== 'undefined' ? window.location.hash.replace('#', '') : ''
+  // #about/donate or #about?tab=donate
+  if (raw.includes('donate')) return 'donate'
+  if (raw.includes('sources')) return 'sources'
+  if (raw.includes('how')) return 'how'
+  return 'about'
+}
 
 export function AboutPanel() {
   const { setView } = useApp()
-  const [tab, setTab] = useState<AboutTab>('about')
+  const [tab, setTab] = useState<AboutTab>(() => tabFromHash())
+
+  useEffect(() => {
+    const apply = () => setTab(tabFromHash())
+    apply()
+    window.addEventListener('hashchange', apply)
+    return () => window.removeEventListener('hashchange', apply)
+  }, [])
+
+  const goTab = (id: AboutTab) => {
+    setTab(id)
+    const hash = id === 'about' ? 'about' : `about/${id}`
+    window.history.replaceState(null, '', `#${hash}`)
+  }
 
   return (
     <div id="about" className="about-panel fadein t1">
@@ -32,6 +104,7 @@ export function AboutPanel() {
             ['about', 'About'],
             ['how', 'How it works'],
             ['sources', 'Sources'],
+            ['donate', 'Donate'],
           ] as const
         ).map(([id, label]) => (
           <button
@@ -40,7 +113,7 @@ export function AboutPanel() {
             role="tab"
             aria-selected={tab === id}
             className={tab === id ? 'is-on' : ''}
-            onClick={() => setTab(id)}
+            onClick={() => goTab(id)}
           >
             {label}
           </button>
@@ -71,19 +144,14 @@ export function AboutPanel() {
             >
               Open Map
             </button>
-            <button
-              type="button"
-              className="btn btn-sm"
-              onClick={() => setTab('how')}
-            >
+            <button type="button" className="btn btn-sm" onClick={() => goTab('how')}>
               How it works
             </button>
-            <button
-              type="button"
-              className="btn btn-sm"
-              onClick={() => setTab('sources')}
-            >
+            <button type="button" className="btn btn-sm" onClick={() => goTab('sources')}>
               Sources
+            </button>
+            <button type="button" className="btn btn-sm" onClick={() => goTab('donate')}>
+              Donate
             </button>
           </div>
           <p className="footer-line" style={{ marginTop: '1.5rem' }}>
@@ -231,6 +299,71 @@ export function AboutPanel() {
             <a href="https://www.nerc.com" target="_blank" rel="noopener noreferrer">
               nerc.com
             </a>
+          </p>
+        </section>
+      )}
+
+      {tab === 'donate' && (
+        <section className="block about-section donate-section">
+          <p className="kicker">Support</p>
+          <h2 className="page-h2">Support Energy Intelligence System</h2>
+          <p className="sub" style={{ maxWidth: '36rem' }}>
+            Independent energy software. No ads, no paywalls, no corporate sponsors, no user
+            tracking. Your contribution funds development, data, and hosting.
+          </p>
+
+          <p className="kicker" style={{ marginTop: '1.25rem' }}>
+            Donation methods
+          </p>
+
+          <a
+            className="donate-method-card"
+            href="https://venmo.com/davidtphung"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <span className="donate-method-badge" aria-hidden>
+              V
+            </span>
+            <span className="donate-method-body">
+              <strong>Venmo</strong>
+              <span className="muted">@davidtphung</span>
+            </span>
+            <span className="donate-method-ext muted" aria-hidden>
+              ↗
+            </span>
+          </a>
+
+          <div className="donate-crypto-list">
+            {CRYPTO_METHODS.map((m) => (
+              <div key={m.key} className="donate-crypto-card">
+                <div className="donate-crypto-head">
+                  <strong>{m.name}</strong>
+                  <span className="muted">{m.network}</span>
+                </div>
+                <CopyAddress address={m.address} label={m.name} />
+              </div>
+            ))}
+          </div>
+
+          <div className="donate-important">
+            <p className="kicker">Important</p>
+            <ul className="about-steps" style={{ listStyle: 'disc', paddingLeft: '1.25rem' }}>
+              <li>Donations are voluntary and non-refundable.</li>
+              <li>
+                Crypto transactions are irreversible. Please double-check every address before
+                sending.
+              </li>
+              <li>This is not a 501(c)(3) nonprofit. Contributions are not tax deductible.</li>
+            </ul>
+          </div>
+
+          <p className="footer-line" style={{ marginTop: '1.25rem' }}>
+            Questions or feedback?{' '}
+            <a href="https://x.com/davidtphung" target="_blank" rel="noopener noreferrer">
+              @davidtphung
+            </a>{' '}
+            on X.
           </p>
         </section>
       )}

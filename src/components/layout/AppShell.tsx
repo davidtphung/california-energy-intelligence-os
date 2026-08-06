@@ -30,6 +30,9 @@ const HASH_ALIASES: Record<string, AppView> = {
   dev: 'developer',
   map: 'map',
   about: 'about',
+  'about/donate': 'about',
+  'about/how': 'about',
+  'about/sources': 'about',
 }
 
 function LiveClock() {
