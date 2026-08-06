@@ -4553,3 +4553,62 @@ html[data-theme='dark'] .gmap-map-wrap:hover {
   margin-top: 0.35rem;
   font-size: 0.85rem;
 }
+
+/* View counter */
+.view-counter {
+  display: inline-flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.15rem;
+  font-size: 0.72rem;
+  color: var(--mute);
+  line-height: 1.35;
+}
+
+.view-counter-num {
+  color: var(--highlight);
+  font-weight: 650;
+  font-size: 0.8rem;
+}
+
+.view-counter-label {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+
+.view-counter-hint,
+.view-counter-unit {
+  color: var(--mute-2);
+  font-size: 0.68rem;
+}
+
+.view-counter.is-loading {
+  opacity: 0.55;
+}
+
+.view-counter.is-muted {
+  opacity: 0.7;
+}
+
+.menu-meta .view-counter {
+  margin-top: 0.15rem;
+}
+
+.site-credit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.5rem;
+}
+
+.site-credit-sep {
+  opacity: 0.5;
+}
+
+@media (min-width: 821px) {
+  .site-credit .view-counter {
+    /* still hidden whole footer on desktop; rail shows compact counter */
+  }
+}

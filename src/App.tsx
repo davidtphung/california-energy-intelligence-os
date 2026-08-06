@@ -1,5 +1,6 @@
 import type React from 'react'
 import { AppProvider, useApp } from './context/AppContext'
+import { ViewCounterProvider } from './context/ViewCounterContext'
 import { AppShell } from './components/layout/AppShell'
 import { GridMapApp } from './components/grid/GridMapApp'
 import { PortfoliosPanel } from './components/panels/PortfoliosPanel'
@@ -71,9 +72,11 @@ function ViewRouter() {
 export default function App() {
   return (
     <AppProvider>
-      <AppShell>
-        <ViewRouter />
-      </AppShell>
+      <ViewCounterProvider>
+        <AppShell>
+          <ViewRouter />
+        </AppShell>
+      </ViewCounterProvider>
     </AppProvider>
   )
 }

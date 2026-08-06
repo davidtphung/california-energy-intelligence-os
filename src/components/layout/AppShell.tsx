@@ -9,6 +9,7 @@ import {
   getKPIs,
 } from '../../data/mockData'
 import { exportJson } from '../../lib/utils'
+import { ViewCounter } from '../ViewCounter'
 
 /** Primary modes only : secondary tools stay addressable by hash */
 const NAV: { id: AppView; label: string; hash: string }[] = [
@@ -149,9 +150,9 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="menu-meta">
           <LiveClock />
           <br />
-          Live map
+          <ViewCounter compact />
           <br />
-          stream + replay
+          Live map · stream
         </div>
 
         <div className="rail-credit">
@@ -167,6 +168,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="content">{children}</div>
         </main>
         <footer className="site-credit">
+          <ViewCounter />
+          <span className="site-credit-sep" aria-hidden>
+            ·
+          </span>
           Built by{' '}
           <a href="https://x.com/davidtphung" target="_blank" rel="noopener noreferrer">
             David T Phung
