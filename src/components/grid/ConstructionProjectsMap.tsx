@@ -82,7 +82,7 @@ export function ConstructionProjectsMap() {
             Energy construction projects
           </h2>
           <p className="mapcentric-lede">
-            Plants and storage being built to generate or firm power : nuclear, solar, wind, gas,
+            Plants and storage being built to generate or firm power: nuclear, solar, wind, gas,
             geothermal, hydro, batteries. Dot size = MW; ring color = status.
           </p>
         </div>
