@@ -1,5 +1,5 @@
 /**
- * Grid Pulse · real-time electrical intelligence data model
+ * Real-time electrical intelligence data model
  * Live + historical layers for power systems map UX.
  */
 

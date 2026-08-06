@@ -12,6 +12,7 @@ import { ScenarioPlanner } from './components/panels/ScenarioPlanner'
 import { ResearchWorkspace } from './components/panels/ResearchWorkspace'
 import { DataEngineering } from './components/panels/DataEngineering'
 import { DeveloperPanel } from './components/panels/DeveloperPanel'
+import { AboutPanel } from './components/panels/AboutPanel'
 
 function ViewRouter() {
   const { view } = useApp()
@@ -53,6 +54,9 @@ function ViewRouter() {
       break
     case 'developer':
       panel = <DeveloperPanel />
+      break
+    case 'about':
+      panel = <AboutPanel />
       break
     default:
       panel = <GridMapApp />

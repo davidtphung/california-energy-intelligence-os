@@ -2924,7 +2924,7 @@ hr,
   margin-top: 0.15rem;
 }
 
-/* ── Grid Pulse · map-first electrical intelligence ── */
+/* ── Map-first electrical intelligence ── */
 .gmap {
   max-width: none;
   width: 100%;
@@ -4399,4 +4399,31 @@ html[data-theme='dark'] .gmap-map-wrap:hover {
     transform: none;
     box-shadow: none;
   }
+}
+
+/* About panel */
+.about-panel {
+  max-width: 48rem;
+}
+
+.about-section .sub {
+  line-height: 1.55;
+}
+
+.about-steps {
+  margin: 0.75rem 0 0;
+  padding-left: 1.25rem;
+  color: var(--ink-2);
+  font-size: 0.92rem;
+  line-height: 1.55;
+  max-width: 40rem;
+}
+
+.about-steps li {
+  margin: 0.55rem 0;
+}
+
+.about-steps strong {
+  color: var(--highlight);
+  font-weight: 650;
 }

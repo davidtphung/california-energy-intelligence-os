@@ -18,6 +18,7 @@ const NAV: { id: AppView; label: string; hash: string }[] = [
   { id: 'fossil', label: 'Fuels', hash: 'fossil' },
   { id: 'policy', label: 'Policy', hash: 'policy' },
   { id: 'scenarios', label: 'Scenario', hash: 'scenario' },
+  { id: 'about', label: 'About', hash: 'about' },
 ]
 
 const HASH_ALIASES: Record<string, AppView> = {
@@ -28,6 +29,7 @@ const HASH_ALIASES: Record<string, AppView> = {
   data: 'data-engineering',
   dev: 'developer',
   map: 'map',
+  about: 'about',
 }
 
 function LiveClock() {
@@ -101,7 +103,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <nav className="rail" aria-label="Primary">
         <button type="button" className="brand" onClick={() => go('map', 'map')}>
           <span className="brand-mark">EIS</span>
-          <span className="brand-dot">Grid Pulse · Energy Intelligence</span>
+          <span className="brand-dot">Energy Intelligence System</span>
         </button>
 
         <ul className="menu-items">

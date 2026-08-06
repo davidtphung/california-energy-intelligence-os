@@ -23,7 +23,7 @@ export type CARegion =
 
 export type AppMode = 'analyst' | 'planner' | 'engineer' | 'developer'
 export type AppView =
-  | 'map' // Grid Pulse · primary live map
+  | 'map' // primary live map
   | 'overview' // legacy alias → map
   | 'portfolios'
   | 'states'
@@ -36,6 +36,7 @@ export type AppView =
   | 'research'
   | 'data-engineering'
   | 'developer'
+  | 'about'
 
 export type PortfolioKind =
   | 'IOU'

@@ -1,5 +1,5 @@
 /**
- * Grid Pulse — map-first live electrical intelligence.
+ * Map-first live electrical intelligence.
  * Isochrone-like density for power systems: flow, load, voltage, current, storage.
  */
 
@@ -239,7 +239,7 @@ export function GridMapApp() {
       {/* Header row */}
       <header className="gmap-head">
         <div>
-          <p className="kicker">Grid Pulse · electrical isochrone</p>
+          <p className="kicker">Live map · electrical isochrone</p>
           <h1 className="page-h2" style={{ marginBottom: 4 }}>
             Live power map
           </h1>
@@ -898,7 +898,7 @@ export function GridMapApp() {
       </footer>
 
       <p className="footer-line">
-        Grid Pulse · current · voltage · power · energy · density · storage · simulated stream · wire
+        Live map · current · voltage · power · energy · density · storage · simulated stream · wire
         EMS / ISO WebSocket in production
       </p>
     </div>
