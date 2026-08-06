@@ -201,8 +201,11 @@ export function PortfolioLocationMap({
                 fillOpacity={active ? 0.95 : 0.72}
                 stroke={active ? 'var(--highlight)' : 'var(--bg)'}
                 strokeWidth={active ? 1.5 : 0.8}
-                className="pmap-dot"
+                className={`pmap-dot${active ? ' is-active' : ''}`}
                 filter={active ? 'url(#pmap-soft)' : undefined}
+                style={{
+                  transition: 'r 0.25s cubic-bezier(0.34, 1.4, 0.64, 1), fill-opacity 0.15s ease',
+                }}
                 onMouseEnter={() => setHoverId(a.id)}
                 onMouseLeave={() => setHoverId(null)}
                 onClick={() => onSelectAsset(a)}

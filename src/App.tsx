@@ -1,3 +1,4 @@
+import type React from 'react'
 import { AppProvider, useApp } from './context/AppContext'
 import { AppShell } from './components/layout/AppShell'
 import { GridMapApp } from './components/grid/GridMapApp'
@@ -15,34 +16,52 @@ import { DeveloperPanel } from './components/panels/DeveloperPanel'
 function ViewRouter() {
   const { view } = useApp()
 
+  // key forces clean enter animation on route change
+  let panel: React.ReactNode
   switch (view) {
     case 'map':
     case 'overview':
-      return <GridMapApp />
+      panel = <GridMapApp />
+      break
     case 'portfolios':
-      return <PortfoliosPanel />
+      panel = <PortfoliosPanel />
+      break
     case 'states':
-      return <StatesCatalogPanel />
+      panel = <StatesCatalogPanel />
+      break
     case 'state-detail':
-      return <StateDetailPanel />
+      panel = <StateDetailPanel />
+      break
     case 'fossil':
     case 'gas':
-      return <FossilFuelsPanel />
+      panel = <FossilFuelsPanel />
+      break
     case 'policy':
-      return <PolicyPanel />
+      panel = <PolicyPanel />
+      break
     case 'consistency':
-      return <ConsistencyPanel />
+      panel = <ConsistencyPanel />
+      break
     case 'scenarios':
-      return <ScenarioPlanner />
+      panel = <ScenarioPlanner />
+      break
     case 'research':
-      return <ResearchWorkspace />
+      panel = <ResearchWorkspace />
+      break
     case 'data-engineering':
-      return <DataEngineering />
+      panel = <DataEngineering />
+      break
     case 'developer':
-      return <DeveloperPanel />
+      panel = <DeveloperPanel />
+      break
     default:
-      return <GridMapApp />
+      panel = <GridMapApp />
   }
+  return (
+    <div key={view} className="view-enter fadein">
+      {panel}
+    </div>
+  )
 }
 
 export default function App() {

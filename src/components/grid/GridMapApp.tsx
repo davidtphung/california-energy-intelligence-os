@@ -62,36 +62,31 @@ function MapLensBar({
   lens: MapLens
   setLens: (l: MapLens) => void
 }) {
+  const items: { id: MapLens; label: string }[] = [
+    { id: 'grid', label: 'Grid / utilities' },
+    { id: 'build', label: 'Construction' },
+    { id: 'future', label: 'Future balance' },
+    { id: 'live', label: 'Live grid' },
+  ]
   return (
-    <div className="gmap-mode" style={{ marginBottom: lens === 'live' ? 0 : '0.5rem' }}>
-      <button
-        type="button"
-        className={lens === 'grid' ? 'is-on' : ''}
-        onClick={() => setLens('grid')}
-      >
-        Grid / utilities
-      </button>
-      <button
-        type="button"
-        className={lens === 'build' ? 'is-on' : ''}
-        onClick={() => setLens('build')}
-      >
-        Construction
-      </button>
-      <button
-        type="button"
-        className={lens === 'future' ? 'is-on' : ''}
-        onClick={() => setLens('future')}
-      >
-        Future balance
-      </button>
-      <button
-        type="button"
-        className={lens === 'live' ? 'is-on' : ''}
-        onClick={() => setLens('live')}
-      >
-        Live grid
-      </button>
+    <div
+      className="gmap-mode stagger"
+      role="tablist"
+      aria-label="Map lens"
+      style={{ marginBottom: lens === 'live' ? 0 : '0.5rem' }}
+    >
+      {items.map((item) => (
+        <button
+          key={item.id}
+          type="button"
+          role="tab"
+          aria-selected={lens === item.id}
+          className={lens === item.id ? 'is-on' : ''}
+          onClick={() => setLens(item.id)}
+        >
+          {item.label}
+        </button>
+      ))}
     </div>
   )
 }

@@ -10,10 +10,23 @@
 }
 
 :root {
-  --radius: 2px;
-  --ease: 0.15s ease;
+  --radius: 4px;
+  --radius-sm: 3px;
+  --radius-lg: 8px;
+  /* Motion design tokens */
+  --ease: 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-out: 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring: 0.45s cubic-bezier(0.34, 1.4, 0.64, 1);
+  --ease-soft: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  --dur-fast: 120ms;
+  --dur: 180ms;
+  --dur-med: 280ms;
+  --dur-slow: 420ms;
   --page: 44rem; /* ~704px - reading column */
   --page-wide: 52rem;
+  --elev-1: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.04);
+  --elev-2: 0 4px 16px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+  --elev-glow: 0 0 0 1px rgba(0, 0, 0, 0.04), 0 8px 28px rgba(0, 0, 0, 0.08);
 }
 
 /* Light: warm paper (jacob.energy lineage) */
@@ -40,6 +53,11 @@ html[data-theme="light"] {
   --warn: #92400e;
   --ok: #166534;
   --shadow: none;
+  --elev-1: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 14px rgba(0, 0, 0, 0.05);
+  --elev-2: 0 6px 20px rgba(0, 0, 0, 0.08);
+  --elev-glow: 0 0 0 1px rgba(0, 0, 0, 0.06), 0 10px 32px rgba(0, 0, 0, 0.1);
+  --press: scale(0.98);
+  --lift: translateY(-1px);
 }
 
 /* Dark: charcoal paper */
@@ -66,6 +84,9 @@ html[data-theme="dark"] {
   --warn: #fbbf24;
   --ok: #86efac;
   --shadow: none;
+  --elev-1: 0 1px 2px rgba(0, 0, 0, 0.4), 0 4px 16px rgba(0, 0, 0, 0.35);
+  --elev-2: 0 8px 28px rgba(0, 0, 0, 0.5);
+  --elev-glow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 12px 36px rgba(0, 0, 0, 0.55);
 }
 
 *,
@@ -83,9 +104,24 @@ html {
   html {
     scroll-behavior: auto;
   }
-  .fadein {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .fadein,
+  .view-enter,
+  .stagger > *,
+  .mapcentric-drawer,
+  .gmap-drawer,
+  .gmap-hover-card,
+  .pmap-tip {
     animation: none !important;
     opacity: 1 !important;
+    transform: none !important;
   }
 }
 
@@ -229,37 +265,77 @@ a:hover {
 
 .menu-items button,
 .menu-items a {
+  position: relative;
   display: block;
   width: 100%;
   text-align: left;
   background: none;
   border: 0;
-  padding: 0.28rem 0;
+  padding: 0.32rem 0.45rem 0.32rem 0.55rem;
+  margin-left: -0.45rem;
+  border-radius: var(--radius-sm);
   font: inherit;
   font-size: 0.9rem;
   font-weight: 500;
   color: var(--ink-2);
   cursor: pointer;
-  transition: color var(--ease);
+  transition:
+    color var(--ease),
+    background var(--ease),
+    transform var(--dur-fast) ease;
+}
+
+.menu-items button::before,
+.menu-items a::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 2px;
+  height: 0;
+  border-radius: 1px;
+  background: var(--highlight);
+  transform: translateY(-50%);
+  transition: height var(--ease-out);
+  opacity: 0;
 }
 
 @media (max-width: 820px) {
   .menu-items button,
   .menu-items a {
     width: auto;
-    padding: 0.28rem 0.55rem;
-    border-radius: 2px;
+    padding: 0.32rem 0.65rem;
+    margin-left: 0;
+    border-radius: var(--radius);
+  }
+  .menu-items button::before,
+  .menu-items a::before {
+    display: none;
   }
 }
 
 .menu-items button:hover,
 .menu-items a:hover {
   color: var(--highlight);
+  background: var(--fill);
+}
+
+.menu-items button:active,
+.menu-items a:active {
+  transform: scale(0.98);
 }
 
 .menu-items button.active,
 .menu-items a.active {
   color: var(--highlight);
+  background: var(--fill);
+  font-weight: 600;
+}
+
+.menu-items button.active::before,
+.menu-items a.active::before {
+  height: 60%;
+  opacity: 1;
 }
 
 .menu-meta {
@@ -468,28 +544,125 @@ hr,
   margin: 1.25rem 0;
 }
 
-/* Fade-in like jacob */
+/* View entrance — soft rise + fade */
 .fadein {
-  animation: fadein 0.55s ease both;
+  animation: fadein var(--dur-slow) var(--ease-out) both;
 }
 
 .fadein.t1 {
-  animation-delay: 0.05s;
+  animation-delay: 0.04s;
 }
 .fadein.t2 {
-  animation-delay: 0.12s;
+  animation-delay: 0.1s;
 }
 .fadein.t3 {
-  animation-delay: 0.2s;
+  animation-delay: 0.16s;
 }
 .fadein.t4 {
-  animation-delay: 0.28s;
+  animation-delay: 0.22s;
 }
 
 @keyframes fadein {
   from {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(10px);
+    filter: blur(2px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+/* Stagger children */
+.stagger > * {
+  animation: fadein var(--dur-med) var(--ease-out) both;
+}
+.stagger > *:nth-child(1) {
+  animation-delay: 0.02s;
+}
+.stagger > *:nth-child(2) {
+  animation-delay: 0.06s;
+}
+.stagger > *:nth-child(3) {
+  animation-delay: 0.1s;
+}
+.stagger > *:nth-child(4) {
+  animation-delay: 0.14s;
+}
+.stagger > *:nth-child(5) {
+  animation-delay: 0.18s;
+}
+.stagger > *:nth-child(6) {
+  animation-delay: 0.22s;
+}
+.stagger > *:nth-child(7) {
+  animation-delay: 0.26s;
+}
+.stagger > *:nth-child(8) {
+  animation-delay: 0.3s;
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.65;
+    transform: scale(0.92);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  }
+}
+
+@keyframes drawer-in {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes drawer-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes float-tip {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.98);
   }
   to {
     opacity: 1;
@@ -1794,7 +1967,13 @@ hr,
 
 .pmap-dot {
   cursor: pointer;
-  transition: r 0.15s ease, fill-opacity 0.15s ease;
+  transition:
+    r 0.28s cubic-bezier(0.34, 1.4, 0.64, 1),
+    fill-opacity 0.18s ease,
+    stroke-width 0.18s ease;
+}
+.pmap-dot.is-active {
+  filter: drop-shadow(0 0 4px rgba(34, 197, 94, 0.35));
 }
 
 .pmap-tip {
@@ -3720,4 +3899,504 @@ html[data-theme='dark'] .fbal-badge.critical {
 .ugrid-ic-chip.is-on {
   border-color: var(--highlight);
   background: var(--fill);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Motion & interaction design system (1000× polish)
+   ═══════════════════════════════════════════════════════════ */
+
+/* Interactive affordance baseline */
+button,
+[role='button'],
+.btn,
+.state-chip,
+.state-abbr-btn,
+.gmap-mode button,
+.gmap-icon-btn,
+.gmap-compare-btn,
+.ov-rank-btn,
+.ugrid-ic-chip,
+.linkish,
+.metric,
+.mapcentric-kpi,
+.gmap-kpi-item {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Buttons */
+.btn {
+  transition:
+    background var(--ease),
+    color var(--ease),
+    border-color var(--ease),
+    box-shadow var(--ease),
+    transform var(--dur-fast) ease;
+}
+.btn:hover:not(:disabled) {
+  transform: var(--lift);
+  box-shadow: var(--elev-1);
+}
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
+  box-shadow: none;
+}
+
+/* Segmented controls (map lenses) */
+.gmap-mode {
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: inset 0 0 0 1px var(--line);
+  background: var(--fill);
+}
+.gmap-mode button {
+  position: relative;
+  transition:
+    color var(--ease),
+    background var(--ease-out),
+    box-shadow var(--ease);
+  border-radius: 0;
+}
+.gmap-mode button:hover {
+  color: var(--highlight);
+  background: var(--fill-hover);
+}
+.gmap-mode button.is-on {
+  background: var(--bg);
+  color: var(--highlight);
+  box-shadow: var(--elev-1);
+  font-weight: 650;
+}
+.gmap-mode button:active {
+  transform: scale(0.97);
+}
+
+/* KPI tiles — lift on hover when clickable */
+.gmap-kpi-item,
+.mapcentric-kpi,
+.metric {
+  transition:
+    transform var(--ease),
+    box-shadow var(--ease),
+    border-color var(--ease),
+    background var(--ease);
+}
+button.metric:hover,
+.metric[style*='cursor: pointer']:hover,
+.gmap-kpi-item:hover {
+  border-color: var(--line);
+  box-shadow: var(--elev-1);
+  transform: var(--lift);
+}
+.gmap-kpi-value,
+.mapcentric-kpi strong {
+  transition: color var(--ease);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Live pulse */
+.gmap-dot.ok {
+  animation: pulse-ring 2s ease-out infinite;
+}
+.gmap-kpi-live {
+  position: relative;
+  overflow: hidden;
+}
+.gmap-kpi-live::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 40%,
+    rgba(34, 197, 94, 0.06) 50%,
+    transparent 60%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 3.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Side panels & drawers */
+.gmap-side,
+.mapcentric-drawer,
+.gmap-drawer {
+  transition:
+    box-shadow var(--ease),
+    border-color var(--ease);
+  animation: drawer-in var(--dur-med) var(--ease-out) both;
+}
+.mapcentric-stage.has-drawer .mapcentric-drawer,
+.gmap-body:has(.gmap-drawer) .gmap-drawer {
+  animation: drawer-in var(--dur-med) var(--ease-out) both;
+}
+@media (max-width: 960px) {
+  .mapcentric-drawer,
+  .gmap-drawer {
+    animation-name: drawer-in-up;
+  }
+}
+
+/* Map stage depth */
+.mapcentric-map,
+.gmap-map-wrap,
+.fbal-map {
+  transition: box-shadow var(--ease-soft), border-color var(--ease);
+  box-shadow: var(--elev-1);
+}
+.mapcentric-map:hover,
+.gmap-map-wrap:hover {
+  box-shadow: var(--elev-2);
+}
+
+/* SVG map interactivity */
+.gmap-svg circle,
+.gmap-svg line,
+.fbal-svg circle,
+.fbal-svg line,
+.fbal-svg rect,
+.pmap-svg circle,
+.pmap-svg line,
+.usamap-svg circle {
+  transition:
+    opacity var(--dur-fast) ease,
+    stroke-width var(--dur-fast) ease,
+    fill-opacity var(--dur-fast) ease,
+    r var(--ease-spring),
+    transform var(--ease-spring);
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.gmap-svg g[style*='cursor'],
+.fbal-svg g[style*='cursor'],
+.pmap-svg g,
+.usamap-svg g {
+  transition: opacity var(--ease);
+}
+.gmap-svg g[style*='cursor']:hover circle:first-of-type,
+.fbal-svg g[style*='cursor']:hover circle:not([fill='none']),
+.pmap-dot:hover {
+  filter: brightness(1.08);
+}
+
+/* Flow line motion (already have dash; smooth opacity) */
+.gmap-flow-line,
+.pmap-flow {
+  animation: gmap-dash 1.4s linear infinite;
+  transition: stroke-opacity var(--ease), stroke-width var(--ease);
+}
+
+/* Hover / tip cards */
+.gmap-hover-card,
+.pmap-tip {
+  animation: float-tip var(--dur-med) var(--ease-out) both;
+  box-shadow: var(--elev-2);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: box-shadow var(--ease);
+}
+
+/* Chips */
+.state-chip,
+.state-abbr-btn {
+  transition:
+    background var(--ease),
+    border-color var(--ease),
+    color var(--ease),
+    transform var(--dur-fast) ease,
+    box-shadow var(--ease);
+}
+.state-chip:hover,
+.state-abbr-btn:hover {
+  transform: var(--lift);
+  box-shadow: var(--elev-1);
+}
+.state-chip:active,
+.state-abbr-btn:active {
+  transform: scale(0.97);
+}
+.state-chip.is-on,
+.state-abbr-btn.is-on {
+  box-shadow: var(--elev-1);
+  font-weight: 650;
+}
+
+/* Rank lists */
+.ov-rank-btn {
+  transition:
+    background var(--ease),
+    transform var(--dur-fast) ease,
+    box-shadow var(--ease);
+  border-radius: var(--radius-sm);
+  width: 100%;
+}
+.ov-rank-btn:hover {
+  background: var(--fill);
+  transform: translateX(2px);
+}
+.ov-rank-btn:active {
+  transform: scale(0.99);
+}
+
+/* Icon buttons */
+.gmap-icon-btn,
+.icon-btn {
+  transition:
+    background var(--ease),
+    color var(--ease),
+    border-color var(--ease),
+    transform var(--dur-fast) ease,
+    box-shadow var(--ease);
+}
+.gmap-icon-btn:hover,
+.icon-btn:hover {
+  transform: var(--lift);
+  box-shadow: var(--elev-1);
+}
+.gmap-icon-btn:active,
+.icon-btn:active {
+  transform: scale(0.94);
+}
+
+/* Flow bars fill animate */
+.mapcentric-flowbar > div,
+.state-stack-seg,
+.fbal-meter-fill {
+  transition: width var(--ease-soft);
+}
+
+/* Details accordion */
+.mapcentric-details {
+  transition: border-color var(--ease), box-shadow var(--ease);
+}
+.mapcentric-details:hover {
+  border-color: var(--line);
+}
+.mapcentric-details > summary {
+  transition: color var(--ease);
+  user-select: none;
+}
+.mapcentric-details > summary:hover {
+  color: var(--accent);
+}
+.mapcentric-details[open] {
+  box-shadow: var(--elev-1);
+}
+.mapcentric-details-body {
+  animation: drawer-in-up var(--dur-med) var(--ease-out) both;
+}
+
+/* Tables row interaction */
+.data-table tbody tr {
+  transition: background var(--dur-fast) ease;
+}
+.data-table tbody tr[style*='cursor'],
+.data-table tbody tr[onclick] {
+  transition:
+    background var(--dur-fast) ease,
+    box-shadow var(--dur-fast) ease;
+}
+.data-table tbody tr:hover {
+  background: var(--fill) !important;
+}
+
+/* Interconnect chips */
+.ugrid-ic-chip {
+  transition:
+    transform var(--ease),
+    box-shadow var(--ease),
+    border-color var(--ease),
+    background var(--ease);
+}
+.ugrid-ic-chip:hover {
+  transform: var(--lift);
+  box-shadow: var(--elev-1);
+}
+.ugrid-ic-chip.is-on {
+  box-shadow: var(--elev-1);
+}
+.ugrid-ic-chip:active {
+  transform: scale(0.98);
+}
+
+/* Alerts strip */
+.gmap-alert {
+  transition:
+    transform var(--dur-fast) ease,
+    background var(--ease),
+    border-color var(--ease),
+    box-shadow var(--ease);
+}
+.gmap-alert:hover {
+  transform: var(--lift);
+  box-shadow: var(--elev-1);
+}
+
+/* Scrubber / range */
+.gmap-scrub,
+.gmap-range,
+.fbal-year input[type='range'] {
+  transition: accent-color var(--ease);
+  cursor: pointer;
+}
+.gmap-scrub:hover,
+.gmap-range:hover,
+.fbal-year input[type='range']:hover {
+  filter: brightness(1.05);
+}
+
+/* Year ticks */
+.fbal-year-ticks button {
+  transition:
+    background var(--ease),
+    color var(--ease),
+    border-color var(--ease),
+    transform var(--dur-fast) ease;
+}
+.fbal-year-ticks button:hover {
+  transform: var(--lift);
+}
+.fbal-year-ticks button.is-on {
+  transform: scale(1.04);
+}
+
+/* Brand hover */
+.brand {
+  transition: opacity var(--ease);
+}
+.brand:hover {
+  opacity: 0.85;
+}
+.brand:active {
+  opacity: 0.7;
+}
+
+/* Content column soft enter when view swaps */
+.content > * {
+  animation: fadein var(--dur-slow) var(--ease-out) both;
+}
+
+/* Select / input focus */
+.gmap-select,
+.gmap-search,
+input:not([type='range']):not([type='checkbox']):not([type='radio']),
+select,
+textarea {
+  transition:
+    border-color var(--ease),
+    box-shadow var(--ease),
+    background var(--ease);
+}
+.gmap-select:focus,
+.gmap-search:focus-within,
+input:not([type='range']):focus,
+select:focus,
+textarea:focus {
+  border-color: var(--highlight);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+  outline: none;
+}
+
+/* Scrollbars (webkit) — quiet */
+.mapcentric-drawer::-webkit-scrollbar,
+.gmap-drawer::-webkit-scrollbar,
+.gmap-side::-webkit-scrollbar,
+.table-wrap::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.mapcentric-drawer::-webkit-scrollbar-thumb,
+.gmap-drawer::-webkit-scrollbar-thumb,
+.gmap-side::-webkit-scrollbar-thumb,
+.table-wrap::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 3px;
+}
+.mapcentric-drawer::-webkit-scrollbar-thumb:hover,
+.gmap-drawer::-webkit-scrollbar-thumb:hover {
+  background: var(--mute);
+}
+
+/* Linkish */
+.linkish {
+  transition: color var(--ease), opacity var(--ease);
+  border-bottom: 1px solid transparent;
+}
+.linkish:hover {
+  border-bottom-color: currentColor;
+  opacity: 0.85;
+}
+
+/* Badge soft pop */
+.badge,
+.fbal-badge {
+  transition: transform var(--dur-fast) ease, opacity var(--ease);
+}
+
+/* Compare / secondary CTA */
+.gmap-compare-btn {
+  transition:
+    background var(--ease),
+    border-color var(--ease),
+    color var(--ease),
+    transform var(--dur-fast) ease,
+    box-shadow var(--ease);
+}
+.gmap-compare-btn:hover {
+  transform: var(--lift);
+  box-shadow: var(--elev-1);
+}
+.gmap-compare-btn:active {
+  transform: scale(0.98);
+}
+.gmap-compare-btn.is-on {
+  animation: pulse-soft 2.4s ease-in-out infinite;
+}
+
+/* Map lens bar spacing polish */
+.gmap .gmap-mode {
+  margin-bottom: 0.65rem;
+}
+
+/* Stage grid transition when drawer opens */
+.mapcentric-stage {
+  transition: grid-template-columns var(--ease-soft);
+}
+
+/* KPI number tabular */
+.mono,
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Selection highlight softer */
+::selection {
+  transition: none;
+}
+
+/* Footer fade */
+.footer-line {
+  animation: fadein var(--dur-slow) var(--ease-out) 0.25s both;
+}
+
+/* Dark mode: stronger map glow on hover */
+html[data-theme='dark'] .mapcentric-map:hover,
+html[data-theme='dark'] .gmap-map-wrap:hover {
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 12px 40px rgba(0, 0, 0, 0.6);
+}
+
+/* Reduced motion: kill infinite animations explicitly */
+@media (prefers-reduced-motion: reduce) {
+  .gmap-dot.ok,
+  .gmap-kpi-live::after,
+  .gmap-flow-line,
+  .pmap-flow,
+  .gmap-compare-btn.is-on {
+    animation: none !important;
+  }
+  .btn:hover:not(:disabled),
+  .state-chip:hover,
+  .mapcentric-map:hover {
+    transform: none;
+    box-shadow: none;
+  }
 }
