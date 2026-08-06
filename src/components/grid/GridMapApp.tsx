@@ -73,7 +73,7 @@ function MapLensBar({
       className="gmap-mode stagger"
       role="tablist"
       aria-label="Map lens"
-      style={{ marginBottom: lens === 'live' ? 0 : '0.5rem' }}
+      style={{ marginBottom: '0.65rem' }}
     >
       {items.map((item) => (
         <button
@@ -235,47 +235,60 @@ export function GridMapApp() {
   }
 
   return (
-    <div className="gmap fadein t1" id="grid-map">
-      {/* Header row */}
-      <header className="gmap-head">
+    <div className="gmap mapcentric fadein t1" id="grid-map">
+      {/* Same shell as Construction / Future / Grid: tabs on top, copy below */}
+      <MapLensBar lens={lens} setLens={setLens} />
+
+      <header className="mapcentric-head">
         <div>
           <p className="kicker">Live map · electrical isochrone</p>
           <h1 className="page-h2" style={{ marginBottom: 4 }}>
             Live power map
           </h1>
-          <p className="gmap-summary">{frame.summary}</p>
+          <p className="mapcentric-lede">{frame.summary}</p>
         </div>
-        <div className="gmap-head-actions">
-          <MapLensBar lens={lens} setLens={setLens} />
-          <div className="gmap-mode">
-            {(['live', 'historical', 'forecast'] as GridMode[]).map((m) => (
-              <button
-                key={m}
-                type="button"
-                className={filters.mode === m ? 'is-on' : ''}
-                onClick={() => setF({ mode: m })}
-              >
-                {m}
-              </button>
-            ))}
-          </div>
-          <select
-            className="gmap-select"
-            value={filters.role}
-            onChange={(e) => setF({ role: e.target.value as RoleView })}
-            aria-label="Role view"
-          >
-            <option value="analyst">Analyst</option>
-            <option value="operator">Operator</option>
-            <option value="executive">Executive</option>
-          </select>
-          <button type="button" className="gmap-icon-btn" onClick={exportNodes} title="Export CSV">
-            <Download className="h-3.5 w-3.5" />
-          </button>
+        <div className="mapcentric-kpis">
+          {kpiItems.slice(0, 4).map((k) => (
+            <div key={k.k} className="mapcentric-kpi">
+              <span>{k.k}</span>
+              <strong>
+                {k.v}
+                <em>{k.u}</em>
+              </strong>
+            </div>
+          ))}
         </div>
       </header>
 
-      {/* KPI strip — 5–7 max */}
+      <div className="fbal-controls">
+        <div className="gmap-mode">
+          {(['live', 'historical', 'forecast'] as GridMode[]).map((m) => (
+            <button
+              key={m}
+              type="button"
+              className={filters.mode === m ? 'is-on' : ''}
+              onClick={() => setF({ mode: m })}
+            >
+              {m}
+            </button>
+          ))}
+        </div>
+        <select
+          className="gmap-select"
+          value={filters.role}
+          onChange={(e) => setF({ role: e.target.value as RoleView })}
+          aria-label="Role view"
+        >
+          <option value="analyst">Analyst</option>
+          <option value="operator">Operator</option>
+          <option value="executive">Executive</option>
+        </select>
+        <button type="button" className="gmap-icon-btn" onClick={exportNodes} title="Export CSV">
+          <Download className="h-3.5 w-3.5" />
+        </button>
+      </div>
+
+      {/* KPI strip — remaining + live clock */}
       <div className="gmap-kpi" role="region" aria-label="System KPIs">
         {kpiItems.map((k) => (
           <div key={k.k} className="gmap-kpi-item">
