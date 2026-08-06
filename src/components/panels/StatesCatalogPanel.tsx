@@ -64,6 +64,7 @@ export function StatesCatalogPanel() {
     openStateDetail(abbr)
   }
 
+  // Capacity flow: always highest → lowest GW for the selected state
   const fuelFlow = focus
     ? [
         { k: 'Gas', v: focus.gasGw, c: '#94a3b8' },
@@ -73,7 +74,9 @@ export function StatesCatalogPanel() {
         { k: 'Wind', v: focus.windGw, c: '#38bdf8' },
         { k: 'Solar', v: focus.solarGw, c: '#f59e0b' },
         { k: 'Storage', v: focus.storageGw, c: '#22c55e' },
-      ].filter((x) => x.v > 0.05)
+      ]
+        .filter((x) => x.v > 0.05)
+        .sort((a, b) => b.v - a.v)
     : []
   const fuelSum = fuelFlow.reduce((s, x) => s + x.v, 0) || 1
 
