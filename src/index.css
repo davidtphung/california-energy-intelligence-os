@@ -5002,3 +5002,61 @@ html[data-theme='dark'] .gmap-map-wrap:hover {
     grid-template-columns: 1fr;
   }
 }
+
+/* Demand forecast: AI / population / industrial + capital */
+.demand-chart-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-top: 0.35rem;
+}
+
+.demand-chart-card {
+  min-width: 0;
+}
+
+.demand-chart-card .kicker {
+  margin-bottom: 0.25rem;
+}
+
+.fbal-table-wrap {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--bg);
+}
+
+.fbal-table-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.fbal-table-head .page-h2 {
+  margin: 0;
+}
+
+.list-table.dense th,
+.list-table.dense td {
+  padding: 0.35rem 0.5rem;
+  font-size: 0.8rem;
+}
+
+.list-table tr.is-selected {
+  background: var(--fill);
+}
+
+.list-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 820px) {
+  .demand-chart-grid {
+    grid-template-columns: 1fr;
+  }
+}

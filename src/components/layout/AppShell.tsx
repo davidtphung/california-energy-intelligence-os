@@ -11,14 +11,13 @@ import {
 import { exportJson } from '../../lib/utils'
 import { ViewCounter } from '../ViewCounter'
 
-/** Primary modes only : secondary tools stay addressable by hash */
+/** Primary modes only. Policy / Scenario / Dev stay on hash. */
 const NAV: { id: AppView; label: string; hash: string }[] = [
   { id: 'map', label: 'Map', hash: 'map' },
+  { id: 'demand', label: 'Demand', hash: 'demand' },
   { id: 'states', label: 'USA', hash: 'states' },
   { id: 'portfolios', label: 'Assets', hash: 'portfolios' },
   { id: 'fossil', label: 'Fuels', hash: 'fossil' },
-  { id: 'policy', label: 'Policy', hash: 'policy' },
-  { id: 'scenarios', label: 'Scenario', hash: 'scenario' },
   { id: 'thesis', label: 'Thesis', hash: 'thesis' },
   { id: 'about', label: 'About', hash: 'about' },
 ]
@@ -31,11 +30,15 @@ const HASH_ALIASES: Record<string, AppView> = {
   data: 'data-engineering',
   dev: 'developer',
   map: 'map',
+  demand: 'demand',
   about: 'about',
   'about/donate': 'about',
   'about/how': 'about',
   'about/sources': 'about',
   thesis: 'thesis',
+  policy: 'policy',
+  scenario: 'scenarios',
+  scenarios: 'scenarios',
 }
 
 function LiveClock() {
@@ -76,6 +79,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       }
       const match = NAV.find((n) => n.hash === raw)
       if (match) setView(match.id)
+      else if (raw === 'policy') setView('policy')
+      else if (raw === 'scenario' || raw === 'scenarios') setView('scenarios')
       else if (raw === 'consistency') setView('consistency')
       else if (raw === 'research') setView('research')
       else if (raw === 'data') setView('data-engineering')
@@ -154,7 +159,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <br />
           <ViewCounter compact />
           <br />
-          Live map · stream
+          Map · Demand · stream
         </div>
 
         <div className="rail-credit">

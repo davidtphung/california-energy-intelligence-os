@@ -25,6 +25,7 @@ export type AppMode = 'analyst' | 'planner' | 'engineer' | 'developer'
 export type AppView =
   | 'map' // primary live map
   | 'overview' // legacy alias → map
+  | 'demand' // AI / pop / industrial demand + capital
   | 'portfolios'
   | 'states'
   | 'state-detail'

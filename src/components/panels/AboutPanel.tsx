@@ -125,9 +125,9 @@ export function AboutPanel() {
           <h2 className="page-h2">What this is</h2>
           <p className="sub" style={{ maxWidth: '40rem' }}>
             EIS is a browser-based energy intelligence workspace. The Map is the center: live
-            electrical metrics, generation construction, ISO/utility structure, and projected
-            demand vs firm supply. Supporting tabs cover states, plant portfolios, fossil fuels,
-            policy history, and scenarios.
+            electrical metrics, demand drivers (AI data centers, population, industrial),
+            generation construction, ISO/utility structure, and projected firm-capacity balance.
+            Supporting tabs cover states, plant portfolios, fossil fuels, and thesis papers.
           </p>
           <p className="sub" style={{ maxWidth: '40rem' }}>
             Figures are educational samples scaled to EIA / ISO / operator public ranges, not a
@@ -172,38 +172,33 @@ export function AboutPanel() {
           <h2 className="page-h2">How it works</h2>
           <ol className="about-steps">
             <li>
-              <strong>Map first.</strong> Start on Map. Lenses switch context without leaving the
-              spatial view: Live grid, Grid / utilities, Construction, Future balance.
+              <strong>Map first.</strong> Start on Map. Lenses: Live grid, Demand, Grid / utilities,
+              Construction, Future deficits.
             </li>
             <li>
-              <strong>Click to focus.</strong> Nodes, states, projects, and zones open a side drawer
-              with metrics. Tables and long catalogs sit under expandable sections so the map stays
-              primary.
+              <strong>Demand.</strong> Primary Demand tab (also a map lens). AI / data-center peak,
+              population growth, and industrial manufacturing by state, plus private vs public
+              capital ($B sample path). Stacked national charts and leader table.
             </li>
             <li>
-              <strong>Live grid lens.</strong> A simulated stream updates load, generation, voltage,
-              current, density, storage SOC, and alerts on a US hub graph. Modes include live,
-              historical scrub, and short-range forecast samples.
+              <strong>Click to focus.</strong> Nodes, states, projects open a side drawer with
+              metrics. Catalogs stay map-centric.
             </li>
             <li>
-              <strong>Grid / utilities.</strong> Shows Eastern, Western, and Texas interconnections,
-              ISO/RTO-style footprints, utility companies, multi-zone overlaps, and intertie/seam
-              links (schematic, not legal GIS).
+              <strong>Live grid.</strong> Simulated stream: load, generation, voltage, current,
+              density, storage SOC, alerts.
             </li>
             <li>
-              <strong>Construction.</strong> Flagship generation and storage projects under build or
-              late pipeline, filter by tech and status; size encodes MW.
+              <strong>Grid / utilities · Construction · Future deficits.</strong> Interconnections
+              and ISOs; build pipeline; peak demand vs firm supply shortfalls through 2045.
             </li>
             <li>
-              <strong>Future balance.</strong> State-level peak demand vs firm supply trajectories
-              (2025-2045 sample path) with deficit/surplus coloring and intelligence copy.
+              <strong>USA / Assets / Fuels / Thesis.</strong> State catalog, multi-tech plants,
+              hydrocarbon history, Got Gas and related papers. Policy and Scenario remain on hash
+              (#policy, #scenario).
             </li>
             <li>
-              <strong>USA / Assets / Fuels / Policy / Scenario.</strong> National catalog, multi-tech
-              plant portfolios, hydrocarbon history, energy law stack, and pathway scenarios.
-            </li>
-            <li>
-              <strong>Export.</strong> CSV/JSON from map tools and catalog panels for offline use.
+              <strong>Export.</strong> CSV/JSON from map tools and catalogs.
             </li>
           </ol>
           <p className="sub" style={{ maxWidth: '40rem', marginTop: '1rem' }}>
