@@ -47,6 +47,7 @@ import { FutureBalanceMap } from './FutureBalanceMap'
 import { ConstructionProjectsMap } from './ConstructionProjectsMap'
 import { UtilityGridMap } from './UtilityGridMap'
 import { DemandForecastMap } from './DemandForecastMap'
+import { AllSourcesBalanceMap } from './AllSourcesBalanceMap'
 
 const W = 1100
 const H = 640
@@ -56,7 +57,7 @@ const METRIC_OPTIONS = Object.entries(METRIC_META).map(([k, v]) => ({
   label: v.label,
 }))
 
-type MapLens = 'live' | 'demand' | 'future' | 'build' | 'grid'
+type MapLens = 'live' | 'demand' | 'sources' | 'future' | 'build' | 'grid'
 
 function MapLensBar({
   lens,
@@ -68,6 +69,7 @@ function MapLensBar({
   const items: { id: MapLens; label: string }[] = [
     { id: 'live', label: 'Live grid' },
     { id: 'demand', label: 'Demand' },
+    { id: 'sources', label: 'All sources' },
     { id: 'grid', label: 'Grid / utilities' },
     { id: 'build', label: 'Construction' },
     { id: 'future', label: 'Future deficits' },
@@ -224,6 +226,15 @@ export function GridMapApp() {
       <div className="gmap fadein t1" id="grid-map">
         <MapLensBar lens={lens} setLens={setLens} />
         <DemandForecastMap />
+      </div>
+    )
+  }
+
+  if (lens === 'sources') {
+    return (
+      <div className="gmap fadein t1" id="grid-map">
+        <MapLensBar lens={lens} setLens={setLens} />
+        <AllSourcesBalanceMap />
       </div>
     )
   }

@@ -5060,3 +5060,7 @@ html[data-theme='dark'] .gmap-map-wrap:hover {
     grid-template-columns: 1fr;
   }
 }
+
+.all-src .gmap-mode {
+  flex-wrap: wrap;
+}

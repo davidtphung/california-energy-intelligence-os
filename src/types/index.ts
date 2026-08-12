@@ -26,6 +26,7 @@ export type AppView =
   | 'map' // primary live map
   | 'overview' // legacy alias → map
   | 'demand' // AI / pop / industrial demand + capital
+  | 'balance' // all-source supply / demand / deficits
   | 'portfolios'
   | 'states'
   | 'state-detail'

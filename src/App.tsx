@@ -4,6 +4,7 @@ import { ViewCounterProvider } from './context/ViewCounterContext'
 import { AppShell } from './components/layout/AppShell'
 import { GridMapApp } from './components/grid/GridMapApp'
 import { DemandForecastMap } from './components/grid/DemandForecastMap'
+import { AllSourcesBalanceMap } from './components/grid/AllSourcesBalanceMap'
 import { PortfoliosPanel } from './components/panels/PortfoliosPanel'
 import { StatesCatalogPanel } from './components/panels/StatesCatalogPanel'
 import { StateDetailPanel } from './components/panels/StateDetailPanel'
@@ -28,6 +29,9 @@ function ViewRouter() {
       break
     case 'demand':
       panel = <DemandForecastMap />
+      break
+    case 'balance':
+      panel = <AllSourcesBalanceMap />
       break
     case 'portfolios':
       panel = <PortfoliosPanel />

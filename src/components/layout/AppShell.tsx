@@ -15,6 +15,7 @@ import { ViewCounter } from '../ViewCounter'
 const NAV: { id: AppView; label: string; hash: string }[] = [
   { id: 'map', label: 'Map', hash: 'map' },
   { id: 'demand', label: 'Demand', hash: 'demand' },
+  { id: 'balance', label: 'Balance', hash: 'balance' },
   { id: 'states', label: 'USA', hash: 'states' },
   { id: 'portfolios', label: 'Assets', hash: 'portfolios' },
   { id: 'fossil', label: 'Fuels', hash: 'fossil' },
@@ -31,6 +32,8 @@ const HASH_ALIASES: Record<string, AppView> = {
   dev: 'developer',
   map: 'map',
   demand: 'demand',
+  balance: 'balance',
+  sources: 'balance',
   about: 'about',
   'about/donate': 'about',
   'about/how': 'about',

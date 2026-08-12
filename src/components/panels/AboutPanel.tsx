@@ -172,13 +172,18 @@ export function AboutPanel() {
           <h2 className="page-h2">How it works</h2>
           <ol className="about-steps">
             <li>
-              <strong>Map first.</strong> Start on Map. Lenses: Live grid, Demand, Grid / utilities,
-              Construction, Future deficits.
+              <strong>Map first.</strong> Start on Map. Lenses: Live grid, Demand, All sources,
+              Grid / utilities, Construction, Future deficits.
             </li>
             <li>
               <strong>Demand.</strong> Primary Demand tab (also a map lens). AI / data-center peak,
               population growth, and industrial manufacturing by state, plus private vs public
               capital ($B sample path). Stacked national charts and leader table.
+            </li>
+            <li>
+              <strong>Balance / All sources.</strong> Production, firm contribution, demand, and
+              deficits for gas, coal, nuclear, oil, solar, wind, hydro, battery, geothermal, and
+              biomass. Timelines 2025-2040 tied to the same AI / population / industrial drivers.
             </li>
             <li>
               <strong>Click to focus.</strong> Nodes, states, projects open a side drawer with
@@ -246,7 +251,7 @@ export function AboutPanel() {
                   <td>EIA Open Data</td>
                 </tr>
                 <tr>
-                  <td>Demand / USA / Assets / Fuels / Thesis</td>
+                  <td>Demand / Balance / USA / Assets / Fuels / Thesis</td>
                   <td>On deploy only (static catalog)</td>
                   <td>Sample models scaled to public ranges</td>
                 </tr>
@@ -281,7 +286,7 @@ export function AboutPanel() {
                 <tr>
                   <td>Demand outlook</td>
                   <td>EIA AEO, NREL, ISO load forecasts, IRPs</td>
-                  <td>Demand tab + future balance (sample path)</td>
+                  <td>Demand + Balance all-source map (sample path)</td>
                 </tr>
                 <tr>
                   <td>Fossil / fuels</td>
