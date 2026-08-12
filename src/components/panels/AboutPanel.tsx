@@ -160,6 +160,10 @@ export function AboutPanel() {
               David T Phung
             </a>
             {' · '}
+            <a href="https://x.ai/build" target="_blank" rel="noopener noreferrer">
+              Grok Build 4.6
+            </a>
+            {' · '}
             <a href="https://eis.davidtphung.com" target="_blank" rel="noopener noreferrer">
               eis.davidtphung.com
             </a>
