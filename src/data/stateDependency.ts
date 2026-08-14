@@ -6,7 +6,14 @@
 
 import { US_STATES, type USStateEnergy } from './usStates'
 import { tradeOf, type StateTrade } from './energyTrade'
-import { GRID_ZONES, type GridZoneId, type InterconnectId } from './gridUtilities'
+import {
+  GRID_ZONES,
+  UTILITIES,
+  zoneById,
+  type GridZoneId,
+  type InterconnectId,
+  type UtilityCompany,
+} from './gridUtilities'
 import { projectStateDemand } from './demandForecast'
 
 export type RiskBand = 'resilient' | 'watch' | 'exposed' | 'critical'
@@ -353,4 +360,286 @@ export function interconnectColor(id: InterconnectId | 'island'): string {
   if (id === 'texas') return '#f59e0b'
   if (id === 'island') return '#64748b'
   return '#3b82f6'
+}
+
+export type UtilityRole = 'lse' | 'wires' | 'genco' | 'federal' | 'iso'
+
+export interface UtilityStateSlice {
+  abbr: string
+  weight: number
+  buysTwh: number
+  importSharePct: number
+  riskScore: number
+}
+
+export interface UtilityDependency {
+  id: string
+  name: string
+  short: string
+  kind: UtilityCompany['kind']
+  role: UtilityRole
+  lon: number
+  lat: number
+  zoneId: GridZoneId
+  alsoZones: GridZoneId[]
+  interconnect: InterconnectId | 'island'
+  states: string[]
+  customersM: number
+  buysTwh: number
+  sellsTwh: number
+  netBuyTwh: number
+  importSharePct: number
+  aiPeak2030Gw: number
+  riskScore: number
+  band: RiskBand
+  factors: RiskFactor[]
+  slices: UtilityStateSlice[]
+  headline: string
+  note: string
+}
+
+const WIRES_IDS = new Set(['oncor', 'centerpoint', 'aep-texas'])
+
+export function utilityRole(u: UtilityCompany): UtilityRole {
+  if (u.kind === 'iso') return 'iso'
+  if (u.kind === 'merchant') return 'genco'
+  if (u.kind === 'federal') return 'federal'
+  if (WIRES_IDS.has(u.id)) return 'wires'
+  return 'lse'
+}
+
+function utilWeight(u: UtilityCompany): number {
+  return Math.max(0.25, u.customersM ?? (u.kind === 'federal' ? 2.2 : 0.5))
+}
+
+/** Share of a state's mapped retail/federal book this utility represents */
+function stateUtilityShares(): Map<string, { u: UtilityCompany; share: number }[]> {
+  const byState = new Map<string, UtilityCompany[]>()
+  for (const u of UTILITIES) {
+    if (u.kind === 'iso' || u.kind === 'merchant') continue
+    for (const st of u.states) {
+      const list = byState.get(st) ?? []
+      list.push(u)
+      byState.set(st, list)
+    }
+  }
+  const out = new Map<string, { u: UtilityCompany; share: number }[]>()
+  for (const [st, list] of byState) {
+    const tot = list.reduce((a, u) => a + utilWeight(u), 0)
+    out.set(
+      st,
+      list.map((u) => ({ u, share: utilWeight(u) / tot }))
+    )
+  }
+  return out
+}
+
+export function analyzeUtility(
+  u: UtilityCompany,
+  stateRows?: StateDependency[]
+): UtilityDependency {
+  const rows = stateRows ?? allDependencies()
+  const byAbbr = new Map(rows.map((r) => [r.abbr, r]))
+  const shares = stateUtilityShares()
+  const role = utilityRole(u)
+  const z = zoneById(u.zoneId)
+  const interconnect = (z?.interconnect ?? 'eastern') as InterconnectId | 'island'
+
+  const slices: UtilityStateSlice[] = []
+  let buysTwh = 0
+  let sellsTwh = 0
+  let useWeighted = 0
+  let importAcc = 0
+  let riskAcc = 0
+  let aiPeak2030Gw = 0
+  let wSum = 0
+
+  for (const st of u.states) {
+    const s = byAbbr.get(st)
+    if (!s) continue
+    const share = shares.get(st)?.find((x) => x.u.id === u.id)?.share ?? 1 / Math.max(1, u.states.length)
+    const w = share
+    const buy = +(s.buysTwh * share).toFixed(2)
+    const sell = +(s.sellsTwh * share).toFixed(2)
+    slices.push({
+      abbr: st,
+      weight: +share.toFixed(3),
+      buysTwh: buy,
+      importSharePct: s.importSharePct,
+      riskScore: s.riskScore,
+    })
+    buysTwh += buy
+    sellsTwh += sell
+    useWeighted += s.useTwh * share
+    importAcc += s.importSharePct * w
+    riskAcc += s.riskScore * w
+    aiPeak2030Gw += s.aiPeak2030Gw * share
+    wSum += w
+  }
+
+  // Role adjustments: wires buy almost all delivered energy; gencos sell
+  if (role === 'wires') {
+    buysTwh = +(buysTwh * 1.35 + useWeighted * 0.25).toFixed(1)
+    sellsTwh = +(sellsTwh * 0.15).toFixed(1)
+  } else if (role === 'genco') {
+    sellsTwh = +(Math.max(sellsTwh, buysTwh) * 1.6 + 8).toFixed(1)
+    buysTwh = +(buysTwh * 0.15).toFixed(1)
+  } else if (role === 'federal') {
+    sellsTwh = +(sellsTwh * 1.4 + 6).toFixed(1)
+  }
+
+  buysTwh = +buysTwh.toFixed(1)
+  sellsTwh = +sellsTwh.toFixed(1)
+  const netBuyTwh = +(buysTwh - sellsTwh).toFixed(1)
+  const importSharePct = wSum > 0 ? +(importAcc / wSum).toFixed(1) : 0
+  let baseRisk = wSum > 0 ? riskAcc / wSum : 20
+
+  const factors: RiskFactor[] = []
+  if (role === 'wires') {
+    factors.push({
+      id: 'wires',
+      label: 'Wires-only purchaser',
+      points: 12,
+      detail: 'T&D utility buys nearly all energy from the market / affiliates for load.',
+    })
+    baseRisk += 12
+  }
+  if (role === 'genco') {
+    factors.push({
+      id: 'genco',
+      label: 'Merchant generator',
+      points: 5,
+      detail: 'Sells into the market. Price and congestion risk more than import dependence.',
+    })
+    baseRisk += 5
+  }
+  if ((u.alsoZones?.length ?? 0) > 0) {
+    factors.push({
+      id: 'multizone',
+      label: 'Multi-zone operator',
+      points: 7,
+      detail: `Also in ${(u.alsoZones ?? []).join(', ')}. Seam and RA rules stack.`,
+    })
+    baseRisk += 7
+  }
+  if (aiPeak2030Gw >= 4) {
+    factors.push({
+      id: 'ai',
+      label: 'AI / DC in footprint',
+      points: 10,
+      detail: `Allocated ~${aiPeak2030Gw.toFixed(1)} GW AI peak (2030 sample) across served states.`,
+    })
+    baseRisk += 10
+  } else if (aiPeak2030Gw >= 1.5) {
+    factors.push({
+      id: 'ai-mod',
+      label: 'Rising AI in footprint',
+      points: 5,
+      detail: `Allocated ~${aiPeak2030Gw.toFixed(1)} GW AI peak (2030).`,
+    })
+    baseRisk += 5
+  }
+  if (netBuyTwh > 8) {
+    const pts = Math.min(12, netBuyTwh * 0.18)
+    factors.push({
+      id: 'net-buy',
+      label: 'Allocated net buyer',
+      points: +pts.toFixed(1),
+      detail: `Net purchase ~${netBuyTwh} TWh after allocated state trade.`,
+    })
+    baseRisk += pts
+  }
+  if (u.states.length === 1) {
+    const s = byAbbr.get(u.states[0])
+    if (s && s.isolation !== 'continental') {
+      factors.push({
+        id: 'iso-topo',
+        label: `Footprint: ${s.isolation}`,
+        points: 6,
+        detail: `${s.name} topology carries through to this utility.`,
+      })
+      baseRisk += 6
+    }
+  }
+
+  // Pull top state factors (deduped)
+  const seen = new Set(factors.map((f) => f.id))
+  for (const sl of slices.slice().sort((a, b) => b.riskScore - a.riskScore).slice(0, 2)) {
+    const s = byAbbr.get(sl.abbr)
+    if (!s) continue
+    for (const f of s.factors.slice(0, 2)) {
+      const id = `${sl.abbr}-${f.id}`
+      if (seen.has(id)) continue
+      seen.add(id)
+      factors.push({
+        id,
+        label: `${sl.abbr}: ${f.label}`,
+        points: +(f.points * sl.weight).toFixed(1),
+        detail: f.detail,
+      })
+    }
+  }
+
+  const riskScore = Math.min(99, Math.round(baseRisk))
+  const band = bandOf(riskScore)
+
+  let headline: string
+  if (role === 'iso') {
+    headline = `${u.short} is a grid operator, not a load-serving buyer.`
+  } else if (role === 'wires') {
+    headline = `${u.short} is wires-only: it purchases energy for load and does not self-serve generation.`
+  } else if (role === 'genco') {
+    headline = `${u.short} is a merchant seller. Dependence is market/congestion, not retail imports.`
+  } else if (role === 'federal') {
+    headline = `${u.short} markets federal / public power across ${u.states.length} states.`
+  } else if (netBuyTwh > 5) {
+    headline = `${u.short} is an allocated net buyer (~${netBuyTwh} TWh) across ${u.states.join(', ')}.`
+  } else {
+    headline = `${u.short} is near balanced or a net seller on allocated state trade.`
+  }
+
+  return {
+    id: u.id,
+    name: u.name,
+    short: u.short,
+    kind: u.kind,
+    role,
+    lon: u.lon,
+    lat: u.lat,
+    zoneId: u.zoneId,
+    alsoZones: u.alsoZones ?? [],
+    interconnect,
+    states: u.states,
+    customersM: u.customersM ?? 0,
+    buysTwh,
+    sellsTwh,
+    netBuyTwh,
+    importSharePct,
+    aiPeak2030Gw: +aiPeak2030Gw.toFixed(2),
+    riskScore,
+    band,
+    factors,
+    slices,
+    headline,
+    note: u.note,
+  }
+}
+
+export function allUtilityDependencies(): UtilityDependency[] {
+  const states = allDependencies()
+  return UTILITIES.filter((u) => u.kind !== 'iso').map((u) => analyzeUtility(u, states))
+}
+
+export function nationalUtilityDependency() {
+  const rows = allUtilityDependencies()
+  return {
+    count: rows.length,
+    buysTwh: +rows.reduce((a, r) => a + r.buysTwh, 0).toFixed(0),
+    netBuyers: rows.filter((r) => r.netBuyTwh > 1).length,
+    critical: rows.filter((r) => r.band === 'critical').length,
+    exposed: rows.filter((r) => r.band === 'exposed').length,
+    avgRisk: +(rows.reduce((a, r) => a + r.riskScore, 0) / Math.max(1, rows.length)).toFixed(0),
+    topBuyers: [...rows].sort((a, b) => b.buysTwh - a.buysTwh).slice(0, 8),
+    topRisk: [...rows].sort((a, b) => b.riskScore - a.riskScore).slice(0, 8),
+  }
 }

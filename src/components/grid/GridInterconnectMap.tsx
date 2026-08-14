@@ -32,11 +32,14 @@ import {
 } from '../../data/gridUtilities'
 import {
   allDependencies,
+  allUtilityDependencies,
   interconnectColor,
   nationalDependency,
+  nationalUtilityDependency,
   riskColor,
   type RiskBand,
   type StateDependency,
+  type UtilityDependency,
 } from '../../data/stateDependency'
 import { useApp } from '../../context/AppContext'
 import { useLiveGrid } from '../../hooks/useLiveGrid'
@@ -66,9 +69,10 @@ export function GridInterconnectMap() {
       : null
 
   const [mode, setMode] = useState<FocusMode>('risk')
+  const [entity, setEntity] = useState<'state' | 'utility'>('utility')
   const [interconnect, setInterconnect] = useState<InterconnectId | 'all'>('all')
   const [selectedZone, setSelectedZone] = useState<GridZoneId | null>('pjm')
-  const [selectedUtil, setSelectedUtil] = useState<string | null>(null)
+  const [selectedUtil, setSelectedUtil] = useState<string | null>('dominion')
   const [selectedTie, setSelectedTie] = useState<string | null>(null)
   const [selectedState, setSelectedState] = useState<string | null>('CA')
   const [hoverZone, setHoverZone] = useState<GridZoneId | null>(null)
@@ -77,9 +81,12 @@ export function GridInterconnectMap() {
 
   const summary = useMemo(() => gridSummary(), [])
   const deps = useMemo(() => allDependencies(), [])
+  const utilDeps = useMemo(() => allUtilityDependencies(), [])
   const nat = useMemo(() => nationalDependency(), [])
+  const natU = useMemo(() => nationalUtilityDependency(), [])
 
   const stateMode = mode === 'buys' || mode === 'dependency' || mode === 'risk'
+  const utilMetricMode = stateMode && entity === 'utility'
 
   const zones = useMemo(() => {
     if (interconnect === 'all') return GRID_ZONES
@@ -121,9 +128,19 @@ export function GridInterconnectMap() {
     return deps.filter((d) => d.interconnect === interconnect)
   }, [deps, interconnect])
 
+  const visibleUtils = useMemo(() => {
+    if (interconnect === 'all') return utilDeps
+    return utilDeps.filter((u) => u.interconnect === interconnect)
+  }, [utilDeps, interconnect])
+
   const focusDep =
     visibleDeps.find((d) => d.abbr === (hoverState ?? selectedState)) ??
     visibleDeps.find((d) => d.abbr === selectedState) ??
+    null
+
+  const focusUtilDep =
+    visibleUtils.find((u) => u.id === (hoverUtil ?? selectedUtil)) ??
+    visibleUtils.find((u) => u.id === selectedUtil) ??
     null
 
   const zone = selectedZone ? zoneById(selectedZone) : null
@@ -132,6 +149,7 @@ export function GridInterconnectMap() {
 
   const maxBuy = Math.max(...deps.map((d) => d.buysTwh), 1)
   const maxDep = Math.max(...deps.map((d) => d.importSharePct), 1)
+  const maxUtilBuy = Math.max(...utilDeps.map((d) => d.buysTwh), 1)
 
   const metricOf = (d: StateDependency) => {
     if (mode === 'buys') return d.buysTwh
@@ -139,28 +157,45 @@ export function GridInterconnectMap() {
     return d.riskScore
   }
 
+  const metricOfUtil = (d: UtilityDependency) => {
+    if (mode === 'buys') return d.buysTwh
+    if (mode === 'dependency') return d.importSharePct
+    return d.riskScore
+  }
+
   const leaders = useMemo(() => {
     return [...visibleDeps].sort((a, b) => metricOf(b) - metricOf(a)).slice(0, 12)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visibleDeps, mode])
 
-  const buyChart = useMemo(
-    () =>
-      [...deps]
+  const utilLeaders = useMemo(() => {
+    return [...visibleUtils].sort((a, b) => metricOfUtil(b) - metricOfUtil(a)).slice(0, 12)
+  }, [visibleUtils, mode])
+
+  const buyChart = useMemo(() => {
+    if (entity === 'utility') {
+      return [...utilDeps]
         .sort((a, b) => b.buysTwh - a.buysTwh)
         .slice(0, 10)
-        .map((d) => ({ name: d.abbr, Buys: d.buysTwh, Sells: d.sellsTwh })),
-    [deps]
-  )
+        .map((d) => ({ name: d.short, Buys: d.buysTwh, Sells: d.sellsTwh }))
+    }
+    return [...deps]
+      .sort((a, b) => b.buysTwh - a.buysTwh)
+      .slice(0, 10)
+      .map((d) => ({ name: d.abbr, Buys: d.buysTwh, Sells: d.sellsTwh }))
+  }, [deps, utilDeps, entity])
 
-  const riskChart = useMemo(
-    () =>
-      [...deps]
+  const riskChart = useMemo(() => {
+    if (entity === 'utility') {
+      return [...utilDeps]
         .sort((a, b) => b.riskScore - a.riskScore)
         .slice(0, 10)
-        .map((d) => ({ name: d.abbr, Risk: d.riskScore, band: d.band })),
-    [deps]
-  )
+        .map((d) => ({ name: d.short, Risk: d.riskScore, band: d.band }))
+    }
+    return [...deps]
+      .sort((a, b) => b.riskScore - a.riskScore)
+      .slice(0, 10)
+      .map((d) => ({ name: d.abbr, Risk: d.riskScore, band: d.band }))
+  }, [deps, utilDeps, entity])
 
   const liveUtil = (mw: number) => {
     // Sample utilization: clock + extra when CAISO is hot (west ties)
@@ -171,6 +206,27 @@ export function GridInterconnectMap() {
   }
 
   const exportAll = () => {
+    if (entity === 'utility') {
+      exportCsv(
+        utilDeps.map((d) => ({
+          utility: d.short,
+          name: d.name,
+          role: d.role,
+          kind: d.kind,
+          zone: d.zoneId,
+          states: d.states.join('|'),
+          buys_twh: d.buysTwh,
+          sells_twh: d.sellsTwh,
+          net_buy_twh: d.netBuyTwh,
+          import_share_pct: d.importSharePct,
+          ai_2030_gw: d.aiPeak2030Gw,
+          risk_score: d.riskScore,
+          band: d.band,
+        })),
+        'us-utility-energy-dependency-risk.csv'
+      )
+      return
+    }
     exportCsv(
       deps.map((d) => ({
         state: d.abbr,
@@ -211,8 +267,9 @@ export function GridInterconnectMap() {
             How the grid is divided, connected, and who buys
           </h2>
           <p className="mapcentric-lede">
-            Three interconnections, ISO/RTO footprints, utilities, and seams. State bubbles show how
-            much electricity each jurisdiction buys and a composite dependence / isolation risk score.
+            Three interconnections, ISO/RTO footprints, utilities, and seams. Break down buys and
+            dependence by <strong>state</strong> or <strong>utility company</strong> (allocated from
+            state trade by customer share and role: LSE, wires, genco, federal).
             {caisoGw != null
               ? ` CAISO live ${caisoGw.toFixed(2)} GW (${ageLabel(live.lastOk)}).`
               : ` CAISO live pull every ${formatRefreshHuman(REFRESH.caisoLiveMs)}.`}{' '}
@@ -230,15 +287,17 @@ export function GridInterconnectMap() {
           <div className="mapcentric-kpi">
             <span>Net buyers</span>
             <strong>
-              {nat.netBuyers}
-              <em>states</em>
+              {entity === 'utility' ? natU.netBuyers : nat.netBuyers}
+              <em>{entity === 'utility' ? 'utils' : 'states'}</em>
             </strong>
           </div>
           <div className="mapcentric-kpi">
             <span>Exposed + critical</span>
             <strong style={{ color: 'var(--danger)' }}>
-              {nat.exposed + nat.critical}
-              <em>/{nat.count}</em>
+              {entity === 'utility'
+                ? natU.exposed + natU.critical
+                : nat.exposed + nat.critical}
+              <em>/{entity === 'utility' ? natU.count : nat.count}</em>
             </strong>
           </div>
           <div className="mapcentric-kpi">
@@ -252,14 +311,34 @@ export function GridInterconnectMap() {
       </header>
 
       <div className="fbal-controls" style={{ flexWrap: 'wrap' }}>
+        <div className="gmap-mode" role="tablist" aria-label="Entity">
+          <button
+            type="button"
+            className={entity === 'state' ? 'is-on' : ''}
+            onClick={() => setEntity('state')}
+          >
+            States
+          </button>
+          <button
+            type="button"
+            className={entity === 'utility' ? 'is-on' : ''}
+            onClick={() => {
+              setEntity('utility')
+              if (!selectedUtil) setSelectedUtil(natU.topRisk[0]?.id ?? 'dominion')
+              if (mode === 'zones' || mode === 'interconnects') setMode('risk')
+            }}
+          >
+            Utilities
+          </button>
+        </div>
         <div className="gmap-mode" role="tablist" aria-label="Map layer">
           {(
             [
               ['interconnects', 'Interconnects'],
               ['zones', 'Zones'],
-              ['utilities', 'Utilities'],
+              ['utilities', 'Utility dots'],
               ['interties', 'Interties'],
-              ['buys', 'State buys'],
+              ['buys', entity === 'utility' ? 'Util buys' : 'State buys'],
               ['dependency', 'Dependence'],
               ['risk', 'Risk'],
             ] as const
@@ -321,15 +400,18 @@ export function GridInterconnectMap() {
       </div>
 
       <p className="fbal-summary">
-        {nat.netBuyers} net-buying states · {nat.netSellers} net sellers · {nat.critical} critical /{' '}
-        {nat.exposed} exposed · {nat.islands} islanded (no interstate kWh) · average risk {nat.avgRisk}
-        /100. Intertie transfer catalog {summary.transferGw.toFixed(0)} GW (sample ratings).
+        {entity === 'utility'
+          ? `${natU.count} utilities · ${natU.netBuyers} net buyers · ${natU.critical} critical / ${natU.exposed} exposed · avg risk ${natU.avgRisk}/100. Buys allocated by customer share in each served state.`
+          : `${nat.netBuyers} net-buying states · ${nat.netSellers} net sellers · ${nat.critical} critical / ${nat.exposed} exposed · ${nat.islands} islanded · avg risk ${nat.avgRisk}/100.`}{' '}
+        Intertie catalog {summary.transferGw.toFixed(0)} GW.
       </p>
 
       <section className="fbal-timeline demand-charts">
         <div className="demand-chart-grid">
           <div className="demand-chart-card">
-            <p className="kicker">Who buys the most electricity (TWh/yr)</p>
+            <p className="kicker">
+              {entity === 'utility' ? 'Utilities that buy the most (TWh/yr)' : 'States that buy the most (TWh/yr)'}
+            </p>
             <div style={{ width: '100%', height: 170 }}>
               <ResponsiveContainer>
                 <BarChart data={buyChart} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
@@ -344,7 +426,9 @@ export function GridInterconnectMap() {
             </div>
           </div>
           <div className="demand-chart-card">
-            <p className="kicker">Highest dependence / isolation risk</p>
+            <p className="kicker">
+              {entity === 'utility' ? 'Highest utility risk' : 'Highest state dependence / isolation risk'}
+            </p>
             <div style={{ width: '100%', height: 170 }}>
               <ResponsiveContainer>
                 <BarChart data={riskChart} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
@@ -492,14 +576,30 @@ export function GridInterconnectMap() {
                 )
               })}
 
-            {(mode === 'utilities' || mode === 'zones') &&
+            {(mode === 'utilities' || mode === 'zones' || utilMetricMode) &&
               utilities.map((u) => {
                 const z = zoneById(u.zoneId)
                 const { x, y } = projectUS(u.lon, u.lat, W, H)
                 const on = u.id === selectedUtil || u.id === hoverUtil
                 const multi = (u.alsoZones?.length ?? 0) > 0
                 if (mode === 'zones' && !multi && !on) return null
-                const s = 5 + Math.min(10, (u.customersM ?? 0.5) * 1.2)
+                const ud = utilDeps.find((x) => x.id === u.id)
+                const val = ud ? metricOfUtil(ud) : 0
+                const s = utilMetricMode
+                  ? 6 + Math.sqrt(Math.max(0.3, val) / (mode === 'buys' ? maxUtilBuy : 100)) * 16
+                  : 5 + Math.min(10, (u.customersM ?? 0.5) * 1.2)
+                const fill =
+                  utilMetricMode && ud
+                    ? mode === 'risk'
+                      ? riskColor(ud.band, dark)
+                      : ud.netBuyTwh > 0
+                        ? dark
+                          ? '#fb923c'
+                          : '#ea580c'
+                        : dark
+                          ? '#4ade80'
+                          : '#16a34a'
+                    : (z?.color ?? '#64748b')
                 return (
                   <g
                     key={u.id}
@@ -512,6 +612,7 @@ export function GridInterconnectMap() {
                       setSelectedUtil(u.id)
                       setSelectedZone(u.zoneId)
                       setSelectedTie(null)
+                      setEntity('utility')
                     }}
                   >
                     {multi && (
@@ -529,13 +630,13 @@ export function GridInterconnectMap() {
                       width={s * 2}
                       height={s * 2}
                       rx={2}
-                      fill={z?.color ?? '#64748b'}
+                      fill={fill}
                       fillOpacity={on ? 0.95 : 0.8}
                       stroke={on ? ink : 'var(--bg)'}
                       strokeWidth={on ? 2 : 0.8}
                       transform="rotate(45)"
                     />
-                    {(on || mode === 'utilities') && (
+                    {(on || mode === 'utilities' || utilMetricMode) && (
                       <text
                         y={s + 11}
                         textAnchor="middle"
@@ -545,14 +646,27 @@ export function GridInterconnectMap() {
                         style={{ pointerEvents: 'none' }}
                       >
                         {u.short}
+                        {utilMetricMode && ud
+                          ? mode === 'buys'
+                            ? ` ${ud.buysTwh}`
+                            : mode === 'dependency'
+                              ? ` ${ud.importSharePct.toFixed(0)}%`
+                              : ` ${ud.riskScore}`
+                          : ''}
                       </text>
                     )}
-                    <title>{u.name}</title>
+                    <title>
+                      {u.name}
+                      {ud
+                        ? ` · buy ${ud.buysTwh} TWh · risk ${ud.riskScore} ${ud.band}`
+                        : ''}
+                    </title>
                   </g>
                 )
               })}
 
             {stateMode &&
+              entity === 'state' &&
               visibleDeps.map((d) => {
                 const { x, y } = projectUS(d.lon, d.lat, W, H)
                 const val = metricOf(d)
@@ -638,6 +752,7 @@ export function GridInterconnectMap() {
               })}
 
             {stateMode &&
+              entity === 'state' &&
               focusDep &&
               focusDep.partners.map((p) => {
                 const other = US_STATES.find((s) => s.abbr === p)
@@ -667,16 +782,131 @@ export function GridInterconnectMap() {
 
             <g transform={`translate(24, ${H - 42})`}>
               <text fill={mute} fontSize="10" fontFamily="var(--font-mono)">
-                {stateMode
-                  ? 'orange = net buyer · green = net seller · cyan ring = CAISO live · lines = buy partners'
-                  : 'blobs = zones · diamonds = utilities · lines = interties'}
+                {utilMetricMode
+                  ? 'diamonds = utilities · size = buys/risk · orange = net buyer · green = seller · orange ring = multi-zone'
+                  : stateMode
+                    ? 'orange = net buyer · green = net seller · cyan ring = CAISO live · lines = buy partners'
+                    : 'blobs = zones · diamonds = utilities · lines = interties'}
               </text>
             </g>
           </svg>
         </div>
 
         <aside className="mapcentric-drawer">
-          {stateMode && focusDep ? (
+          {entity === 'utility' && focusUtilDep ? (
+            <>
+              <p className="kicker">
+                {focusUtilDep.role} · {focusUtilDep.kind} · {focusUtilDep.zoneId} · {focusUtilDep.band}
+              </p>
+              <h3 className="page-h2" style={{ fontSize: '1.12rem' }}>
+                {focusUtilDep.name}
+              </h3>
+              <span
+                className="fbal-badge"
+                style={{
+                  background: `${riskColor(focusUtilDep.band, dark)}22`,
+                  color: riskColor(focusUtilDep.band, dark),
+                }}
+              >
+                risk {focusUtilDep.riskScore}/100 · {focusUtilDep.band}
+              </span>
+              <p className="sub" style={{ fontSize: '0.84rem', marginTop: 8 }}>
+                {focusUtilDep.headline}
+              </p>
+              <p className="sub" style={{ fontSize: '0.8rem' }}>
+                {focusUtilDep.note}
+              </p>
+              <table className="list-table dense">
+                <tbody>
+                  <tr>
+                    <th scope="row">Buys (allocated)</th>
+                    <td className="mono">{focusUtilDep.buysTwh} TWh</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Sells (allocated)</th>
+                    <td className="mono">{focusUtilDep.sellsTwh} TWh</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Net purchase</th>
+                    <td
+                      className="mono"
+                      style={{
+                        color: focusUtilDep.netBuyTwh > 0 ? 'var(--danger)' : 'var(--ok)',
+                      }}
+                    >
+                      {focusUtilDep.netBuyTwh > 0 ? '+' : ''}
+                      {focusUtilDep.netBuyTwh} TWh
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Import share (wtd)</th>
+                    <td className="mono">{focusUtilDep.importSharePct}%</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Customers</th>
+                    <td className="mono">
+                      {focusUtilDep.customersM ? `~${focusUtilDep.customersM}M` : 'n/a'}
+                    </td>
+                  </tr>
+                  <tr>
+                    <th scope="row">AI 2030 in footprint</th>
+                    <td className="mono">{focusUtilDep.aiPeak2030Gw.toFixed(1)} GW</td>
+                  </tr>
+                  {focusUtilDep.alsoZones.length > 0 && (
+                    <tr>
+                      <th scope="row">Also zones</th>
+                      <td>{focusUtilDep.alsoZones.join(' · ')}</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+              <p className="kicker" style={{ marginTop: 10 }}>
+                State book (share of each state&apos;s mapped utilities)
+              </p>
+              <table className="list-table dense">
+                <thead>
+                  <tr>
+                    <th>State</th>
+                    <th className="num">Share</th>
+                    <th className="num">Buys</th>
+                    <th className="num">Risk</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {focusUtilDep.slices.map((sl) => (
+                    <tr
+                      key={sl.abbr}
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => {
+                        setSelectedState(sl.abbr)
+                        setEntity('state')
+                      }}
+                    >
+                      <td>
+                        <strong>{sl.abbr}</strong>
+                      </td>
+                      <td className="num mono">{(sl.weight * 100).toFixed(0)}%</td>
+                      <td className="num mono">{sl.buysTwh}</td>
+                      <td className="num mono">{sl.riskScore}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              <p className="kicker" style={{ marginTop: 10 }}>
+                Risk stack
+              </p>
+              <ul className="gmap-actions">
+                {focusUtilDep.factors.map((f) => (
+                  <li key={f.id}>
+                    <strong className="mono">{f.points.toFixed(0)}</strong> {f.label}
+                    <span className="muted" style={{ display: 'block', fontSize: '0.75rem' }}>
+                      {f.detail}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : stateMode && focusDep ? (
             <>
               <p className="kicker">
                 {focusDep.interconnect} · {focusDep.isolation} · {focusDep.band}
@@ -886,79 +1116,142 @@ export function GridInterconnectMap() {
       <section className="fbal-table-wrap">
         <div className="fbal-table-head">
           <h3 className="page-h2" style={{ fontSize: '1rem' }}>
+            {entity === 'utility' ? 'Utilities' : 'States'} ·{' '}
             {mode === 'buys'
-              ? 'Largest buyers'
+              ? 'largest buyers'
               : mode === 'dependency'
-                ? 'Highest import share'
-                : 'Highest risk'}{' '}
+                ? 'highest import share'
+                : 'highest risk'}{' '}
             · {interconnect === 'all' ? 'US' : interconnect}
           </h3>
           <p className="muted mono" style={{ fontSize: '0.8rem' }}>
-            {visibleDeps.length} jurisdictions
+            {entity === 'utility' ? visibleUtils.length : visibleDeps.length} rows
           </p>
         </div>
         <div className="table-scroll">
-          <table className="list-table dense">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>State</th>
-                <th className="num">Buys</th>
-                <th className="num">Sells</th>
-                <th className="num">Net</th>
-                <th className="num">Import %</th>
-                <th className="num">Risk</th>
-                <th>Band</th>
-                <th>Partners</th>
-              </tr>
-            </thead>
-            <tbody>
-              {leaders.map((d, i) => (
-                <tr
-                  key={d.abbr}
-                  className={d.abbr === selectedState ? 'is-selected' : undefined}
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => setSelectedState(d.abbr)}
-                >
-                  <td className="mono muted">{i + 1}</td>
-                  <td>
-                    <strong>{d.abbr}</strong> <span className="muted">{d.name}</span>
-                  </td>
-                  <td className="num mono">{d.buysTwh}</td>
-                  <td className="num mono">{d.sellsTwh}</td>
-                  <td
-                    className="num mono"
-                    style={{ color: d.netBuyTwh > 0 ? 'var(--danger)' : 'var(--ok)' }}
-                  >
-                    {d.netBuyTwh}
-                  </td>
-                  <td className="num mono">{d.importSharePct}%</td>
-                  <td className="num mono">{d.riskScore}</td>
-                  <td>
-                    <span
-                      className="fbal-badge"
-                      style={{
-                        background: `${riskColor(d.band, dark)}22`,
-                        color: riskColor(d.band, dark),
-                      }}
-                    >
-                      {d.band}
-                    </span>
-                  </td>
-                  <td className="muted" style={{ fontSize: '0.75rem' }}>
-                    {d.partners.join(' · ') || '—'}
-                  </td>
+          {entity === 'utility' ? (
+            <table className="list-table dense">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Utility</th>
+                  <th>Role</th>
+                  <th className="num">Buys</th>
+                  <th className="num">Sells</th>
+                  <th className="num">Net</th>
+                  <th className="num">Imp %</th>
+                  <th className="num">Risk</th>
+                  <th>Band</th>
+                  <th>States</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {utilLeaders.map((d, i) => (
+                  <tr
+                    key={d.id}
+                    className={d.id === selectedUtil ? 'is-selected' : undefined}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => {
+                      setSelectedUtil(d.id)
+                      setEntity('utility')
+                    }}
+                  >
+                    <td className="mono muted">{i + 1}</td>
+                    <td>
+                      <strong>{d.short}</strong> <span className="muted">{d.name}</span>
+                    </td>
+                    <td className="muted">{d.role}</td>
+                    <td className="num mono">{d.buysTwh}</td>
+                    <td className="num mono">{d.sellsTwh}</td>
+                    <td
+                      className="num mono"
+                      style={{ color: d.netBuyTwh > 0 ? 'var(--danger)' : 'var(--ok)' }}
+                    >
+                      {d.netBuyTwh}
+                    </td>
+                    <td className="num mono">{d.importSharePct}%</td>
+                    <td className="num mono">{d.riskScore}</td>
+                    <td>
+                      <span
+                        className="fbal-badge"
+                        style={{
+                          background: `${riskColor(d.band, dark)}22`,
+                          color: riskColor(d.band, dark),
+                        }}
+                      >
+                        {d.band}
+                      </span>
+                    </td>
+                    <td className="muted" style={{ fontSize: '0.75rem' }}>
+                      {d.states.join(' · ')}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <table className="list-table dense">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>State</th>
+                  <th className="num">Buys</th>
+                  <th className="num">Sells</th>
+                  <th className="num">Net</th>
+                  <th className="num">Import %</th>
+                  <th className="num">Risk</th>
+                  <th>Band</th>
+                  <th>Partners</th>
+                </tr>
+              </thead>
+              <tbody>
+                {leaders.map((d, i) => (
+                  <tr
+                    key={d.abbr}
+                    className={d.abbr === selectedState ? 'is-selected' : undefined}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => setSelectedState(d.abbr)}
+                  >
+                    <td className="mono muted">{i + 1}</td>
+                    <td>
+                      <strong>{d.abbr}</strong> <span className="muted">{d.name}</span>
+                    </td>
+                    <td className="num mono">{d.buysTwh}</td>
+                    <td className="num mono">{d.sellsTwh}</td>
+                    <td
+                      className="num mono"
+                      style={{ color: d.netBuyTwh > 0 ? 'var(--danger)' : 'var(--ok)' }}
+                    >
+                      {d.netBuyTwh}
+                    </td>
+                    <td className="num mono">{d.importSharePct}%</td>
+                    <td className="num mono">{d.riskScore}</td>
+                    <td>
+                      <span
+                        className="fbal-badge"
+                        style={{
+                          background: `${riskColor(d.band, dark)}22`,
+                          color: riskColor(d.band, dark),
+                        }}
+                      >
+                        {d.band}
+                      </span>
+                    </td>
+                    <td className="muted" style={{ fontSize: '0.75rem' }}>
+                      {d.partners.join(' · ') || '—'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </section>
 
       <p className="footer-line muted" style={{ marginTop: '0.85rem', fontSize: '0.78rem' }}>
-        Risk = import share + net-buyer size + partner concentration + island/ERCOT/peninsula + thin
-        reserve + AI 2030 load + fuel concentration + cross-border hydro. Sample educational path.
-        Intertie &quot;live use&quot; is a clocked sample, boosted when CAISO load is high.
+        State risk = import share + net-buyer + partners + isolation + reserve + AI + fuel mix.
+        Utility risk = weighted state book + wires-only / multi-zone / AI footprint. Sample path.
+        Intertie live use is a clocked sample, boosted when CAISO load is high.
       </p>
     </div>
   )
