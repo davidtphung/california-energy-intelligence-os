@@ -77,6 +77,46 @@ export const STATE_TRADE: Record<string, StateTrade> = {
     exportTo: [],
     note: 'Islanded PREPA/LUMA system; no AC interstate electricity trade. Energy imports are liquid fuels (oil, diesel, LNG feedstock), not grid kWh.',
   },
+  DC: {
+    abbr: 'DC',
+    importsTwh: 10,
+    exportsTwh: 0.1,
+    importFrom: ['MD', 'VA', 'PA'],
+    exportTo: [],
+    note: 'Almost all energy is purchased from PJM. Local generation is negligible.',
+  },
+  GU: {
+    abbr: 'GU',
+    importsTwh: 0,
+    exportsTwh: 0,
+    importFrom: [],
+    exportTo: [],
+    note: 'Island GPA diesel/solar; no interstate kWh. Fuel import risk, not grid interchange.',
+  },
+  VI: {
+    abbr: 'VI',
+    importsTwh: 0,
+    exportsTwh: 0,
+    importFrom: [],
+    exportTo: [],
+    note: 'WAPA island grids; fuel imports only.',
+  },
+  AS: {
+    abbr: 'AS',
+    importsTwh: 0,
+    exportsTwh: 0,
+    importFrom: [],
+    exportTo: [],
+    note: 'Remote Pacific diesel; no grid interchange.',
+  },
+  MP: {
+    abbr: 'MP',
+    importsTwh: 0,
+    exportsTwh: 0,
+    importFrom: [],
+    exportTo: [],
+    note: 'CNMI CUC diesel; no grid interchange.',
+  },
 }
 
 export function tradeOf(abbr: string): StateTrade {

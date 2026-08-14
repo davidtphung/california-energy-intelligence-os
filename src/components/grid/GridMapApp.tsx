@@ -45,7 +45,7 @@ import { useLiveGrid } from '../../hooks/useLiveGrid'
 import { ageLabel, formatRefreshHuman, REFRESH, REFRESH_COPY } from '../../data/refreshRates'
 import { FutureBalanceMap } from './FutureBalanceMap'
 import { ConstructionProjectsMap } from './ConstructionProjectsMap'
-import { UtilityGridMap } from './UtilityGridMap'
+import { GridInterconnectMap } from './GridInterconnectMap'
 import { DemandForecastMap } from './DemandForecastMap'
 import { AllSourcesBalanceMap } from './AllSourcesBalanceMap'
 
@@ -70,7 +70,7 @@ function MapLensBar({
     { id: 'live', label: 'Live grid' },
     { id: 'demand', label: 'Demand' },
     { id: 'sources', label: 'All sources' },
-    { id: 'grid', label: 'Grid / utilities' },
+    { id: 'grid', label: 'Grid / risk' },
     { id: 'build', label: 'Construction' },
     { id: 'future', label: 'Future deficits' },
   ]
@@ -243,7 +243,7 @@ export function GridMapApp() {
     return (
       <div className="gmap fadein t1" id="grid-map">
         <MapLensBar lens={lens} setLens={setLens} />
-        <UtilityGridMap />
+        <GridInterconnectMap />
       </div>
     )
   }

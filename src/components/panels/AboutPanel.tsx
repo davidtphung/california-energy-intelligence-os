@@ -198,8 +198,10 @@ export function AboutPanel() {
               density, storage SOC, alerts.
             </li>
             <li>
-              <strong>Grid / utilities · Construction · Future deficits.</strong> Interconnections
-              and ISOs; build pipeline; peak demand vs firm supply shortfalls through 2045.
+              <strong>Grid / risk.</strong> Eastern / Western / Texas interconnects, ISO/utility
+              footprints, interties, how much each state buys (TWh), and a composite dependence
+              risk (import share, isolation, AI load, fuel mix). Construction and Future deficits
+              remain separate lenses.
             </li>
             <li>
               <strong>USA / Assets / Fuels / Thesis.</strong> State catalog, multi-tech plants,
