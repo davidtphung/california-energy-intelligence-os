@@ -45,6 +45,7 @@ import { useApp } from '../../context/AppContext'
 import { useLiveGrid } from '../../hooks/useLiveGrid'
 import { ageLabel, formatRefreshHuman, REFRESH } from '../../data/refreshRates'
 import { exportCsv } from '../../lib/utils'
+import { RegionCoverageLayer } from './RegionCoverageLayer'
 
 const W = 1100
 const H = 640
@@ -458,85 +459,57 @@ export function GridInterconnectMap() {
           >
             <rect width={W} height={H} fill="var(--bg-soft)" />
             <text x="24" y="26" fill={mute} fontSize="11" fontFamily="var(--font-mono)">
-              {mode === 'interconnects' && 'Wash = Eastern / Western / Texas islands'}
-              {mode === 'zones' && 'Blobs = ISO / RTO / reliability footprints'}
-              {mode === 'utilities' && 'Diamonds = utilities · orange ring = multi-zone'}
-              {mode === 'interties' && 'Lines = seams · width ∝ rating · opacity ∝ live sample use'}
-              {mode === 'buys' && 'Bubbles = TWh bought (gross imports)'}
-              {mode === 'dependency' && 'Bubbles = import share of energy use'}
-              {mode === 'risk' && 'Bubbles = composite buy / isolation / AI / fuel risk'}
+              {mode === 'interconnects' && 'Outlines = Eastern / Western / Texas coverage'}
+              {mode === 'zones' && 'Outlines = ISO / RTO / reliability coverage'}
+              {mode === 'utilities' && 'Region fill + diamonds = utilities · orange ring = multi-zone'}
+              {mode === 'interties' && 'Outlines = coverage · lines = seams'}
+              {mode === 'buys' && 'Region fill + bubbles = TWh bought'}
+              {mode === 'dependency' && 'Region fill + bubbles = import share'}
+              {mode === 'risk' && 'Region fill + bubbles = dependence / isolation risk'}
             </text>
 
-            <path
-              d="M 60 90 L 120 55 L 220 42 L 340 40 L 480 50 L 600 70 L 700 110 L 760 170 L 780 240 L 760 310 L 700 360 L 600 385 L 480 390 L 360 380 L 240 360 L 140 320 L 80 250 L 55 170 Z"
-              fill="var(--fill)"
-              stroke="var(--line-soft)"
-              strokeWidth={1}
-              opacity={0.55}
+            <RegionCoverageLayer
+              w={W}
+              h={H}
+              mode={
+                mode === 'interconnects' ? 'interconnects' : mode === 'zones' ? 'zones' : 'other'
+              }
+              interconnect={interconnect}
+              selectedZone={selectedZone}
+              hoverZone={hoverZone}
+              selectedState={selectedState}
+              hoverState={hoverState}
+              onHover={(zid, abbr) => {
+                setHoverZone(zid)
+                setHoverState(abbr)
+              }}
+              onPick={(zid, abbr) => {
+                setSelectedZone(zid)
+                setSelectedState(abbr)
+                setSelectedUtil(null)
+                setSelectedTie(null)
+              }}
             />
 
-            {INTERCONNECTS.filter((ic) => interconnect === 'all' || interconnect === ic.id).map(
-              (ic) =>
-                GRID_ZONES.filter((z) => z.interconnect === ic.id).map((z) => {
-                  const { x, y } = zonePoint(z)
-                  return (
-                    <circle
-                      key={`ic-${ic.id}-${z.id}`}
-                      cx={x}
-                      cy={y}
-                      r={z.footprintR * (mode === 'interconnects' ? 1.55 : 1.25)}
-                      fill={ic.color}
-                      fillOpacity={mode === 'interconnects' ? 0.14 : 0.05}
-                      style={{ pointerEvents: 'none' }}
-                    />
-                  )
-                })
-            )}
-
-            {(mode === 'zones' || mode === 'interconnects' || mode === 'interties') &&
-              zones.map((z) => {
-                const { x, y } = zonePoint(z)
-                const on = z.id === selectedZone || z.id === hoverZone
-                return (
-                  <g
-                    key={z.id}
-                    style={{ cursor: 'pointer' }}
-                    onMouseEnter={() => setHoverZone(z.id)}
-                    onMouseLeave={() => setHoverZone(null)}
-                    onClick={() => {
-                      setSelectedZone(z.id)
-                      setSelectedUtil(null)
-                      setSelectedTie(null)
-                      setSelectedState(z.states[0] ?? null)
-                    }}
-                  >
-                    <circle
-                      cx={x}
-                      cy={y}
-                      r={z.footprintR * (on ? 1.08 : 1)}
-                      fill={z.color}
-                      fillOpacity={on ? 0.3 : 0.16}
-                      stroke={z.color}
-                      strokeWidth={on ? 2.2 : 1.2}
-                    />
-                    <text
-                      x={x}
-                      y={y + 4}
-                      textAnchor="middle"
-                      fill={ink}
-                      fontSize={11}
-                      fontWeight={700}
-                      fontFamily="var(--font-sans)"
-                      style={{ pointerEvents: 'none' }}
-                    >
-                      {z.short}
-                    </text>
-                    <title>
-                      {z.name} · {z.interconnect} · peak ~{z.peakGw} GW
-                    </title>
-                  </g>
-                )
-              })}
+            {zones.map((z) => {
+              const { x, y } = zonePoint(z)
+              const on = z.id === selectedZone || z.id === hoverZone
+              return (
+                <text
+                  key={`zlbl-${z.id}`}
+                  x={x}
+                  y={y + 4}
+                  textAnchor="middle"
+                  fill={on ? 'var(--highlight)' : ink}
+                  fontSize={on ? 12 : 10}
+                  fontWeight={700}
+                  fontFamily="var(--font-sans)"
+                  style={{ pointerEvents: 'none', opacity: 0.92 }}
+                >
+                  {z.short}
+                </text>
+              )
+            })}
 
             {(mode === 'interties' || mode === 'zones' || mode === 'interconnects') &&
               interties.map((t) => {
@@ -783,10 +756,10 @@ export function GridInterconnectMap() {
             <g transform={`translate(24, ${H - 42})`}>
               <text fill={mute} fontSize="10" fontFamily="var(--font-mono)">
                 {utilMetricMode
-                  ? 'diamonds = utilities · size = buys/risk · orange = net buyer · green = seller · orange ring = multi-zone'
+                  ? 'filled outlines = coverage · diamonds = utilities'
                   : stateMode
-                    ? 'orange = net buyer · green = net seller · cyan ring = CAISO live · lines = buy partners'
-                    : 'blobs = zones · diamonds = utilities · lines = interties'}
+                    ? 'filled outlines = region coverage · bubbles = metric'
+                    : 'filled outlines = where each interconnect / ISO covers'}
               </text>
             </g>
           </svg>
