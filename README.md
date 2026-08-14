@@ -1,5 +1,9 @@
 # EIS · Energy Intelligence System
 
+**Whole-project bible:** [MASTERFILE.md](./MASTERFILE.md)  
+**Live:** https://eis.davidtphung.com  
+**GitHub:** https://github.com/davidtphung/california-energy-intelligence-os
+
 A modern interactive web app for **energy research, planning, and developer workflows** (California live grid plus US state catalog). Realistic sample data and an API-ready data model.
 
 ## Features
@@ -59,7 +63,7 @@ The Overview panel pulls **today’s CAISO grid data** (no API key) via a same-o
 
 Dev: Vite proxies `/api/live/caiso/*`. Prod: `vercel.json` rewrites to `www.caiso.com/outlook/current/*`.
 
-Refresh interval: 60s.
+Refresh: CAISO every 15 s when the tab is open (see `src/data/refreshRates.ts` and MASTERFILE.md).
 
 ## Project structure
 
