@@ -21,6 +21,7 @@ import {
 } from '../../data/energyBalanceFuture'
 import { useApp } from '../../context/AppContext'
 import { exportCsv } from '../../lib/utils'
+import { UsBasemap } from './UsBasemap'
 import { Download } from 'lucide-react'
 
 const W = 1100
@@ -270,13 +271,7 @@ export function FutureBalanceMap() {
               · firm peak
             </text>
 
-            <path
-              d="M 60 90 L 120 55 L 220 42 L 340 40 L 480 50 L 600 70 L 700 110 L 760 170 L 780 240 L 760 310 L 700 360 L 600 385 L 480 390 L 360 380 L 240 360 L 140 320 L 80 250 L 55 170 Z"
-              fill="var(--fill)"
-              stroke="var(--line-soft)"
-              strokeWidth={1}
-              opacity={0.7}
-            />
+            <UsBasemap w={W} h={H} />
 
             {ordered.map((r) => {
               const { x, y } = projectUS(r.lon, r.lat, W, H)

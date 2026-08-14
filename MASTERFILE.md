@@ -234,7 +234,7 @@ Bands: resilient · watch · exposed · critical.
 
 ## Coverage outlines
 
-`RegionCoverageLayer` fills simplified state polygons:
+`RegionCoverageLayer` and `UsBasemap` draw **realistic US state lines** from US Atlas 10m geometries (`src/data/usStateGeoms.json`):
 
 - Interconnects: Eastern, Western, Texas, islanded
 - Zones: CAISO, ERCOT, PJM, MISO, SPP, NYISO, ISO-NE, Southeast, WECC NW / SW / Rockies

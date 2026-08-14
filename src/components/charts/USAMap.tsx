@@ -1,6 +1,7 @@
 import { useId, useMemo, useState } from 'react'
 import { projectUS, type USStateEnergy } from '../../data/usStates'
 import { useApp } from '../../context/AppContext'
+import { UsBasemap } from '../grid/UsBasemap'
 
 export type USAMapMetric =
   | 'capacityGw'
@@ -241,13 +242,7 @@ export function USAMap({
 
         <rect width={W} height={H} fill="var(--bg)" />
 
-        {/* Contiguous outline (schematic landmass) */}
-        <path
-          d="M 52 78 L 95 52 L 165 40 L 245 36 L 330 40 L 410 48 L 490 58 L 555 74 L 615 100 L 665 138 L 695 185 L 702 240 L 690 292 L 655 335 L 600 362 L 525 378 L 440 382 L 355 376 L 270 362 L 190 342 L 130 308 L 92 265 L 68 215 L 54 155 Z"
-          fill="var(--fill)"
-          stroke="var(--line)"
-          strokeWidth={1.15}
-        />
+        <UsBasemap w={W} h={H} fill="var(--fill)" fillOpacity={0.7} stroke="var(--line)" strokeWidth={0.75} />
 
         {/* AK / HI / PR inset frames */}
         <rect

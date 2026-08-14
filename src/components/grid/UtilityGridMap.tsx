@@ -21,6 +21,7 @@ import {
 } from '../../data/gridUtilities'
 import { useApp } from '../../context/AppContext'
 import { exportCsv } from '../../lib/utils'
+import { UsBasemap } from './UsBasemap'
 
 const W = 1100
 const H = 640
@@ -218,14 +219,7 @@ export function UtilityGridMap() {
               {mode === 'overlaps' && 'Highlighted utilities span multiple zones'}
             </text>
 
-            {/* Soft continent */}
-            <path
-              d="M 60 90 L 120 55 L 220 42 L 340 40 L 480 50 L 600 70 L 700 110 L 760 170 L 780 240 L 760 310 L 700 360 L 600 385 L 480 390 L 360 380 L 240 360 L 140 320 L 80 250 L 55 170 Z"
-              fill="var(--fill)"
-              stroke="var(--line-soft)"
-              strokeWidth={1}
-              opacity={0.55}
-            />
+            <UsBasemap w={W} h={H} fillOpacity={0.45} />
 
             {/* Interconnect soft wash behind zones */}
             {INTERCONNECTS.filter((ic) => interconnect === 'all' || interconnect === ic.id).map(

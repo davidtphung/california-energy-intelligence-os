@@ -16,6 +16,7 @@ import {
 } from '../../data/gasThesisPapers'
 import { useApp } from '../../context/AppContext'
 import { exportJson } from '../../lib/utils'
+import { UsBasemap } from '../grid/UsBasemap'
 import { Button } from '../ui/Button'
 import { Input } from '../ui/Input'
 import { Badge } from '../ui/Badge'
@@ -259,13 +260,7 @@ export function ThesisLibraryPanel() {
             <div className="mapcentric-map">
               <svg viewBox={`0 0 ${W} ${H}`} className="fbal-svg" role="img" aria-label="Gas thesis map">
                 <rect width={W} height={H} fill="var(--bg-soft)" />
-                <path
-                  d="M 60 90 L 120 55 L 220 42 L 340 40 L 480 50 L 600 70 L 700 110 L 760 170 L 780 240 L 760 310 L 700 360 L 600 385 L 480 390 L 360 380 L 240 360 L 140 320 L 80 250 L 55 170 Z"
-                  fill="var(--fill)"
-                  stroke="var(--line-soft)"
-                  strokeWidth={1}
-                  opacity={0.7}
-                />
+                <UsBasemap w={W} h={H} />
                 {/* Links basin → LNG / load */}
                 {(() => {
                   const perm = projectUS(-102.5, 31.8, W, H)
