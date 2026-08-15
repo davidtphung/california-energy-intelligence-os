@@ -162,10 +162,10 @@ export function ThesisLibraryPanel() {
               <div className="demand-chart-card card-soft" style={{ padding: '0.85rem 1rem' }}>
                 <p className="kicker">Range / efficiency / overstated queues</p>
                 <p className="sub" style={{ margin: 0, fontSize: '0.88rem' }}>
-                  LBNL, EPRI, EIA AEO, IEA, Koomey/BPC, Science 2020, WRI, SELC/LEI, ACEEE, Grid
-                  Strategies LTRA review: wide TWh bands, chip and cancellation constraints, 2010s
-                  efficiency analog, official gas cases that do not wipe storage. Filter: Skeptical
-                  and Multi-fuel.
+                  LBNL, EPRI, EIA AEO + STEO / Today in Energy (record 2026 production, GOR,
+                  weekly storage), IEA, Koomey/BPC, Science 2020, WRI, SELC/LEI, ACEEE: official
+                  near-term gas is still making records; DC TWh is a wide band. Filter: Skeptical
+                  and Multi-fuel. Search &quot;67944&quot; or &quot;STEO&quot;.
                 </p>
               </div>
             </div>
