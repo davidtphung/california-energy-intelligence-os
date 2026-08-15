@@ -62,9 +62,10 @@ export function ThesisLibraryPanel() {
             Got Gas and the AI-power research stack
           </h1>
           <p className="mapcentric-lede">
-            Digest of Chronometer Partners&apos; Letter III (Colossus) plus related papers, agency
-            reports, and models on LNG, data centers, and U.S. gas deliverability. Educational map
-            of the debate, not investment advice.
+            Anchor is Chronometer Letter III (Got Gas). The library now holds both sides: shortage
+            / tight-gas theses and official, academic, and NGO work that treats DC load as a wide
+            range, an efficiency story, or an overstated IRP queue. Educational map of the debate,
+            not investment advice.
           </p>
         </div>
         <div className="mapcentric-kpis">
@@ -73,19 +74,23 @@ export function ThesisLibraryPanel() {
             <strong style={{ fontSize: '0.95rem' }}>Got Gas</strong>
           </div>
           <div className="mapcentric-kpi">
-            <span>Related works</span>
+            <span>Sources in library</span>
             <strong>{RELATED_PAPERS.length}</strong>
           </div>
           <div className="mapcentric-kpi">
-            <span>Deficit by 2030</span>
-            <strong style={{ color: 'var(--danger)' }}>
-              &gt;{g.deficit2030Bcf}
-              <em>Bcf/d</em>
+            <span>Skeptical + balanced</span>
+            <strong>
+              {
+                RELATED_PAPERS.filter((p) => p.stance === 'skeptical' || p.stance === 'balanced')
+                  .length
+              }
             </strong>
           </div>
           <div className="mapcentric-kpi">
-            <span>Storage days 2030</span>
-            <strong>{g.storageDays2030}</strong>
+            <span>Crisis + tight</span>
+            <strong style={{ color: 'var(--danger)' }}>
+              {RELATED_PAPERS.filter((p) => p.stance === 'crisis' || p.stance === 'tight').length}
+            </strong>
           </div>
         </div>
       </header>
@@ -142,6 +147,49 @@ export function ThesisLibraryPanel() {
               </Button>
             </div>
           </div>
+
+          <section className="block thesis-debate" style={{ marginTop: '1.1rem' }}>
+            <p className="kicker">Both sides of the debate</p>
+            <div className="demand-chart-grid">
+              <div className="demand-chart-card card-soft" style={{ padding: '0.85rem 1rem' }}>
+                <p className="kicker">Shortage / tight gas</p>
+                <p className="sub" style={{ margin: 0, fontSize: '0.88rem' }}>
+                  Chronometer, ILTB, RBC, Hamm, NERC LTRA, Goldman: LNG + AI load + midstream lag
+                  produce 2028-2030 deliverability risk. Storage days-to-cover collapses. Filter
+                  library: Crisis path and Tight market.
+                </p>
+              </div>
+              <div className="demand-chart-card card-soft" style={{ padding: '0.85rem 1rem' }}>
+                <p className="kicker">Range / efficiency / overstated queues</p>
+                <p className="sub" style={{ margin: 0, fontSize: '0.88rem' }}>
+                  LBNL, EPRI, EIA AEO, IEA, Koomey/BPC, Science 2020, WRI, SELC/LEI, ACEEE, Grid
+                  Strategies LTRA review: wide TWh bands, chip and cancellation constraints, 2010s
+                  efficiency analog, official gas cases that do not wipe storage. Filter: Skeptical
+                  and Multi-fuel.
+                </p>
+              </div>
+            </div>
+            <div className="btn-row" style={{ marginTop: 10 }}>
+              <Button
+                size="sm"
+                onClick={() => {
+                  setStance('skeptical')
+                  setSection('library')
+                }}
+              >
+                Open skeptical sources
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  setStance('crisis')
+                  setSection('library')
+                }}
+              >
+                Open crisis sources
+              </Button>
+            </div>
+          </section>
 
           {/* Timeline */}
           <section className="block" style={{ marginTop: '1.25rem' }}>
@@ -422,7 +470,17 @@ export function ThesisLibraryPanel() {
                   onClick={() => setSelectedPaper(p.id)}
                 >
                   <div className="thesis-paper-top">
-                    <Badge variant={p.stance === 'crisis' ? 'warning' : 'default'}>
+                    <Badge
+                      variant={
+                        p.stance === 'crisis'
+                          ? 'warning'
+                          : p.stance === 'skeptical'
+                            ? 'success'
+                            : p.stance === 'balanced'
+                              ? 'info'
+                              : 'default'
+                      }
+                    >
                       {STANCE_LABEL[p.stance]}
                     </Badge>
                     <span className="mono muted">{p.year}</span>
