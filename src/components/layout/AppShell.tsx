@@ -170,10 +170,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           <a href="https://x.com/davidtphung" target="_blank" rel="noopener noreferrer">
             David T Phung
           </a>
-          <br />
-          <a href="https://x.ai/build" target="_blank" rel="noopener noreferrer">
-            Grok Build 4.6
-          </a>
         </div>
       </nav>
 
@@ -189,12 +185,6 @@ export function AppShell({ children }: { children: ReactNode }) {
           Built by{' '}
           <a href="https://x.com/davidtphung" target="_blank" rel="noopener noreferrer">
             David T Phung
-          </a>
-          <span className="site-credit-sep" aria-hidden>
-            ·
-          </span>
-          <a href="https://x.ai/build" target="_blank" rel="noopener noreferrer">
-            Grok Build 4.6
           </a>
         </footer>
       </div>

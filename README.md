@@ -29,7 +29,6 @@ A modern interactive web app for **energy research, planning, and developer work
 - **Tailwind CSS 4**
 - **Recharts**
 - **Lucide** icons
-- Built with **[Grok Build 4.6](https://x.ai/build)** (`grok-4.6`)
 
 ## Quick start
 
