@@ -126,8 +126,9 @@ export function AboutPanel() {
           <p className="sub" style={{ maxWidth: '40rem' }}>
             EIS is a browser-based energy intelligence workspace. The Map is the center: live
             electrical metrics, demand drivers (AI data centers, population, industrial),
-            generation construction, ISO/utility structure, and projected firm-capacity balance.
-            Supporting tabs cover states, plant portfolios, fossil fuels, and thesis papers.
+            all-source balance, fuels / gas (STEO vs Got Gas), generation construction,
+            ISO/utility structure, and projected firm-capacity balance. Supporting tabs cover
+            states, plant portfolios, hydrocarbon history, and thesis papers.
           </p>
           <p className="sub" style={{ maxWidth: '40rem' }}>
             Figures are educational samples scaled to EIA / ISO / operator public ranges, not a
@@ -173,7 +174,7 @@ export function AboutPanel() {
           <ol className="about-steps">
             <li>
               <strong>Map first.</strong> Start on Map. Lenses: Live grid, Demand, All sources,
-              Grid / utilities, Construction, Future deficits.
+              Grid / risk, Fuels / gas, Construction, Future deficits.
             </li>
             <li>
               <strong>Demand.</strong> Primary Demand tab (also a map lens). AI / data-center peak,
@@ -200,9 +201,13 @@ export function AboutPanel() {
               remain separate lenses.
             </li>
             <li>
-              <strong>USA / Assets / Fuels / Thesis.</strong> State catalog, multi-tech plants,
-              hydrocarbon history, Got Gas and related papers. Policy and Scenario remain on hash
-              (#policy, #scenario).
+              <strong>Fuels / gas.</strong> Primary Fuels tab (also a map lens). State dry-gas
+              production, LNG terminals, thesis hubs, and EIA STEO / TIE 67944 next to the Got
+              Gas 2030 path. History charts stay on the History subview.
+            </li>
+            <li>
+              <strong>USA / Assets / Thesis.</strong> State catalog, multi-tech plants, Got Gas
+              and related papers. Policy and Scenario remain on hash (#policy, #scenario).
             </li>
             <li>
               <strong>Export.</strong> CSV/JSON from map tools and catalogs.
@@ -292,8 +297,8 @@ export function AboutPanel() {
                 </tr>
                 <tr>
                   <td>Fossil / fuels</td>
-                  <td>EIA petroleum, natural gas, coal historical series</td>
-                  <td>Fuels tab annual series</td>
+                  <td>EIA STEO, Today in Energy 67944, Natural Gas Monthly, petroleum and coal series</td>
+                  <td>Fuels / gas map + History annual series</td>
                 </tr>
                 <tr>
                   <td>Hydro &amp; plants</td>

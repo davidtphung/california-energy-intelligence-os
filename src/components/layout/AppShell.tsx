@@ -34,6 +34,7 @@ const HASH_ALIASES: Record<string, AppView> = {
   demand: 'demand',
   balance: 'balance',
   sources: 'balance',
+  fuels: 'fossil',
   about: 'about',
   'about/donate': 'about',
   'about/how': 'about',
