@@ -4,7 +4,7 @@
 **Live:** https://eis.davidtphung.com  
 **GitHub:** https://github.com/davidtphung/california-energy-intelligence-os
 
-A modern interactive web app for **energy research, planning, and developer workflows** (California live grid plus US state catalog). Realistic sample data and an API-ready data model.
+Map-first US energy intelligence: live grid, demand, all-source balance, fuels / gas (STEO vs Got Gas), grid risk, construction, and thesis library. Educational samples, not IRP or SCADA.
 
 ## Features
 

@@ -13,7 +13,6 @@ Educational sample path. Not an IRP, not SCADA, not legal GIS.
 | **Name** | Energy Intelligence System (EIS) |
 | **Live** | https://eis.davidtphung.com |
 | **Author** | [David T Phung](https://x.com/davidtphung) |
-| **Built with** | [Grok Build 4.6](https://x.ai/build) (`grok-4.6`) |
 | **License** | Private / internal unless otherwise specified |
 | **Package** | `energy-intelligence-system` `1.0.0` |
 
@@ -78,7 +77,7 @@ Browser workspace for **US energy intelligence**, map-first:
 4. Grid division: Eastern / Western / Texas interconnects, ISO/RTO coverage outlines, utilities, interties
 5. How much each **state** and **utility** buys, dependence, isolation risk
 6. Construction pipeline and future firm-capacity deficits
-7. USA catalog, plant portfolios, fossil history, thesis library (Got Gas and related), About / donate
+7. USA catalog, plant portfolios, fuels / gas map plus fossil history, thesis library (Got Gas and related), About / donate
 
 Figures are educational samples scaled to EIA / ISO / operator public ranges.
 
@@ -95,7 +94,7 @@ Rail (hash in the URL):
 | Balance | `#balance` | `AllSourcesBalanceMap` (`#sources` alias) |
 | USA | `#states` | `StatesCatalogPanel` |
 | Assets | `#portfolios` | `PortfoliosPanel` |
-| Fuels | `#fossil` | `FossilFuelsPanel` (`#gas` alias) |
+| Fuels | `#fossil` | `FuelsOutlookMap` (`#gas` / `#fuels` aliases; History = `FossilFuelsPanel`) |
 | Thesis | `#thesis` | `ThesisLibraryPanel` (`#research` alias) |
 | About | `#about` | About / How / Sources / Donate |
 
@@ -116,8 +115,9 @@ Hash-only (not on the rail):
 2. Demand  
 3. All sources  
 4. Grid / risk (interconnects, zone outlines, utilities, buys, dependence, risk)  
-5. Construction  
-6. Future deficits  
+5. Fuels / gas (state production, LNG, thesis hubs, STEO vs Got Gas)  
+6. Construction  
+7. Future deficits  
 
 ---
 
@@ -185,6 +185,7 @@ moreenergycapacity-v1/
 | `GridMapApp.tsx` | Lens shell + live stream map |
 | `DemandForecastMap.tsx` | AI / pop / industrial + private-public $ |
 | `AllSourcesBalanceMap.tsx` | Ten-source production, demand, deficit |
+| `FuelsOutlookMap.tsx` | Gas production, LNG, thesis hubs, STEO vs Got Gas |
 | `GridInterconnectMap.tsx` | Coverage, utilities, buys, risk |
 | `RegionCoverageLayer.tsx` | State polygons for interconnect / ISO fill |
 | `ConstructionProjectsMap.tsx` | Build pipeline |
@@ -211,6 +212,7 @@ moreenergycapacity-v1/
 | `portfolios.ts` | LSEs / generators |
 | `energyPolicies.ts` / `jurisdictionPolicies.ts` | Policy stack |
 | `gasThesisPapers.ts` | Got Gas + related library |
+| `fuelOutlook.ts` | STEO ledger, LNG sites, production join for the Fuels map |
 | `mockData.ts` | Legacy CA sample + KPIs |
 
 ---
@@ -247,10 +249,12 @@ Schematic, not FERC service-territory GIS. Seam states use one home market (e.g.
 
 Newest first on `energy/main`:
 
+- Fuels / gas map (STEO vs Got Gas, LNG, state production)
+- Cursor handoff
+- Drop Grok Build from Built by credits
 - Region outlines (interconnect / ISO coverage)
 - Utility-company buy and risk breakdown
 - State interconnect map with buys and risk
-- Grok Build 4.6 credit
 - All-source balance
 - Faster live refresh (CAISO 15 s, map 0.8 s)
 - Demand forecast (AI, population, industrial, capital)
