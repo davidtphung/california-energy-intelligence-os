@@ -8,7 +8,7 @@ import { AllSourcesBalanceMap } from './components/grid/AllSourcesBalanceMap'
 import { PortfoliosPanel } from './components/panels/PortfoliosPanel'
 import { StatesCatalogPanel } from './components/panels/StatesCatalogPanel'
 import { StateDetailPanel } from './components/panels/StateDetailPanel'
-import { FossilFuelsPanel } from './components/panels/FossilFuelsPanel'
+import { FuelsOutlookMap } from './components/grid/FuelsOutlookMap'
 import { PolicyPanel } from './components/panels/PolicyPanel'
 import { ConsistencyPanel } from './components/panels/ConsistencyPanel'
 import { ScenarioPlanner } from './components/panels/ScenarioPlanner'
@@ -44,7 +44,7 @@ function ViewRouter() {
       break
     case 'fossil':
     case 'gas':
-      panel = <FossilFuelsPanel />
+      panel = <FuelsOutlookMap />
       break
     case 'policy':
       panel = <PolicyPanel />

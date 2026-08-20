@@ -45,8 +45,10 @@ npx vercel --prod --yes
 
 ## Last git state (verify)
 
-Last commits on `energy/main` when this handoff was written:
+Last commits on `energy/main` when this handoff was written. Verify with `git log`.
 
+- Fuels / gas map (this Cursor continuation)
+- `8180e52` docs: Cursor handoff for this EIS session
 - `d29db54` chore: drop Grok Build 4.6 from Built by credits
 - `530dbf5` feat: add EIA STEO and Today in Energy gas sources
 - `43dccec` feat: add both-sides sources to the Thesis library
@@ -61,7 +63,7 @@ Map-first US energy intelligence SPA (React 19, Vite 8, Tailwind 4, Recharts). E
 
 Primary nav: Map · Demand · Balance · USA · Assets · Fuels · Thesis · About
 
-Map lenses: Live grid · Demand · All sources · Grid / risk · Construction · Future deficits
+Map lenses: Live grid · Demand · All sources · Grid / risk · Fuels / gas · Construction · Future deficits
 
 ### Product that shipped in this session chain
 
@@ -73,6 +75,7 @@ Map lenses: Live grid · Demand · All sources · Grid / risk · Construction ·
 6. **Thesis library** — Got Gas plus both-sides papers; EIA TIE **67944** (record 2026 gas production) + STEO, DPR, weekly storage, GOR (`gasThesisPapers.ts`)
 7. **MASTERFILE.md** — whole-project map
 8. User asked to **remove Grok Build 4.6 from Built by** — done
+9. **Fuels / gas map** — state production, LNG terminals, thesis hubs, EIA STEO vs Got Gas (`fuelOutlook.ts`, `FuelsOutlookMap.tsx`). History charts stay on the History subview. Built by remains David T Phung only.
 
 ---
 
@@ -86,6 +89,7 @@ Map lenses: Live grid · Demand · All sources · Grid / risk · Construction ·
 | Grid + risk | `src/components/grid/GridInterconnectMap.tsx` |
 | State lines | `src/components/grid/UsBasemap.tsx`, `src/data/usStateGeoms.json` |
 | Thesis | `src/data/gasThesisPapers.ts`, `src/components/panels/ThesisLibraryPanel.tsx` |
+| Fuels map | `src/data/fuelOutlook.ts`, `src/components/grid/FuelsOutlookMap.tsx` |
 | Live CAISO | `src/hooks/useLiveGrid.ts`, `src/data/liveSources.ts` |
 | Credits | `AppShell.tsx` rail-credit + footer, `AboutPanel.tsx` |
 
@@ -109,4 +113,4 @@ Continue EIS at eis.davidtphung.com.
 Do not add Grok Build to Built by credits.
 ```
 
-Last user ask before this handoff: remove Grok Build 4.6 from Built by (already deployed). Next work is whatever they type in Cursor.
+Cursor continuation (2026-08-20): Fuels / gas map shipped on this branch. Built by stays David T Phung only. Next work is whatever they type in Cursor.

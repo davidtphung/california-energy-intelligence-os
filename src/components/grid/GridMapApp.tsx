@@ -48,6 +48,7 @@ import { ConstructionProjectsMap } from './ConstructionProjectsMap'
 import { GridInterconnectMap } from './GridInterconnectMap'
 import { DemandForecastMap } from './DemandForecastMap'
 import { AllSourcesBalanceMap } from './AllSourcesBalanceMap'
+import { FuelsOutlookMap } from './FuelsOutlookMap'
 
 const W = 1100
 const H = 640
@@ -57,7 +58,7 @@ const METRIC_OPTIONS = Object.entries(METRIC_META).map(([k, v]) => ({
   label: v.label,
 }))
 
-type MapLens = 'live' | 'demand' | 'sources' | 'future' | 'build' | 'grid'
+type MapLens = 'live' | 'demand' | 'sources' | 'grid' | 'build' | 'future' | 'fuels'
 
 function MapLensBar({
   lens,
@@ -71,6 +72,7 @@ function MapLensBar({
     { id: 'demand', label: 'Demand' },
     { id: 'sources', label: 'All sources' },
     { id: 'grid', label: 'Grid / risk' },
+    { id: 'fuels', label: 'Fuels / gas' },
     { id: 'build', label: 'Construction' },
     { id: 'future', label: 'Future deficits' },
   ]
@@ -244,6 +246,15 @@ export function GridMapApp() {
       <div className="gmap fadein t1" id="grid-map">
         <MapLensBar lens={lens} setLens={setLens} />
         <GridInterconnectMap />
+      </div>
+    )
+  }
+
+  if (lens === 'fuels') {
+    return (
+      <div className="gmap fadein t1" id="grid-map">
+        <MapLensBar lens={lens} setLens={setLens} />
+        <FuelsOutlookMap />
       </div>
     )
   }
