@@ -1,7 +1,24 @@
 /**
  * US states + major territories energy catalog (EIA-scale sample figures for UX).
- * Includes 50 states, DC, PR, GU, VI, AS, MP. Replace with EIA API / IRP feeds in production.
+ * Includes 50 states, DC, PR, GU, VI, AS, MP.
+ * Vintage pinned below. Figures are rounded catalog values, not a live EIA pull.
  */
+
+import { EIA_EPM_URL, EIA_STATE_PROFILES_URL, eiaStateProfileUrl } from './catalogCite'
+
+/** EIA Electric Power Monthly / State Electricity Profiles vintage for this catalog. */
+export const STATE_CATALOG_AS_OF = 2023
+export const STATE_CATALOG_SOURCE = {
+  name: 'EIA Electric Power Monthly / State Electricity Profiles',
+  year: STATE_CATALOG_AS_OF,
+  url: EIA_STATE_PROFILES_URL,
+  epmUrl: EIA_EPM_URL,
+  note: 'Rounded educational catalog scaled to EIA public ranges. Not a live EIA pull.',
+} as const
+
+export function stateCatalogSourceUrl(stateName: string): string {
+  return eiaStateProfileUrl(stateName)
+}
 
 export type USRegion =
   | 'Northeast'
@@ -58,9 +75,12 @@ export interface USStateEnergy {
   hydroGw: number
   storageGw: number
   note: string
+  /** Catalog vintage year (EIA EPM / state profiles). */
+  asOf?: number
+  sourceUrl?: string
 }
 
-export const US_STATES: USStateEnergy[] = [
+const US_STATES_ROWS: USStateEnergy[] = [
   { fips: '01', abbr: 'AL', name: 'Alabama', region: 'Southeast', grid: 'SERC / non-ISO', lon: -86.9, lat: 32.8, capacityGw: 35, generationTwh: 140, peakGw: 28, cleanPct: 48, primary: 'Nuclear', secondary: 'Gas', nuclearGw: 5.8, solarGw: 1.2, windGw: 0, gasGw: 14, coalGw: 5, hydroGw: 3.2, storageGw: 0.1, note: 'Nuclear + gas heavy; limited wind.' },
   { fips: '02', abbr: 'AK', name: 'Alaska', region: 'Alaska / Hawaii', grid: 'Multiple / other', lon: -152.5, lat: 64.2, capacityGw: 3.2, generationTwh: 6.5, peakGw: 1.4, cleanPct: 32, primary: 'Gas', secondary: 'Hydro', nuclearGw: 0, solarGw: 0.02, windGw: 0.06, gasGw: 1.4, coalGw: 0.2, hydroGw: 0.5, storageGw: 0.05, note: 'Isolated grids; diesel + gas + hydro villages.' },
   { fips: '04', abbr: 'AZ', name: 'Arizona', region: 'Southwest', grid: 'WECC (non-CAISO)', lon: -111.7, lat: 34.3, capacityGw: 32, generationTwh: 115, peakGw: 22, cleanPct: 42, primary: 'Gas', secondary: 'Nuclear', nuclearGw: 3.9, solarGw: 6.5, windGw: 0.6, gasGw: 14, coalGw: 2.5, hydroGw: 2.8, storageGw: 1.2, note: 'Palo Verde nuclear; fast solar growth.' },
@@ -118,6 +138,12 @@ export const US_STATES: USStateEnergy[] = [
   { fips: '60', abbr: 'AS', name: 'American Samoa', region: 'Pacific Territories', grid: 'Multiple / other', lon: -170.7, lat: -14.3, capacityGw: 0.05, generationTwh: 0.15, peakGw: 0.03, cleanPct: 10, primary: 'Diesel', secondary: 'Solar', nuclearGw: 0, solarGw: 0.01, windGw: 0, gasGw: 0, coalGw: 0, hydroGw: 0, storageGw: 0.005, note: 'Remote Pacific diesel systems; solar pilots via ASPA.' },
   { fips: '69', abbr: 'MP', name: 'Northern Mariana Islands', region: 'Pacific Territories', grid: 'Multiple / other', lon: 145.75, lat: 15.2, capacityGw: 0.1, generationTwh: 0.3, peakGw: 0.05, cleanPct: 8, primary: 'Diesel', secondary: 'Solar', nuclearGw: 0, solarGw: 0.015, windGw: 0, gasGw: 0, coalGw: 0, hydroGw: 0, storageGw: 0.01, note: 'CNMI CUC diesel grids; typhoon resilience and solar goals.' },
 ]
+
+export const US_STATES: USStateEnergy[] = US_STATES_ROWS.map((s) => ({
+  ...s,
+  asOf: STATE_CATALOG_AS_OF,
+  sourceUrl: stateCatalogSourceUrl(s.name),
+}))
 
 export const US_REGIONS: USRegion[] = [
   'Northeast',

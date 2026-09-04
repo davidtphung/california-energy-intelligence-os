@@ -6,6 +6,9 @@
 
 import type { Technology } from '../types'
 import { TECH_COLORS, TECH_LABELS, TECH_ORDER } from '../lib/utils'
+import type { CatalogCite } from './catalogCite'
+import { citeCounts, withCite } from './catalogCite'
+import { CONSTRUCTION_CITES } from './catalogCitations'
 
 export type ConstructionStatus =
   | 'under-construction'
@@ -14,7 +17,7 @@ export type ConstructionStatus =
   | 'announced'
   | 'commissioning'
 
-export interface EnergyConstructionProject {
+export interface EnergyConstructionProject extends CatalogCite {
   id: string
   name: string
   technology: Technology
@@ -43,7 +46,7 @@ export const CONSTRUCTION_STATUS_LABEL: Record<ConstructionStatus, string> = {
 }
 
 /** Flagship generation & storage projects currently building or in late pipeline */
-export const ENERGY_CONSTRUCTION: EnergyConstructionProject[] = [
+const ENERGY_CONSTRUCTION_ROWS: EnergyConstructionProject[] = [
   // Nuclear
   {
     id: 'c-vogtle-3-4',
@@ -566,6 +569,13 @@ export const ENERGY_CONSTRUCTION: EnergyConstructionProject[] = [
     region: 'Alaska / Hawaii',
   },
 ]
+
+/** Cited rows keep sourceUrl / EIA IDs. Uncited aggregates are demoted, not deleted. */
+export const ENERGY_CONSTRUCTION: EnergyConstructionProject[] = ENERGY_CONSTRUCTION_ROWS.map((p) =>
+  withCite(p, CONSTRUCTION_CITES)
+)
+
+export const CONSTRUCTION_CITE_COUNTS = citeCounts(ENERGY_CONSTRUCTION)
 
 export function constructionTotals(projects: EnergyConstructionProject[] = ENERGY_CONSTRUCTION) {
   const capacityMw = projects.reduce((s, p) => s + p.capacityMw, 0)

@@ -5,10 +5,13 @@
  */
 
 import type { EnergyPortfolio, PortfolioAsset } from './portfolios'
+import type { CatalogCite } from './catalogCite'
+import { citeCounts, withCite } from './catalogCite'
+import { HYDRO_PLANT_CITES } from './catalogCitations'
 
 export type HydroKind = 'conventional' | 'pumped-storage' | 'run-of-river'
 
-export interface UsHydroPlant {
+export interface UsHydroPlant extends CatalogCite {
   id: string
   name: string
   stateAbbr: string
@@ -27,7 +30,7 @@ export interface UsHydroPlant {
 }
 
 /** Flagship and large hydro fleet across the United States */
-export const US_HYDRO_PLANTS: UsHydroPlant[] = [
+const US_HYDRO_PLANTS_ROWS: UsHydroPlant[] = [
   // Pacific Northwest - Columbia / Snake
   { id: 'h-grand-coulee', name: 'Grand Coulee', stateAbbr: 'WA', stateName: 'Washington', capacityMw: 6809, outputMw: 3200, latitude: 47.956, longitude: -118.982, operator: 'USBR', river: 'Columbia', kind: 'conventional', onlineYear: 1941, region: 'Pacific', note: 'Largest US power plant by capacity.' },
   { id: 'h-chief-joseph', name: 'Chief Joseph', stateAbbr: 'WA', stateName: 'Washington', capacityMw: 2620, outputMw: 1400, latitude: 47.995, longitude: -119.64, operator: 'USACE', river: 'Columbia', kind: 'conventional', onlineYear: 1955, region: 'Pacific' },
@@ -162,6 +165,12 @@ export const US_HYDRO_PLANTS: UsHydroPlant[] = [
   { id: 'h-diablo', name: 'Diablo (Skagit)', stateAbbr: 'WA', stateName: 'Washington', capacityMw: 159, outputMw: 70, latitude: 48.71, longitude: -121.13, operator: 'Seattle City Light', river: 'Skagit', kind: 'conventional', onlineYear: 1936, region: 'Pacific' },
   { id: 'h-gorge', name: 'Gorge (Skagit)', stateAbbr: 'WA', stateName: 'Washington', capacityMw: 207, outputMw: 90, latitude: 48.7, longitude: -121.21, operator: 'Seattle City Light', river: 'Skagit', kind: 'conventional', onlineYear: 1924, region: 'Pacific' },
 ]
+
+export const US_HYDRO_PLANTS: UsHydroPlant[] = US_HYDRO_PLANTS_ROWS.map((p) =>
+  withCite(p, HYDRO_PLANT_CITES)
+)
+
+export const HYDRO_CITE_COUNTS = citeCounts(US_HYDRO_PLANTS)
 
 export function hydroTotals(plants: UsHydroPlant[] = US_HYDRO_PLANTS) {
   const capacityMw = plants.reduce((s, p) => s + p.capacityMw, 0)

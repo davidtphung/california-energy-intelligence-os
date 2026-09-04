@@ -2,6 +2,18 @@
  * State electricity purchase, import dependence, and risk.
  * Combines trade, fleet mix, interconnect isolation, AI load, and partner concentration.
  * Educational sample path (not NERC RAS / IRP).
+ *
+ * State risk weights (additive, capped at 99):
+ * - Import share of use: min(32, pct * 0.38)
+ * - Net buyer: min(16, netTWh * 0.22) when net > 5 TWh
+ * - Partners: 14 single / 8 two / 4 none recorded
+ * - Isolation: 22 island / 18 ERCOT async / 10 peninsula
+ * - Reserve: 14 if <12% / 7 if <25%
+ * - AI 2030 sample: 14 if >=6 GW / 8 if >=2.5 GW
+ * - Fuel concentration: 8 if primary fossil >=70%
+ * - Cross-border hydro: 6
+ * - Hydro-year (WA/OR/CA/ID with hydro >3 GW): 5
+ * Bands: resilient <26 · watch <46 · exposed <66 · critical >=66
  */
 
 import { US_STATES, type USStateEnergy } from './usStates'

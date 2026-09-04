@@ -20,6 +20,9 @@ import type { Technology } from '../../types'
 import { useApp } from '../../context/AppContext'
 import { exportCsv } from '../../lib/utils'
 import { UsBasemap } from './UsBasemap'
+import { BasemapCredit, CiteLine } from './TruthStatusStrip'
+import { CONSTRUCTION_CITE_COUNTS } from '../../data/energyConstruction'
+import { citationLabel } from '../../data/catalogCite'
 
 const W = 1100
 const H = 620
@@ -78,13 +81,14 @@ export function ConstructionProjectsMap() {
     <div className="cmap mapcentric">
       <header className="mapcentric-head">
         <div>
-          <p className="kicker">Build pipeline · generation</p>
+          <p className="kicker">CATALOG · cited or UNCITED</p>
           <h2 className="page-h2" style={{ marginBottom: 4 }}>
             Energy construction projects
           </h2>
           <p className="mapcentric-lede">
-            Plants and storage being built to generate or firm power: nuclear, solar, wind, gas,
-            geothermal, hydro, batteries. Dot size = MW; ring color = status.
+            Plants and storage being built to generate or firm power. Verifiable rows have a source
+            URL or EIA plant ID. Cluster samples stay on the map as UNCITED (not deleted). Dot size
+            = MW; ring color = status.
           </p>
         </div>
         <div className="mapcentric-kpis">
@@ -104,13 +108,10 @@ export function ConstructionProjectsMap() {
             <strong>{totals.states}</strong>
           </div>
           <div className="mapcentric-kpi">
-            <span>Building</span>
+            <span>Cited</span>
             <strong>
-              {(
-                (totals.byStatus.find((s) => s.status === 'under-construction')?.capacityMw ?? 0) /
-                1000
-              ).toFixed(1)}
-              <em>GW</em>
+              {CONSTRUCTION_CITE_COUNTS.cited}
+              <em>/{CONSTRUCTION_CITE_COUNTS.total}</em>
             </strong>
           </div>
         </div>
@@ -379,6 +380,18 @@ export function ConstructionProjectsMap() {
                 {selected.note}
               </p>
             )}
+            <CiteLine
+              sourceUrl={selected.sourceUrl}
+              eiaPlantCode={selected.eiaPlantCode}
+              eiaGeneratorId={selected.eiaGeneratorId}
+              asOf={selected.asOf}
+              citation={selected.citation}
+              priorValue={selected.priorValue}
+              priorAsOf={selected.priorAsOf}
+            />
+            <p className="muted" style={{ fontSize: '0.75rem', marginTop: 6 }}>
+              {citationLabel(selected)}
+            </p>
 
             <p className="kicker" style={{ marginTop: 14 }}>
               Same technology nearby
@@ -465,9 +478,10 @@ export function ConstructionProjectsMap() {
         </div>
       </div>
 
+      <BasemapCredit />
       <p className="footer-line">
-        Construction map · generation projects · sample pipeline · EIA-860m / ISO queue scale · not a
-        live permit feed
+        CATALOG · {CONSTRUCTION_CITE_COUNTS.cited} cited · {CONSTRUCTION_CITE_COUNTS.demoted} demoted
+        UNCITED (kept) · EIA-860 / 860M / project pages · not a live permit feed
       </p>
     </div>
   )

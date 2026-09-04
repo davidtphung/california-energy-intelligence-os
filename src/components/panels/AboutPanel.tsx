@@ -92,8 +92,8 @@ export function AboutPanel() {
             Energy Intelligence System
           </h1>
           <p className="mapcentric-lede">
-            Map-first tools for US electricity: live grid metrics, construction pipelines, utility
-            footprints, future balance, assets, fuels, and policy.
+            A map-first US electricity workspace that shows three kinds of truth on purpose: measured
+            live feeds, cited catalogs, and labeled planning scenarios.
           </p>
         </div>
       </header>
@@ -124,14 +124,28 @@ export function AboutPanel() {
         <section className="block about-section">
           <h2 className="page-h2">What this is</h2>
           <p className="sub" style={{ maxWidth: '40rem' }}>
-            EIS is a browser-based energy intelligence workspace. The Map is the center: live
-            electrical metrics, demand drivers (AI data centers, population, industrial),
-            generation construction, ISO/utility structure, and projected firm-capacity balance.
-            Supporting tabs cover states, plant portfolios, fossil fuels, and thesis papers.
+            EIS is a map-first US electricity workspace. It does not mix measured, curated, and
+            simulated numbers into one unnamed figure. Three truth classes stay visible on the map
+            chrome and here.
           </p>
+          <ul className="about-steps" style={{ listStyle: 'disc', paddingLeft: '1.25rem' }}>
+            <li>
+              <strong>LIVE.</strong> CAISO Today&apos;s Outlook plus Open-Meteo, with timestamps.
+              Fail loud: error, stale, or last-good. Never a silent blank that can read as zero.
+            </li>
+            <li>
+              <strong>CATALOG.</strong> Plants, construction, and state fleets with a source URL
+              and/or EIA plant or generator ID and a vintage. Missing cites stay EMPTY or UNCITED.
+              When a MW figure is corrected, the prior value is kept.
+            </li>
+            <li>
+              <strong>SCENARIO.</strong> Demand, All sources, Future, and the simulated national
+              stream are SAMPLE / PLANNING PATH. Method: educational path scaled to public ranges.
+              Not AEO or IRP unless that case is cited as an external band.
+            </li>
+          </ul>
           <p className="sub" style={{ maxWidth: '40rem' }}>
-            Figures are educational samples scaled to EIA / ISO / operator public ranges, not a
-            substitute for official filings, real-time SCADA, or your utility&apos;s IRP.
+            Not a substitute for official filings, real-time SCADA, or a utility IRP.
           </p>
           <div className="btn-row" style={{ marginTop: '1rem' }}>
             <button
@@ -219,8 +233,8 @@ export function AboutPanel() {
         <section className="block about-section">
           <h2 className="page-h2">Sources &amp; methods</h2>
           <p className="sub" style={{ maxWidth: '40rem' }}>
-            Data are composite educational samples plus live CAISO pulls where wired. Primary
-            reference families and how often EIS updates:
+            Steelman: three truth classes. LIVE fails loud. CATALOG gaps stay EMPTY or UNCITED.
+            SCENARIO stays SAMPLE / PLANNING PATH. Primary reference families and update rates:
           </p>
           <div className="table-wrap" style={{ marginTop: '1rem' }}>
             <table className="data-table">
@@ -234,8 +248,8 @@ export function AboutPanel() {
               <tbody>
                 <tr>
                   <td>Map stream (national graph)</td>
-                  <td>Every 0.8 s (simulated)</td>
-                  <td>Client sample path · not SCADA</td>
+                  <td>Every 0.8 s (SAMPLE / PLANNING PATH)</td>
+                  <td>Client toy path · not national SCADA</td>
                 </tr>
                 <tr>
                   <td>CAISO Today&apos;s Outlook</td>
@@ -253,9 +267,14 @@ export function AboutPanel() {
                   <td>EIA Open Data</td>
                 </tr>
                 <tr>
-                  <td>Demand / Balance / USA / Assets / Fuels / Thesis</td>
+                  <td>Demand / Balance / Future</td>
+                  <td>On deploy only</td>
+                  <td>SCENARIO · SAMPLE / PLANNING PATH · not a named AEO or IRP case</td>
+                </tr>
+                <tr>
+                  <td>USA / Assets / Construction</td>
                   <td>On deploy only (static catalog)</td>
-                  <td>Sample models scaled to public ranges</td>
+                  <td>CATALOG · cited rows or UNCITED · states as of 2023 (EIA EPM / profiles)</td>
                 </tr>
               </tbody>
             </table>
@@ -287,8 +306,8 @@ export function AboutPanel() {
                 </tr>
                 <tr>
                   <td>Demand outlook</td>
-                  <td>EIA AEO, NREL, ISO load forecasts, IRPs</td>
-                  <td>Demand + Balance all-source map (sample path)</td>
+                  <td>EIA AEO / IRP are external bands only when cited</td>
+                  <td>Demand + Balance + Future are SAMPLE / PLANNING PATH</td>
                 </tr>
                 <tr>
                   <td>Fossil / fuels</td>
@@ -317,10 +336,20 @@ export function AboutPanel() {
             Limitations
           </h3>
           <ul className="about-steps" style={{ listStyle: 'disc', paddingLeft: '1.25rem' }}>
-            <li>Not real-time SCADA or billing-grade metering.</li>
+            <li>Not real-time SCADA or billing-grade metering except the CAISO CSV pull.</li>
+            <li>CAISO fail mode is error / stale / last-good. A parse miss is not a silent dash.</li>
             <li>Zone blobs and utility dots are approximate, not service-territory polygons.</li>
-            <li>Construction COD years and MW are public-scale samples; queues change weekly.</li>
-            <li>Future deficit/surplus is a stylized firm-capacity path, not an IRP case.</li>
+            <li>
+              Construction and plant MW are catalog values. Rows without a source URL or EIA ID are
+              UNCITED and may be demoted. Rows are not deleted.
+            </li>
+            <li>State fleet figures are as of 2023 (EIA EPM / State Electricity Profiles scale).</li>
+            <li>Future deficit/surplus is a SAMPLE / PLANNING PATH, not an IRP or AEO case.</li>
+            <li>
+              State risk is a documented composite (import share, net-buyer size, partner
+              concentration, isolation, reserve, AI 2030 sample, fuel mix, cross-border hydro). Not
+              NERC RAS.
+            </li>
           </ul>
           <p className="sub" style={{ maxWidth: '40rem', marginTop: '1rem' }}>
             Official portals:{' '}

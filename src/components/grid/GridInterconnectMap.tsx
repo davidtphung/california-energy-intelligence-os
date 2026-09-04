@@ -46,6 +46,8 @@ import { useLiveGrid } from '../../hooks/useLiveGrid'
 import { ageLabel, formatRefreshHuman, REFRESH } from '../../data/refreshRates'
 import { exportCsv } from '../../lib/utils'
 import { RegionCoverageLayer } from './RegionCoverageLayer'
+import { BasemapCredit } from './TruthStatusStrip'
+import { failLoudNumber } from '../../data/truthClasses'
 
 const W = 1100
 const H = 640
@@ -271,9 +273,7 @@ export function GridInterconnectMap() {
             Three interconnections, ISO/RTO footprints, utilities, and seams. Break down buys and
             dependence by <strong>state</strong> or <strong>utility company</strong> (allocated from
             state trade by customer share and role: LSE, wires, genco, federal).
-            {caisoGw != null
-              ? ` CAISO live ${caisoGw.toFixed(2)} GW (${ageLabel(live.lastOk)}).`
-              : ` CAISO live pull every ${formatRefreshHuman(REFRESH.caisoLiveMs)}.`}{' '}
+            {` CAISO ${failLoudNumber(caisoGw, { mode: live.failMode, digits: 2, unit: 'GW' })} (${ageLabel(live.lastOk)}, pull ${formatRefreshHuman(REFRESH.caisoLiveMs)}).`}{' '}
             Schematic, not legal GIS.
           </p>
         </div>
@@ -302,9 +302,18 @@ export function GridInterconnectMap() {
             </strong>
           </div>
           <div className="mapcentric-kpi">
-            <span>CAISO live</span>
-            <strong style={{ color: caisoGw != null ? 'var(--ok)' : undefined }}>
-              {caisoGw != null ? caisoGw.toFixed(1) : '—'}
+            <span>CAISO {live.failMode === 'ok' ? 'LIVE' : live.failMode}</span>
+            <strong
+              style={{
+                color:
+                  live.failMode === 'ok'
+                    ? 'var(--ok)'
+                    : live.failMode === 'error'
+                      ? 'var(--danger)'
+                      : 'var(--warn)',
+              }}
+            >
+              {failLoudNumber(caisoGw, { mode: live.failMode, digits: 1 })}
               <em>GW</em>
             </strong>
           </div>
@@ -1211,7 +1220,7 @@ export function GridInterconnectMap() {
                       </span>
                     </td>
                     <td className="muted" style={{ fontSize: '0.75rem' }}>
-                      {d.partners.join(' · ') || '—'}
+                      {d.partners.join(' · ') || 'none listed'}
                     </td>
                   </tr>
                 ))}
@@ -1221,10 +1230,13 @@ export function GridInterconnectMap() {
         </div>
       </section>
 
+      <BasemapCredit />
       <p className="footer-line muted" style={{ marginTop: '0.85rem', fontSize: '0.78rem' }}>
-        State risk = import share + net-buyer + partners + isolation + reserve + AI + fuel mix.
-        Utility risk = weighted state book + wires-only / multi-zone / AI footprint. Sample path.
-        Intertie live use is a clocked sample, boosted when CAISO load is high.
+        State risk weights (documented, not NERC RAS): import share up to 32 pts (0.38 per %),
+        net-buyer up to 16, single partner 14 / two 8 / none 4, island 22 / ERCOT 18 / peninsula 10,
+        thin reserve 14 / modest 7, AI 14 or 8, fuel concentration 8, cross-border 6, hydro-year 5.
+        Utility risk = weighted state book + role. Intertie use is a clocked SAMPLE, boosted when
+        CAISO load is high.
       </p>
     </div>
   )

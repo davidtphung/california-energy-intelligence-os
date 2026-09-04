@@ -34,6 +34,7 @@ import {
 import { useApp } from '../../context/AppContext'
 import { exportCsv } from '../../lib/utils'
 import { UsBasemap } from './UsBasemap'
+import { BasemapCredit } from './TruthStatusStrip'
 
 const W = 1100
 const H = 620
@@ -161,15 +162,15 @@ export function DemandForecastMap() {
     <div className="fbal mapcentric demand-fc">
       <header className="mapcentric-head">
         <div>
-          <p className="kicker">Demand · AI · people · industry · capital</p>
+          <p className="kicker">SCENARIO · SAMPLE / PLANNING PATH</p>
           <h2 className="page-h2" style={{ marginBottom: 4 }}>
-            U.S. demand forecast
+            U.S. demand path
           </h2>
           <p className="mapcentric-lede">
             Peak load attributed to AI data centers, population growth, and industrial
             manufacturing through {DEMAND_YEARS[DEMAND_YEARS.length - 1]}. Capex split private
-            (hyperscale, plant) vs public (T&amp;D, rate base, incentives). Sample path, not
-            official IRP.
+            (hyperscale, plant) vs public (T&amp;D, rate base, incentives). Educational path
+            scaled to public ranges. Not a named AEO or IRP forecast.
           </p>
         </div>
         <div className="mapcentric-kpis">
@@ -602,11 +603,12 @@ export function DemandForecastMap() {
         </div>
       </section>
 
+      <BasemapCredit />
       <p className="footer-line muted" style={{ marginTop: '1rem', fontSize: '0.8rem' }}>
-        Demand stack · AI corridors weighted by known hyperscale clusters · population CAGR
+        SAMPLE / PLANNING PATH · AI corridors weighted by known hyperscale clusters · population CAGR
         Sun Belt vs slow-growth states · industrial weights by manufacturing intensity · private
-        share higher on hyperscale campuses, public higher on wires and rate-base firm power ·
-        sample educational path
+        share higher on hyperscale campuses, public higher on wires and rate-base firm power · not a
+        named AEO or IRP case
       </p>
     </div>
   )

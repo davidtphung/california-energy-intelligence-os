@@ -6,6 +6,7 @@
  */
 
 import { csvToObjects, latestWithValues, num, parseCsv } from '../lib/csv'
+import { caisoCsvLooksParseable } from '../lib/caisoCsv'
 
 export type SourceHealth = 'ok' | 'error' | 'stale' | 'skipped'
 
@@ -106,6 +107,10 @@ export interface LiveBundle {
   weather: WeatherSnapshot | null
   eia: { note: string; series?: { period: string; value: number }[] } | null
   sources: SourceStatus[]
+  /** True when this pull produced a usable CAISO demand number */
+  caisoParseOk: boolean
+  /** Why CAISO is not live, if applicable */
+  caisoFail?: string
 }
 
 const CAISO_BASE = '/api/live/caiso'
@@ -282,6 +287,15 @@ function parseNetDemand(text: string) {
   }
 }
 
+function markSource(
+  sources: SourceStatus[],
+  id: string,
+  patch: Partial<SourceStatus>
+) {
+  const row = sources.find((s) => s.id === id)
+  if (row) Object.assign(row, patch)
+}
+
 async function fetchCaisoFile(
   file: string,
   sources: SourceStatus[]
@@ -290,8 +304,19 @@ async function fetchCaisoFile(
   const url = `${CAISO_BASE}/${file}.csv`
   try {
     const { text, ms } = await fetchText(url)
-    if (text.includes('<html') || text.includes('404')) {
-      throw new Error('Not found or HTML error page')
+    const parseErr = caisoCsvLooksParseable(file, text)
+    if (parseErr) {
+      sources.push({
+        id,
+        name: `CAISO ${file}`,
+        organization: 'CAISO',
+        url: `https://www.caiso.com/outlook/current/${file}.csv`,
+        status: 'error',
+        latencyMs: ms,
+        message: parseErr,
+        fetchedAt: new Date().toISOString(),
+      })
+      return null
     }
     sources.push({
       id,
@@ -467,6 +492,8 @@ export async function fetchAllLiveSources(): Promise<LiveBundle> {
   )
 
   let caiso: CaisoLiveSnapshot | null = null
+  let caisoParseOk = false
+  let caisoFail: string | undefined
 
   if (statusTxt || demandTxt || fuelTxt) {
     const status = statusTxt ? parseSystemStatus(statusTxt) : {}
@@ -482,34 +509,64 @@ export async function fetchAllLiveSources(): Promise<LiveBundle> {
     // Prefer systemstatus (matches Today's Outlook card); series still used for charts
     const currentDemandMw = status.currentDemandMw ?? demand.latestCurrent ?? null
 
-    caiso = {
-      asOf:
-        status.asOf ||
-        (demand.latestTime ? `Today ${demand.latestTime} PT` : fetchedAt),
-      produced: status.produced,
-      currentDemandMw,
-      todaysPeakMw: status.todaysPeakMw ?? null,
-      forecastedPeakMw: status.forecastedPeakMw ?? null,
-      tomorrowPeakMw: status.tomorrowPeakMw ?? null,
-      hourAheadMw: demand.latestHourAhead,
-      dayAheadMw: demand.latestDayAhead,
-      netDemandMw: net.netDemandMw,
-      fuel: fuel.fuel,
-      storage: storage.storage,
-      renewables: ren.renewables,
-      co2: co2.co2,
-      series: {
-        demand: demand.series.filter((s) => s.time),
-        fuel: fuel.series,
-      },
+    if (statusTxt && status.currentDemandMw == null && status.todaysPeakMw == null) {
+      markSource(sources, 'caiso-systemstatus', {
+        status: 'error',
+        message: 'CSV parse failed: no usable demand fields',
+      })
     }
+    if (demandTxt && demand.latestCurrent == null && demand.records > 0) {
+      markSource(sources, 'caiso-demand', {
+        status: 'error',
+        message: 'CSV parse failed: no Current demand values',
+      })
+    }
+    if (fuelTxt && !fuel.fuel) {
+      markSource(sources, 'caiso-fuelsource', {
+        status: 'error',
+        message: 'CSV parse failed: no fuel mix row',
+      })
+    }
+
+    caisoParseOk = currentDemandMw != null && Number.isFinite(currentDemandMw)
+    if (!caisoParseOk) {
+      caisoFail = 'CAISO CSV parse failed: no current demand MW'
+    }
+
+    // Only publish a snapshot when we have at least one real metric.
+    // Never return a hollow object that the UI can render as a silent blank.
+    if (caisoParseOk || fuel.fuel) {
+      caiso = {
+        asOf:
+          status.asOf ||
+          (demand.latestTime ? `Today ${demand.latestTime} PT` : fetchedAt),
+        produced: status.produced,
+        currentDemandMw,
+        todaysPeakMw: status.todaysPeakMw ?? null,
+        forecastedPeakMw: status.forecastedPeakMw ?? null,
+        tomorrowPeakMw: status.tomorrowPeakMw ?? null,
+        hourAheadMw: demand.latestHourAhead,
+        dayAheadMw: demand.latestDayAhead,
+        netDemandMw: net.netDemandMw,
+        fuel: fuel.fuel,
+        storage: storage.storage,
+        renewables: ren.renewables,
+        co2: co2.co2,
+        series: {
+          demand: demand.series.filter((s) => s.time),
+          fuel: fuel.series,
+        },
+      }
+    }
+  } else {
+    caisoFail = 'CAISO pull returned no usable CSV'
   }
 
   // Sort sources: ok first, then skipped, then error
   const order = { ok: 0, stale: 1, skipped: 2, error: 3 }
   sources.sort((a, b) => order[a.status] - order[b.status] || a.name.localeCompare(b.name))
 
-  return { fetchedAt, caiso, weather, eia, sources }
+  return { fetchedAt, caiso, weather, eia, sources, caisoParseOk, caisoFail }
 }
 
 export function cleanShareFromFuel(fuel: NonNullable<CaisoLiveSnapshot['fuel']>): number {

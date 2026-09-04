@@ -2,7 +2,7 @@
 
 Single map of the **whole project**: what it is, where it lives locally, where it lives on GitHub, how it is deployed, and how the product is structured.
 
-Educational sample path. Not an IRP, not SCADA, not legal GIS.
+Three truth classes on purpose: LIVE (CAISO + Open-Meteo), CATALOG (cited plants / construction / state fleets), SCENARIO (SAMPLE / PLANNING PATH). Not an IRP, not national SCADA, not legal GIS.
 
 ---
 
@@ -278,10 +278,21 @@ Confirm:
 
 ---
 
+## Truth classes
+
+| Class | What it is | Fail / gap mode |
+|-------|------------|-----------------|
+| **LIVE** | CAISO Today's Outlook + Open-Meteo | error / stale / last-good. Never a silent blank. |
+| **CATALOG** | Plants, construction, state fleets | sourceUrl and/or EIA plant/generator ID + vintage. UNCITED rows stay; MW not invented. |
+| **SCENARIO** | Demand / Balance / Future / national graph | SAMPLE / PLANNING PATH. Not AEO/IRP unless cited as an external band. |
+
+State catalog vintage: **2023** (EIA Electric Power Monthly / State Electricity Profiles). Deep links: `eia.gov/electricity/state/{name}/`.
+
 ## Limits (say this in About / Sources)
 
 - Not real-time EMS / SCADA except the CAISO CSV pull
 - Intertie “live use” is a clocked sample, boosted when CAISO load is high
-- Catalogs and forecasts update on deploy
+- Catalogs and scenarios update on deploy
 - Zone polygons and utility dots are approximate
-- Deficit / demand / capital paths are samples, not official AEO / IRP cases
+- Deficit / demand / capital paths are SAMPLE / PLANNING PATH, not official AEO / IRP cases
+- State risk weights are documented in `stateDependency.ts` (import share, net-buyer, partners, isolation, reserve, AI, fuel, hydro-year)

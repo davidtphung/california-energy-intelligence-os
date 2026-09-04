@@ -97,8 +97,8 @@ export function buildTopology(): GridTopology {
       region: 'Pacific',
       operator: 'CAISO',
       voltageKvNom: 230,
-      capacityMw: 3285,
-      energyMwhCap: 8000,
+      capacityMw: 1100,
+      energyMwhCap: 3300,
     },
     {
       id: 'sub-houston',
