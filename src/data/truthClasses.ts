@@ -74,12 +74,14 @@ export function caisoMode(args: {
 }): LiveFailMode {
   const now = args.nowMs ?? Date.now()
   const hasValue = args.demandMw != null && Number.isFinite(args.demandMw)
+  const lastOkMs = args.lastOk ? Date.parse(args.lastOk) : NaN
+  const stale = Number.isFinite(lastOkMs) && now - lastOkMs > CAISO_STALE_AFTER_MS
   if (hasValue && args.lastOk) {
-    const t = Date.parse(args.lastOk)
-    if (Number.isFinite(t) && now - t > CAISO_STALE_AFTER_MS) return 'stale'
+    if (args.error) return stale ? 'stale' : 'last-good'
+    if (stale) return 'stale'
     return 'ok'
   }
-  if (hasValue) return 'last-good'
+  if (hasValue) return args.error ? 'last-good' : 'ok'
   if (args.loading && !args.lastOk) return 'loading'
   if (args.error) return 'error'
   if (args.lastOk) return 'stale'

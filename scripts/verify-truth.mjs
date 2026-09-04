@@ -77,6 +77,72 @@ for (const f of uiFiles) {
   })
 }
 
+function caisoMode(args) {
+  const now = args.nowMs ?? Date.now()
+  const hasValue = args.demandMw != null && Number.isFinite(args.demandMw)
+  const lastOkMs = args.lastOk ? Date.parse(args.lastOk) : NaN
+  const stale = Number.isFinite(lastOkMs) && now - lastOkMs > 90_000
+  if (hasValue && args.lastOk) {
+    if (args.error) return stale ? 'stale' : 'last-good'
+    if (stale) return 'stale'
+    return 'ok'
+  }
+  if (hasValue) return args.error ? 'last-good' : 'ok'
+  if (args.loading && !args.lastOk) return 'loading'
+  if (args.error) return 'error'
+  if (args.lastOk) return 'stale'
+  if (args.loading) return 'loading'
+  return 'error'
+}
+
+const now = Date.parse('2026-09-04T16:00:00.000Z')
+const modeCases = [
+  {
+    name: 'fresh ok',
+    args: { loading: false, error: null, demandMw: 32000, lastOk: '2026-09-04T15:59:50.000Z', nowMs: now },
+    expect: 'ok',
+  },
+  {
+    name: 'parse fail keeps last-good',
+    args: {
+      loading: false,
+      error: 'CAISO parse failed. Showing last good.',
+      demandMw: 32000,
+      lastOk: '2026-09-04T15:59:50.000Z',
+      nowMs: now,
+    },
+    expect: 'last-good',
+  },
+  {
+    name: 'parse fail older than 90s is stale',
+    args: {
+      loading: false,
+      error: 'CAISO parse failed. Showing last good.',
+      demandMw: 32000,
+      lastOk: '2026-09-04T15:58:00.000Z',
+      nowMs: now,
+    },
+    expect: 'stale',
+  },
+  {
+    name: 'no snapshot + fetch error',
+    args: { loading: false, error: 'Empty CSV', demandMw: null, lastOk: null, nowMs: now },
+    expect: 'error',
+  },
+  {
+    name: 'first load',
+    args: { loading: true, error: null, demandMw: null, lastOk: null, nowMs: now },
+    expect: 'loading',
+  },
+]
+for (const c of modeCases) {
+  const got = caisoMode(c.args)
+  if (got !== c.expect) {
+    console.error(`FAIL mode ${c.name}: expected ${c.expect}, got ${got}`)
+    failed += 1
+  }
+}
+
 if (dashHits.length) {
   console.error('Em dashes in UI/source files:')
   for (const h of dashHits) console.error(`  ${h}`)
