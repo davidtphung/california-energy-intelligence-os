@@ -20,6 +20,8 @@ export interface CatalogCite {
   priorAsOf?: string
   /** cited = has URL or EIA ID. demoted = kept on map, not a verified MW claim. */
   citation?: CitationStatus
+  /** Operating / historical / offline label. Fail loud; do not imply live MW. */
+  status?: string
 }
 
 export function isCited(row: CatalogCite | null | undefined): boolean {

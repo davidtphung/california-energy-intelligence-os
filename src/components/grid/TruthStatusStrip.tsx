@@ -98,6 +98,7 @@ export function CiteLine({
   citation,
   priorValue,
   priorAsOf,
+  status,
 }: {
   sourceUrl?: string
   eiaPlantCode?: string
@@ -106,6 +107,7 @@ export function CiteLine({
   citation?: string
   priorValue?: number
   priorAsOf?: string
+  status?: string
 }) {
   if (citation === 'demoted' || citation === 'uncited' || (!sourceUrl && !eiaPlantCode && !eiaGeneratorId)) {
     return (
@@ -120,6 +122,7 @@ export function CiteLine({
       {eiaPlantCode ? ` · EIA plant ${eiaPlantCode}` : ''}
       {eiaGeneratorId ? ` · gen ${eiaGeneratorId}` : ''}
       {asOf ? ` · as of ${asOf}` : ''}
+      {status ? ` · ${status}` : ''}
       {sourceUrl ? (
         <>
           {' · '}

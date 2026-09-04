@@ -407,7 +407,16 @@ export function PortfoliosPanel() {
                     <tr>
                       <th scope="row">Status</th>
                       <td>
-                        <Badge>{selectedAsset.status}</Badge>
+                        <Badge
+                          variant={
+                            selectedAsset.status === 'offline' ||
+                            selectedAsset.status === 'retired-planned'
+                              ? 'warning'
+                              : 'default'
+                          }
+                        >
+                          {selectedAsset.status}
+                        </Badge>
                       </td>
                     </tr>
                   </tbody>
@@ -415,15 +424,19 @@ export function PortfoliosPanel() {
                 {(() => {
                   const plant = US_ENERGY_PLANTS.find((p) => p.id === selectedAsset.id)
                   return plant ? (
-                    <CiteLine
-                      sourceUrl={plant.sourceUrl}
-                      eiaPlantCode={plant.eiaPlantCode}
-                      eiaGeneratorId={plant.eiaGeneratorId}
-                      asOf={plant.asOf}
-                      citation={plant.citation}
-                      priorValue={plant.priorValue}
-                      priorAsOf={plant.priorAsOf}
-                    />
+                    <>
+                      <CiteLine
+                        sourceUrl={plant.sourceUrl}
+                        eiaPlantCode={plant.eiaPlantCode}
+                        eiaGeneratorId={plant.eiaGeneratorId}
+                        asOf={plant.asOf}
+                        citation={plant.citation}
+                        priorValue={plant.priorValue}
+                        priorAsOf={plant.priorAsOf}
+                        status={plant.status}
+                      />
+                      {plant.note ? <p className="cite-line">{plant.note}</p> : null}
+                    </>
                   ) : (
                     <CiteLine citation="uncited" />
                   )

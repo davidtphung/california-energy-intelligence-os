@@ -74,7 +74,7 @@ const US_NON_HYDRO_PLANTS_ROWS: UsEnergyPlant[] = [
   { id: 'n-susquehanna', name: 'Susquehanna', technology: 'nuclear', stateAbbr: 'PA', stateName: 'Pennsylvania', capacityMw: 2520, outputMw: 2360, latitude: 41.092, longitude: -76.149, operator: 'Talen', detail: 'BWR', onlineYear: 1983, region: 'Mid-Atlantic' },
   { id: 'n-mcguire', name: 'McGuire', technology: 'nuclear', stateAbbr: 'NC', stateName: 'North Carolina', capacityMw: 2316, outputMw: 2180, latitude: 35.433, longitude: -80.948, operator: 'Duke Energy', detail: 'PWR', onlineYear: 1981, region: 'Southeast' },
   { id: 'n-catawba', name: 'Catawba', technology: 'nuclear', stateAbbr: 'SC', stateName: 'South Carolina', capacityMw: 2310, outputMw: 2170, latitude: 35.051, longitude: -81.07, operator: 'Duke Energy', detail: 'PWR', onlineYear: 1985, region: 'Southeast' },
-  { id: 'n-oyster-creek', name: 'Oconee', technology: 'nuclear', stateAbbr: 'SC', stateName: 'South Carolina', capacityMw: 2554, outputMw: 2400, latitude: 34.794, longitude: -82.899, operator: 'Duke Energy', detail: 'PWR · 3 units', onlineYear: 1973, region: 'Southeast' },
+  { id: 'n-oconee', name: 'Oconee', technology: 'nuclear', stateAbbr: 'SC', stateName: 'South Carolina', capacityMw: 2554, outputMw: 2400, latitude: 34.794, longitude: -82.899, operator: 'Duke Energy', detail: 'PWR · 3 units', onlineYear: 1973, region: 'Southeast' },
   { id: 'n-watts-bar', name: 'Watts Bar', technology: 'nuclear', stateAbbr: 'TN', stateName: 'Tennessee', capacityMw: 2338, outputMw: 2200, latitude: 35.602, longitude: -84.79, operator: 'TVA', detail: 'PWR · Units 1-2', onlineYear: 1996, region: 'Southeast' },
   { id: 'n-sequoyah', name: 'Sequoyah', technology: 'nuclear', stateAbbr: 'TN', stateName: 'Tennessee', capacityMw: 2332, outputMw: 2190, latitude: 35.226, longitude: -85.092, operator: 'TVA', detail: 'PWR', onlineYear: 1981, region: 'Southeast' },
   { id: 'n-nine-mile', name: 'Nine Mile Point', technology: 'nuclear', stateAbbr: 'NY', stateName: 'New York', capacityMw: 1927, outputMw: 1800, latitude: 43.521, longitude: -76.41, operator: 'Constellation', detail: 'BWR', onlineYear: 1969, region: 'Northeast' },
@@ -182,8 +182,38 @@ const US_NON_HYDRO_PLANTS_ROWS: UsEnergyPlant[] = [
   { id: 'b-mead', name: 'Mead Westvaco / pulp mill cogen sample', technology: 'biomass', stateAbbr: 'SC', stateName: 'South Carolina', capacityMw: 100, outputMw: 70, latitude: 33.2, longitude: -80.0, operator: 'Industrial cogen', detail: 'Black liquor / wood', onlineYear: 1980, region: 'Southeast' },
 
   // ── Battery storage ──────────────────────────────────────
-  { id: 'bat-moss', name: 'Moss Landing Energy Storage', technology: 'battery', stateAbbr: 'CA', stateName: 'California', capacityMw: 750, outputMw: -200, latitude: 36.805, longitude: -121.782, operator: 'Vistra', detail: 'Lithium-ion', onlineYear: 2021, region: 'Pacific', note: 'Among largest US BESS.' },
-  { id: 'bat-edwards', name: 'Edwards & Sanborn BESS', technology: 'battery', stateAbbr: 'CA', stateName: 'California', capacityMw: 3285, outputMw: -800, latitude: 34.905, longitude: -117.905, operator: 'Terra-Gen', detail: 'Hybrid with solar', onlineYear: 2022, region: 'Pacific' },
+  {
+    id: 'bat-moss',
+    name: 'Moss Landing Energy Storage',
+    technology: 'battery',
+    stateAbbr: 'CA',
+    stateName: 'California',
+    capacityMw: 750,
+    outputMw: 0,
+    latitude: 36.805,
+    longitude: -121.782,
+    operator: 'Vistra',
+    detail: 'Historical peak 750 MW · lithium-ion',
+    onlineYear: 2021,
+    region: 'Pacific',
+    note: 'HISTORICAL PEAK 750 MW as of 2023 (Moss 100 + 300 + 350). STATUS: OFFLINE / post-fire 16 Jan 2025. Not current operating capacity. Vistra evaluating Moss 350 restart; Moss 100 not restarting.',
+  },
+  {
+    id: 'bat-edwards',
+    name: 'Edwards & Sanborn BESS',
+    technology: 'battery',
+    stateAbbr: 'CA',
+    stateName: 'California',
+    capacityMw: 1100,
+    outputMw: -800,
+    latitude: 34.905,
+    longitude: -117.905,
+    operator: 'Terra-Gen',
+    detail: 'Hybrid with solar · 1.1 GW power',
+    onlineYear: 2022,
+    region: 'Pacific',
+    note: 'Terra-Gen 1.1 GW power / 3.3 GWh energy (Apr 2026 project sheet). Prior 3285 MW was Mortenson 3287 MWh read as MW.',
+  },
   { id: 'bat-alamitos', name: 'Alamitos BESS', technology: 'battery', stateAbbr: 'CA', stateName: 'California', capacityMw: 100, outputMw: -30, latitude: 33.77, longitude: -118.1, operator: 'AES', detail: 'Coastal', onlineYear: 2021, region: 'Pacific' },
   { id: 'bat-gateway', name: 'Gateway Energy Storage', technology: 'battery', stateAbbr: 'CA', stateName: 'California', capacityMw: 250, outputMw: -80, latitude: 32.9, longitude: -115.5, operator: 'LS Power', detail: 'Imperial', onlineYear: 2020, region: 'Pacific' },
   { id: 'bat-gemini', name: 'Gemini Storage', technology: 'battery', stateAbbr: 'NV', stateName: 'Nevada', capacityMw: 380, outputMw: -120, latitude: 36.4, longitude: -114.8, operator: 'Arevon', detail: 'With Gemini solar', onlineYear: 2023, region: 'Southwest' },
@@ -306,9 +336,12 @@ function plantToAsset(p: UsEnergyPlant): PortfolioAsset {
     region: p.region,
     county: `${p.detail} · ${p.stateName}`,
     stateAbbr: p.stateAbbr,
-    status: p.outputMw === 0 && p.note?.toLowerCase().includes('retired')
-      ? 'retired-planned'
-      : 'operating',
+    status:
+      p.status?.toLowerCase().includes('offline') ||
+      p.note?.toLowerCase().includes('offline') ||
+      (p.outputMw === 0 && p.note?.toLowerCase().includes('retired'))
+        ? 'offline'
+        : 'operating',
   }
 }
 

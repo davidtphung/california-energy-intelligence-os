@@ -149,8 +149,31 @@ if (dashHits.length) {
   failed += dashHits.length
 }
 
+const plantsSrc = readFileSync(join(process.cwd(), 'src/data/usEnergyPlants.ts'), 'utf8')
+const citesSrc = readFileSync(join(process.cwd(), 'src/data/catalogCitations.ts'), 'utf8')
+if (!/id: 'bat-edwards'[\s\S]*?capacityMw: 1100/.test(plantsSrc)) {
+  console.error('FAIL bat-edwards capacityMw must be 1100 (Terra-Gen 1.1 GW power)')
+  failed += 1
+}
+if (!/priorValue: 3285/.test(citesSrc)) {
+  console.error('FAIL bat-edwards must keep priorValue 3285')
+  failed += 1
+}
+if (!/id: 'bat-moss'[\s\S]*?as of 2023/.test(plantsSrc) || !/OFFLINE/.test(plantsSrc)) {
+  console.error('FAIL bat-moss must label 750 MW as historical peak with asOf 2023 and OFFLINE status')
+  failed += 1
+}
+if (!/mosslandingresponse.com\/faqs/.test(citesSrc)) {
+  console.error('FAIL bat-moss must cite Vistra fire/status FAQ')
+  failed += 1
+}
+if (plantsSrc.includes("id: 'n-oyster-creek'")) {
+  console.error('FAIL n-oyster-creek id should be n-oconee')
+  failed += 1
+}
+
 if (failed) {
   console.error(`verify-truth: ${failed} failure(s)`)
   process.exit(1)
 }
-console.log('verify-truth: CAISO fail-loud fixtures pass; no em dashes in src UI strings')
+console.log('verify-truth: CAISO fail-loud fixtures pass; catalog red-team checks pass; no em dashes in src UI strings')

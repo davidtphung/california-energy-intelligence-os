@@ -24,7 +24,7 @@ export interface PortfolioAsset {
   county: string
   /** Two-letter state / PR abbr */
   stateAbbr: string
-  status: 'operating' | 'construction' | 'retired-planned'
+  status: 'operating' | 'construction' | 'retired-planned' | 'offline'
 }
 
 export interface EnergyPortfolio {
@@ -297,7 +297,7 @@ const CA_PORTFOLIO_SEEDS: PortfolioSeed[] = [
     notes: 'Moss Landing BESS and thermal assets.',
     website: 'https://www.vistracorp.com',
     assets: [
-      { id: 'vis-moss', name: 'Moss Landing Energy Storage', technology: 'battery', capacityMw: 750, outputMw: -200, latitude: 36.805, longitude: -121.782, region: 'Central Coast', county: 'Monterey', status: 'operating' },
+      { id: 'vis-moss', name: 'Moss Landing Energy Storage', technology: 'battery', capacityMw: 750, outputMw: 0, latitude: 36.805, longitude: -121.782, region: 'Central Coast', county: 'Monterey', status: 'offline' },
       { id: 'vis-moss-gas', name: 'Moss Landing Power Plant', technology: 'natural_gas', capacityMw: 2530, outputMw: 600, latitude: 36.804, longitude: -121.78, region: 'Central Coast', county: 'Monterey', status: 'operating' },
     ],
   },
@@ -340,7 +340,7 @@ const CA_PORTFOLIO_SEEDS: PortfolioSeed[] = [
     website: 'https://www.terra-gen.com',
     assets: [
       { id: 'tg-edwards', name: 'Edwards & Sanborn Solar+Storage', technology: 'solar', capacityMw: 875, outputMw: 500, latitude: 34.9, longitude: -117.9, region: 'Desert / Inland Empire', county: 'Kern', status: 'operating' },
-      { id: 'tg-edwards-bess', name: 'Edwards & Sanborn BESS', technology: 'battery', capacityMw: 3285, outputMw: -800, latitude: 34.905, longitude: -117.905, region: 'Desert / Inland Empire', county: 'Kern', status: 'operating' },
+      { id: 'tg-edwards-bess', name: 'Edwards & Sanborn BESS', technology: 'battery', capacityMw: 1100, outputMw: -800, latitude: 34.905, longitude: -117.905, region: 'Desert / Inland Empire', county: 'Kern', status: 'operating' },
     ],
   },
   {
