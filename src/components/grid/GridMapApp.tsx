@@ -48,6 +48,8 @@ import { ConstructionProjectsMap } from './ConstructionProjectsMap'
 import { GridInterconnectMap } from './GridInterconnectMap'
 import { DemandForecastMap } from './DemandForecastMap'
 import { AllSourcesBalanceMap } from './AllSourcesBalanceMap'
+import { BasemapCredit, TruthStatusStrip } from './TruthStatusStrip'
+import { failLoudNumber } from '../../data/truthClasses'
 
 const W = 1100
 const H = 640
@@ -122,6 +124,16 @@ export function GridMapApp() {
     live.data?.caiso?.currentDemandMw != null
       ? live.data.caiso.currentDemandMw / 1000
       : null
+  const truthStrip = (
+    <TruthStatusStrip
+      liveMode={live.failMode}
+      caisoGw={caisoDemandGw}
+      lastOk={live.lastOk}
+      weather={live.data?.weather}
+      liveError={live.error}
+      lens={lens}
+    />
+  )
 
   const ops = useMemo(() => operatorsList(topo), [topo])
   const regs = useMemo(() => regionsList(topo), [topo])
@@ -225,6 +237,7 @@ export function GridMapApp() {
     return (
       <div className="gmap fadein t1" id="grid-map">
         <MapLensBar lens={lens} setLens={setLens} />
+        {truthStrip}
         <DemandForecastMap />
       </div>
     )
@@ -234,6 +247,7 @@ export function GridMapApp() {
     return (
       <div className="gmap fadein t1" id="grid-map">
         <MapLensBar lens={lens} setLens={setLens} />
+        {truthStrip}
         <AllSourcesBalanceMap />
       </div>
     )
@@ -243,6 +257,7 @@ export function GridMapApp() {
     return (
       <div className="gmap fadein t1" id="grid-map">
         <MapLensBar lens={lens} setLens={setLens} />
+        {truthStrip}
         <GridInterconnectMap />
       </div>
     )
@@ -252,6 +267,7 @@ export function GridMapApp() {
     return (
       <div className="gmap fadein t1" id="grid-map">
         <MapLensBar lens={lens} setLens={setLens} />
+        {truthStrip}
         <ConstructionProjectsMap />
       </div>
     )
@@ -261,6 +277,7 @@ export function GridMapApp() {
     return (
       <div className="gmap fadein t1" id="grid-map">
         <MapLensBar lens={lens} setLens={setLens} />
+        {truthStrip}
         <FutureBalanceMap />
       </div>
     )
@@ -270,22 +287,17 @@ export function GridMapApp() {
     <div className="gmap mapcentric fadein t1" id="grid-map">
       {/* Same shell as Construction / Future / Grid: tabs on top, copy below */}
       <MapLensBar lens={lens} setLens={setLens} />
+      {truthStrip}
 
       <header className="mapcentric-head">
         <div>
-          <p className="kicker">Live map · electrical isochrone</p>
+          <p className="kicker">LIVE CAISO + weather · national graph SAMPLE / PLANNING PATH</p>
           <h1 className="page-h2" style={{ marginBottom: 4 }}>
             Live power map
           </h1>
           <p className="mapcentric-lede">
             {frame.summary} · {REFRESH_COPY.mapStream}
-            {caisoDemandGw != null
-              ? ` · CAISO load ${caisoDemandGw.toFixed(2)} GW (${ageLabel(live.lastOk)}, pull ${formatRefreshHuman(REFRESH.caisoLiveMs)})`
-              : live.loading
-                ? ' · CAISO pull…'
-                : live.error
-                  ? ' · CAISO offline'
-                  : ''}
+            {` · CAISO ${failLoudNumber(caisoDemandGw, { mode: live.failMode, digits: 2, unit: 'GW' })} (${ageLabel(live.lastOk)}, pull ${formatRefreshHuman(REFRESH.caisoLiveMs)})`}
           </p>
         </div>
         <div className="mapcentric-kpis">
@@ -299,9 +311,18 @@ export function GridMapApp() {
             </div>
           ))}
           <div className="mapcentric-kpi">
-            <span>CAISO real</span>
-            <strong style={{ color: caisoDemandGw != null ? 'var(--ok)' : undefined }}>
-              {caisoDemandGw != null ? caisoDemandGw.toFixed(2) : '—'}
+            <span>CAISO {live.failMode === 'ok' ? 'LIVE' : live.failMode}</span>
+            <strong
+              style={{
+                color:
+                  live.failMode === 'ok'
+                    ? 'var(--ok)'
+                    : live.failMode === 'error'
+                      ? 'var(--danger)'
+                      : 'var(--warn)',
+              }}
+            >
+              {failLoudNumber(caisoDemandGw, { mode: live.failMode, digits: 2 })}
               <em>GW</em>
             </strong>
           </div>
@@ -369,17 +390,15 @@ export function GridMapApp() {
         <div className="gmap-kpi-item gmap-kpi-live">
           <span className="gmap-kpi-label">
             <span
-              className={`gmap-dot ${live.data?.caiso ? 'ok' : live.error ? 'bad' : ''}`}
+              className={`gmap-dot ${live.failMode === 'ok' ? 'ok' : live.failMode === 'error' ? 'bad' : ''}`}
             />
-            CAISO
+            CAISO {live.failMode === 'ok' ? 'LIVE' : live.failMode}
           </span>
           <span className="gmap-kpi-value" style={{ fontSize: '0.95rem' }}>
-            {live.loading && !live.lastOk
-              ? '…'
-              : ageLabel(live.lastOk)}
+            {failLoudNumber(caisoDemandGw, { mode: live.failMode, digits: 2, unit: 'GW' })}
           </span>
           <span className="gmap-kpi-hint">
-            every {formatRefreshHuman(REFRESH.caisoLiveMs)}
+            {ageLabel(live.lastOk)} · every {formatRefreshHuman(REFRESH.caisoLiveMs)}
           </span>
         </div>
       </div>
@@ -975,10 +994,11 @@ export function GridMapApp() {
         </div>
       </footer>
 
+      <BasemapCredit />
       <p className="footer-line">
-        National graph simulated every {formatRefreshHuman(REFRESH.mapStreamMs)} · CAISO Today&apos;s
-        Outlook every {formatRefreshHuman(REFRESH.caisoLiveMs)} (edge ≤{REFRESH.edgeSMaxAgeSec}s) ·
-        catalogs on deploy
+        National graph is SAMPLE / PLANNING PATH every {formatRefreshHuman(REFRESH.mapStreamMs)} ·
+        CAISO Today&apos;s Outlook every {formatRefreshHuman(REFRESH.caisoLiveMs)} (edge ≤
+        {REFRESH.edgeSMaxAgeSec}s) · catalogs on deploy
       </p>
     </div>
   )

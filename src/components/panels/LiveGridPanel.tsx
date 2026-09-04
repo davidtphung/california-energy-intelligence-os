@@ -19,18 +19,22 @@ import { Badge } from '../ui/Badge'
 import { Button } from '../ui/Button'
 import { RefreshCw } from 'lucide-react'
 
-function fmtMw(n: number | null | undefined) {
-  if (n == null || !Number.isFinite(n)) return '-'
+function fmtMw(n: number | null | undefined, mode: 'ok' | 'error' | 'stale' | 'loading' | 'last-good' = 'ok') {
+  if (n == null || !Number.isFinite(n)) {
+    if (mode === 'loading') return 'loading'
+    if (mode === 'stale') return 'stale'
+    return 'error'
+  }
   return `${Math.round(n).toLocaleString()} MW`
 }
 
 function fmtGw(n: number | null | undefined) {
-  if (n == null || !Number.isFinite(n)) return '-'
+  if (n == null || !Number.isFinite(n)) return 'no data'
   return `${(n / 1000).toFixed(2)} GW`
 }
 
 export function LiveGridPanel() {
-  const { data, loading, error, lastOk, ageTick, refreshIntervalMs, refresh } = useLiveGrid(true)
+  const { data, loading, error, lastOk, ageTick, refreshIntervalMs, refresh, failMode } = useLiveGrid(true)
   const { theme } = useApp()
   const tick = theme === 'dark' ? '#8a8478' : '#7a7468'
   const grid = theme === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'
@@ -62,9 +66,6 @@ export function LiveGridPanel() {
     return s.filter((_, i) => i % step === 0)
   }, [caiso])
 
-  const okCount = data?.sources.filter((s) => s.status === 'ok').length ?? 0
-  const errCount = data?.sources.filter((s) => s.status === 'error').length ?? 0
-
   return (
     <div className="live-panel fadein t2">
       <div className="block-head">
@@ -81,8 +82,8 @@ export function LiveGridPanel() {
           </p>
         </div>
         <div className="btn-row">
-          <Badge variant={errCount && !caiso ? 'danger' : okCount ? 'success' : 'warning'}>
-            {loading ? 'refreshing' : caiso ? 'live' : 'offline'}
+          <Badge variant={failMode === 'error' ? 'danger' : failMode === 'ok' ? 'success' : 'warning'}>
+            {failMode === 'loading' ? 'loading' : failMode === 'ok' ? 'LIVE' : failMode}
           </Badge>
           <Button size="sm" onClick={() => void refresh()} disabled={loading} icon={<RefreshCw className={`h-3.5 w-3.5${loading ? ' spin' : ''}`} />}>
             Refresh
@@ -100,15 +101,23 @@ export function LiveGridPanel() {
         <div className="metric" style={{ cursor: 'default' }}>
           <span className="metric-label">Current demand</span>
           <span className="metric-value">
-            {caiso?.currentDemandMw != null ? (caiso.currentDemandMw / 1000).toFixed(2) : '-'}
+            {caiso?.currentDemandMw != null
+              ? (caiso.currentDemandMw / 1000).toFixed(2)
+              : failMode === 'loading'
+                ? 'loading'
+                : failMode}
             <span className="metric-unit">GW</span>
           </span>
-          <span className="metric-hint">{fmtMw(caiso?.currentDemandMw)}</span>
+          <span className="metric-hint">{fmtMw(caiso?.currentDemandMw, failMode)}</span>
         </div>
         <div className="metric" style={{ cursor: 'default' }}>
           <span className="metric-label">Today&apos;s peak</span>
           <span className="metric-value">
-            {caiso?.todaysPeakMw != null ? (caiso.todaysPeakMw / 1000).toFixed(2) : '-'}
+            {caiso?.todaysPeakMw != null
+              ? (caiso.todaysPeakMw / 1000).toFixed(2)
+              : failMode === 'loading'
+                ? 'loading'
+                : 'no peak'}
             <span className="metric-unit">GW</span>
           </span>
           <span className="metric-hint">{fmtMw(caiso?.todaysPeakMw)}</span>
@@ -116,7 +125,7 @@ export function LiveGridPanel() {
         <div className="metric" style={{ cursor: 'default' }}>
           <span className="metric-label">Clean share*</span>
           <span className="metric-value">
-            {clean != null ? clean.toFixed(1) : '-'}
+            {clean != null ? clean.toFixed(1) : 'no fuel'}
             <span className="metric-unit">%</span>
           </span>
           <span className="metric-hint">ex-batteries / ambiguous imports</span>
@@ -124,7 +133,7 @@ export function LiveGridPanel() {
         <div className="metric" style={{ cursor: 'default' }}>
           <span className="metric-label">CO₂ rate</span>
           <span className="metric-value">
-            {caiso?.co2 ? Math.round(caiso.co2.total).toLocaleString() : '-'}
+            {caiso?.co2 ? Math.round(caiso.co2.total).toLocaleString() : 'no CO2'}
             <span className="metric-unit">t/h</span>
           </span>
           <span className="metric-hint">{caiso?.co2?.time ? `at ${caiso.co2.time}` : 'CAISO co2.csv'}</span>

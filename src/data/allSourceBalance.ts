@@ -1,6 +1,6 @@
 /**
  * Multi-source US energy balance: production, demand, and deficits
- * for every major fuel / generation class — not just natural gas.
+ * for every major fuel / generation class, not just natural gas.
  *
  * Demand drivers: AI / data centers, population growth, industrial manufacturing.
  * Sample educational path (not IRP / EIA AEO official case).

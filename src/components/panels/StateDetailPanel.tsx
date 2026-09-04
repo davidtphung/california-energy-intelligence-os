@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import {
   US_STATES,
+  STATE_CATALOG_AS_OF,
   fuelStack,
   rankOf,
   stateByAbbr,
@@ -98,6 +99,12 @@ export function StateDetailPanel() {
           <Badge>{state.grid}</Badge>
           {state.abbr === 'CA' && <Badge variant="success">Live CAISO available</Badge>}
           {state.abbr === 'PR' && <Badge variant="warning">Territory</Badge>}
+          <Badge>as of {state.asOf ?? STATE_CATALOG_AS_OF}</Badge>
+          {state.sourceUrl ? (
+            <a href={state.sourceUrl} target="_blank" rel="noopener noreferrer">
+              EIA state profile
+            </a>
+          ) : null}
         </div>
       </div>
 

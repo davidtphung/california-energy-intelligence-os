@@ -9,8 +9,11 @@ import type { Technology } from '../types'
 import { TECH_ORDER } from '../lib/utils'
 import type { EnergyPortfolio, PortfolioAsset } from './portfolios'
 import { US_HYDRO_PLANTS, type UsHydroPlant } from './usHydroPlants'
+import type { CatalogCite } from './catalogCite'
+import { citeCounts, withCite } from './catalogCite'
+import { ENERGY_PLANT_CITES } from './catalogCitations'
 
-export interface UsEnergyPlant {
+export interface UsEnergyPlant extends CatalogCite {
   id: string
   name: string
   technology: Technology
@@ -45,11 +48,18 @@ function hydroToEnergy(p: UsHydroPlant): UsEnergyPlant {
     onlineYear: p.onlineYear,
     region: p.region,
     note: p.note,
+    sourceUrl: p.sourceUrl,
+    eiaPlantCode: p.eiaPlantCode,
+    eiaGeneratorId: p.eiaGeneratorId,
+    asOf: p.asOf,
+    priorValue: p.priorValue,
+    priorAsOf: p.priorAsOf,
+    citation: p.citation,
   }
 }
 
 /** Non-hydro flagship plants (hydro comes from US_HYDRO_PLANTS) */
-export const US_NON_HYDRO_PLANTS: UsEnergyPlant[] = [
+const US_NON_HYDRO_PLANTS_ROWS: UsEnergyPlant[] = [
   // ── Nuclear ──────────────────────────────────────────────
   { id: 'n-palo-verde', name: 'Palo Verde', technology: 'nuclear', stateAbbr: 'AZ', stateName: 'Arizona', capacityMw: 3937, outputMw: 3700, latitude: 33.389, longitude: -112.865, operator: 'APS', detail: 'PWR · 3 units', onlineYear: 1986, region: 'Southwest', note: 'Largest US nuclear plant by capacity.' },
   { id: 'n-peach-bottom', name: 'Peach Bottom', technology: 'nuclear', stateAbbr: 'PA', stateName: 'Pennsylvania', capacityMw: 2785, outputMw: 2600, latitude: 39.759, longitude: -76.269, operator: 'Constellation', detail: 'BWR', onlineYear: 1974, region: 'Mid-Atlantic' },
@@ -192,11 +202,17 @@ export const US_NON_HYDRO_PLANTS: UsEnergyPlant[] = [
   { id: 'o-newington', name: 'Newington', technology: 'other', stateAbbr: 'NH', stateName: 'New Hampshire', capacityMw: 400, outputMw: 80, latitude: 43.1, longitude: -70.8, operator: 'Granite Shore', detail: 'Oil/gas peaker', onlineYear: 1974, region: 'Northeast' },
 ]
 
+export const US_NON_HYDRO_PLANTS: UsEnergyPlant[] = US_NON_HYDRO_PLANTS_ROWS.map((p) =>
+  withCite(p, ENERGY_PLANT_CITES)
+)
+
 /** Unified catalog: every technology including major hydro */
 export const US_ENERGY_PLANTS: UsEnergyPlant[] = [
   ...US_NON_HYDRO_PLANTS,
   ...US_HYDRO_PLANTS.map(hydroToEnergy),
 ].sort((a, b) => b.capacityMw - a.capacityMw)
+
+export const ENERGY_PLANT_CITE_COUNTS = citeCounts(US_ENERGY_PLANTS)
 
 export function plantsByTech(
   tech: Technology | 'all' = 'all',

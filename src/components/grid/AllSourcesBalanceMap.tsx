@@ -1,7 +1,7 @@
 /**
  * Map all US energy sources: production, demand, deficits, timelines.
  * Drivers: AI data centers, population, industrial manufacturing.
- * Beyond natural gas — gas, coal, nuclear, oil, solar, wind, hydro, battery, geo, bio.
+ * Beyond natural gas: gas, coal, nuclear, oil, solar, wind, hydro, battery, geo, bio.
  */
 
 import { useMemo, useState } from 'react'
@@ -37,6 +37,7 @@ import {
 import { useApp } from '../../context/AppContext'
 import { exportCsv } from '../../lib/utils'
 import { UsBasemap } from './UsBasemap'
+import { BasemapCredit } from './TruthStatusStrip'
 
 const W = 1100
 const H = 620
@@ -177,15 +178,16 @@ export function AllSourcesBalanceMap() {
     <div className="fbal mapcentric all-src">
       <header className="mapcentric-head">
         <div>
-          <p className="kicker">All sources · supply · demand · deficit</p>
+          <p className="kicker">SCENARIO · SAMPLE / PLANNING PATH</p>
           <h2 className="page-h2" style={{ marginBottom: 4 }}>
             Multi-source energy balance
           </h2>
           <p className="mapcentric-lede">
             Map production, firm contribution, and demand gaps for gas, coal, nuclear, oil, solar,
-            wind, hydro, battery, geothermal, and biomass — not gas alone. Demand stack includes AI
+            wind, hydro, battery, geothermal, and biomass (not gas alone). Demand stack includes AI
             data centers, population growth, and industrial manufacturing through{' '}
-            {SOURCE_YEARS[SOURCE_YEARS.length - 1]}. Sample path (not official IRP / AEO).
+            {SOURCE_YEARS[SOURCE_YEARS.length - 1]}. Educational path scaled to public ranges. Not a
+            named AEO or IRP case.
           </p>
         </div>
         <div className="mapcentric-kpis">
@@ -722,9 +724,11 @@ export function AllSourcesBalanceMap() {
         </div>
       </section>
 
+      <BasemapCredit />
       <p className="footer-line muted" style={{ marginTop: '1rem', fontSize: '0.8rem' }}>
-        All-source balance · firm CF by technology · demand allocated by fleet mix + AI / population
-        / industrial tilts · coal exit and solar-wind-battery growth paths · educational sample
+        SAMPLE / PLANNING PATH · firm CF by technology · demand allocated by fleet mix + AI /
+        population / industrial tilts · coal exit and solar-wind-battery growth paths · not a named
+        AEO or IRP case
       </p>
     </div>
   )

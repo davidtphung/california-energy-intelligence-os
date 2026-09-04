@@ -30,6 +30,7 @@ import { useApp } from '../../context/AppContext'
 import { exportCsv } from '../../lib/utils'
 import { Button } from '../ui/Button'
 import { Download } from 'lucide-react'
+import { CiteLine } from '../grid/TruthStatusStrip'
 
 type AssetRow = PortfolioAsset & {
   portfolioId: string
@@ -150,7 +151,7 @@ export function PortfoliosPanel() {
     <div id="portfolios" className="mapcentric fadein t1">
       <header className="mapcentric-head">
         <div>
-          <p className="kicker">Assets · map first</p>
+          <p className="kicker">CATALOG · cited plants or UNCITED</p>
           <h1 className="page-h2" style={{ marginBottom: 4 }}>
             Portfolio map
           </h1>
@@ -411,6 +412,22 @@ export function PortfoliosPanel() {
                     </tr>
                   </tbody>
                 </table>
+                {(() => {
+                  const plant = US_ENERGY_PLANTS.find((p) => p.id === selectedAsset.id)
+                  return plant ? (
+                    <CiteLine
+                      sourceUrl={plant.sourceUrl}
+                      eiaPlantCode={plant.eiaPlantCode}
+                      eiaGeneratorId={plant.eiaGeneratorId}
+                      asOf={plant.asOf}
+                      citation={plant.citation}
+                      priorValue={plant.priorValue}
+                      priorAsOf={plant.priorAsOf}
+                    />
+                  ) : (
+                    <CiteLine citation="uncited" />
+                  )
+                })()}
                 <Button size="sm" style={{ marginTop: 8 }} onClick={() => setSelectedAsset(null)}>
                   Clear site
                 </Button>

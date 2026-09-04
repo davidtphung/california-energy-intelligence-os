@@ -4,6 +4,8 @@ import {
   US_REGIONS,
   GRID_OPS,
   totals,
+  STATE_CATALOG_AS_OF,
+  STATE_CATALOG_SOURCE,
   type USRegion,
   type GridOperator,
   type USStateEnergy,
@@ -84,13 +86,17 @@ export function StatesCatalogPanel() {
     <div id="states" className="mapcentric fadein t1">
       <header className="mapcentric-head">
         <div>
-          <p className="kicker">USA · map first</p>
+          <p className="kicker">CATALOG · as of {STATE_CATALOG_AS_OF}</p>
           <h1 className="page-h2" style={{ marginBottom: 4 }}>
             National energy map
           </h1>
           <p className="mapcentric-lede">
-            Capacity and generation across jurisdictions. Click a bubble. Metrics and fuel mix flow
-            from the map into the side panel.
+            Capacity and generation across jurisdictions, as of {STATE_CATALOG_AS_OF} (
+            <a href={STATE_CATALOG_SOURCE.url} target="_blank" rel="noopener noreferrer">
+              {STATE_CATALOG_SOURCE.name}
+            </a>
+            ). Rounded catalog, not a live EIA pull. Click a bubble. Metrics and fuel mix flow from
+            the map into the side panel.
           </p>
         </div>
         <div className="mapcentric-kpis">
@@ -113,10 +119,10 @@ export function StatesCatalogPanel() {
             </strong>
           </div>
           <div className="mapcentric-kpi">
-            <span>Clean avg</span>
+            <span>As of</span>
             <strong>
-              {t.cleanAvg.toFixed(0)}
-              <em>%</em>
+              {STATE_CATALOG_AS_OF}
+              <em>EIA</em>
             </strong>
           </div>
         </div>

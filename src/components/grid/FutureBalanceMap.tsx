@@ -22,6 +22,7 @@ import {
 import { useApp } from '../../context/AppContext'
 import { exportCsv } from '../../lib/utils'
 import { UsBasemap } from './UsBasemap'
+import { BasemapCredit } from './TruthStatusStrip'
 import { Download } from 'lucide-react'
 
 const W = 1100
@@ -102,13 +103,14 @@ export function FutureBalanceMap() {
     <div className="fbal mapcentric">
       <header className="mapcentric-head">
         <div>
-          <p className="kicker">Predict · map deficits</p>
+          <p className="kicker">SCENARIO · SAMPLE / PLANNING PATH</p>
           <h2 className="page-h2" style={{ marginBottom: 4 }}>
-            Future firm-capacity deficits
+            Future firm-capacity path
           </h2>
           <p className="mapcentric-lede">
             Peak demand vs firm supply through {BALANCE_YEARS[BALANCE_YEARS.length - 1]}. Map shortfalls
-            by year and stress case. Red = deficit · green = surplus. Sample path (not official IRP).
+            by year and stress case. Red = deficit · green = surplus. Educational path scaled to
+            public ranges. Not a named AEO or IRP forecast.
           </p>
         </div>
         <div className="mapcentric-kpis">
@@ -568,9 +570,10 @@ export function FutureBalanceMap() {
         </div>
       </div>
 
+      <BasemapCredit />
       <p className="footer-line">
-        Future deficits · {US_STATES.length} jurisdictions · scenarios base / high-demand /
-        delayed-build · peak demand vs firm supply sample path
+        SAMPLE / PLANNING PATH · {US_STATES.length} jurisdictions · cases base / high-demand /
+        delayed-build · peak vs firm · not a named AEO or IRP forecast
       </p>
     </div>
   )
