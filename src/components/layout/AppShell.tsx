@@ -20,6 +20,7 @@ const NAV: { id: AppView; label: string; hash: string }[] = [
   { id: 'portfolios', label: 'Assets', hash: 'portfolios' },
   { id: 'fossil', label: 'Fuels', hash: 'fossil' },
   { id: 'thesis', label: 'Thesis', hash: 'thesis' },
+  { id: 'timeline', label: 'Timeline', hash: 'timeline' },
   { id: 'about', label: 'About', hash: 'about' },
 ]
 
@@ -39,6 +40,7 @@ const HASH_ALIASES: Record<string, AppView> = {
   'about/how': 'about',
   'about/sources': 'about',
   thesis: 'thesis',
+  timeline: 'timeline',
   policy: 'policy',
   scenario: 'scenarios',
   scenarios: 'scenarios',
@@ -75,6 +77,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           openStateDetail(abbr)
           return
         }
+      }
+      if (raw === 'timeline' || raw.startsWith('timeline/')) {
+        setView('timeline')
+        return
       }
       if (raw in HASH_ALIASES) {
         setView(HASH_ALIASES[raw])

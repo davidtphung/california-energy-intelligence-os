@@ -64,6 +64,18 @@ Dev: Vite proxies `/api/live/caiso/*`. Prod: `vercel.json` rewrites to `www.cais
 
 Refresh: CAISO every 15 s when the tab is open (see `src/data/refreshRates.ts` and MASTERFILE.md).
 
+### History, timeline, and forecasts
+
+Stored history lives in Postgres (`DATABASE_URL`). Setup, cron, and local checks are in the history PR notes and `migrations/001_history.sql`.
+
+```bash
+npm test
+npm run migrate    # needs DATABASE_URL
+npm run backfill   # needs DATABASE_URL and EIA_API_KEY
+```
+
+Timeline route: `#timeline`. `#timeline/test` is a local layout chart labeled TEST DATA.
+
 ## Project structure
 
 ```

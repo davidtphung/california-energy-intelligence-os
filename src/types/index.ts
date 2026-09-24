@@ -40,6 +40,7 @@ export type AppView =
   | 'developer'
   | 'about'
   | 'thesis'
+  | 'timeline'
 
 export type PortfolioKind =
   | 'IOU'

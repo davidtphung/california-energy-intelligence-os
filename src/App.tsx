@@ -16,6 +16,7 @@ import { DataEngineering } from './components/panels/DataEngineering'
 import { DeveloperPanel } from './components/panels/DeveloperPanel'
 import { AboutPanel } from './components/panels/AboutPanel'
 import { ThesisLibraryPanel } from './components/panels/ThesisLibraryPanel'
+import { TimelinePanel } from './components/panels/TimelinePanel'
 
 function ViewRouter() {
   const { view } = useApp()
@@ -67,6 +68,9 @@ function ViewRouter() {
       break
     case 'about':
       panel = <AboutPanel />
+      break
+    case 'timeline':
+      panel = <TimelinePanel />
       break
     default:
       panel = <GridMapApp />
