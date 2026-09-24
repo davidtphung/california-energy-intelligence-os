@@ -33,3 +33,4 @@ dist-ssr
 .zshrc.bak*
 .gitconfig
 .vercel
+.playwright-mcp/
