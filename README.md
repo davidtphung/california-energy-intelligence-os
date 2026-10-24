@@ -64,6 +64,10 @@ Dev: Vite proxies `/api/live/caiso/*`. Prod: `vercel.json` rewrites to `www.cais
 
 Refresh: CAISO every 15 s when the tab is open (see `src/data/refreshRates.ts` and MASTERFILE.md).
 
+### Crawling
+
+Path URLs (`/map`, `/demand`, `/about`, and the rest of the rail) are the canonical pages. Hash URLs such as `#map`, `#usa`, `#assets`, and `#fuels` redirect. Each path is prerendered so a no-JS fetch returns a heading, a summary, and sources. SAMPLE figures are labeled and are not printed as measurements. Live CAISO values are at `GET /api/key-figures`. `robots.txt`, `sitemap.xml`, `llms.txt`, and `llms-full.txt` are generated at build.
+
 ## Project structure
 
 ```

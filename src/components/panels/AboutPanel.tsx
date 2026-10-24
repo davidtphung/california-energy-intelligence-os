@@ -2,37 +2,11 @@
  * About · how EIS works, sources, and donate (aligned with starlinkatlas About/Donate).
  */
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
+import { CRYPTO_METHODS, VENMO } from '../../data/donate'
 import { useApp } from '../../context/AppContext'
-
-type AboutTab = 'about' | 'how' | 'sources' | 'donate'
-
-const CRYPTO_METHODS = [
-  {
-    key: 'btc',
-    name: 'Bitcoin',
-    network: 'Bitcoin Network',
-    address: '3LmGHi5gvPbFYrstbBS5MTbLcQuWEBVBQq',
-  },
-  {
-    key: 'cbbtc',
-    name: 'cbBTC',
-    network: 'Base Network',
-    address: '0xF24594C7023A2a0b6dFb97F07ae1c1eb970a9816',
-  },
-  {
-    key: 'usdc',
-    name: 'USDC',
-    network: 'Base Network',
-    address: '0xb25eb698392eaE827b64EEB9cb124C62Be0D3dD7',
-  },
-  {
-    key: 'eth',
-    name: 'Ethereum',
-    network: 'Ethereum Network',
-    address: '0x1A1c37C145a1EaB58C43F003EBB55C18083b5987',
-  },
-] as const
+import { navigate, onSameOriginClick } from '../../seo/navigate'
+import { aboutTabFromPath, type AboutTab } from '../../seo/pages'
 
 function CopyAddress({ address, label }: { address: string; label: string }) {
   const [copied, setCopied] = useState(false)
@@ -57,30 +31,12 @@ function CopyAddress({ address, label }: { address: string; label: string }) {
   )
 }
 
-function tabFromHash(): AboutTab {
-  const raw = typeof window !== 'undefined' ? window.location.hash.replace('#', '') : ''
-  // #about/donate or #about?tab=donate
-  if (raw.includes('donate')) return 'donate'
-  if (raw.includes('sources')) return 'sources'
-  if (raw.includes('how')) return 'how'
-  return 'about'
-}
-
 export function AboutPanel() {
-  const { setView } = useApp()
-  const [tab, setTab] = useState<AboutTab>(() => tabFromHash())
-
-  useEffect(() => {
-    const apply = () => setTab(tabFromHash())
-    apply()
-    window.addEventListener('hashchange', apply)
-    return () => window.removeEventListener('hashchange', apply)
-  }, [])
+  const { pathname } = useApp()
+  const tab = aboutTabFromPath(pathname)
 
   const goTab = (id: AboutTab) => {
-    setTab(id)
-    const hash = id === 'about' ? 'about' : `about/${id}`
-    window.history.replaceState(null, '', `#${hash}`)
+    navigate(id === 'about' ? '/about' : `/about/${id}`)
   }
 
   return (
@@ -134,16 +90,9 @@ export function AboutPanel() {
             substitute for official filings, real-time SCADA, or your utility&apos;s IRP.
           </p>
           <div className="btn-row" style={{ marginTop: '1rem' }}>
-            <button
-              type="button"
-              className="btn btn-primary btn-sm"
-              onClick={() => {
-                setView('map')
-                window.history.replaceState(null, '', '#map')
-              }}
-            >
+            <a href="/map" className="btn btn-primary btn-sm" onClick={onSameOriginClick}>
               Open Map
-            </button>
+            </a>
             <button type="button" className="btn btn-sm" onClick={() => goTab('how')}>
               How it works
             </button>
@@ -201,8 +150,8 @@ export function AboutPanel() {
             </li>
             <li>
               <strong>USA / Assets / Fuels / Thesis.</strong> State catalog, multi-tech plants,
-              hydrocarbon history, Got Gas and related papers. Policy and Scenario remain on hash
-              (#policy, #scenario).
+              hydrocarbon history, Got Gas and related papers. Policy is at /policy and scenarios are at
+              /scenarios. Older hashes #usa, #assets, and #fuels open USA, Assets, and Fuels.
             </li>
             <li>
               <strong>Export.</strong> CSV/JSON from map tools and catalogs.
@@ -339,6 +288,8 @@ export function AboutPanel() {
             <a href="https://www.nerc.com" target="_blank" rel="noopener noreferrer">
               nerc.com
             </a>
+            . Crawlers can also read <a href="/llms.txt">/llms.txt</a> and{' '}
+            <a href="/api/key-figures">/api/key-figures</a>.
           </p>
         </section>
       )}
@@ -358,7 +309,7 @@ export function AboutPanel() {
 
           <a
             className="donate-method-card"
-            href="https://venmo.com/davidtphung"
+            href={VENMO.url}
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -367,7 +318,7 @@ export function AboutPanel() {
             </span>
             <span className="donate-method-body">
               <strong>Venmo</strong>
-              <span className="muted">@davidtphung</span>
+              <span className="muted">{VENMO.handle}</span>
             </span>
             <span className="donate-method-ext muted" aria-hidden>
               ↗

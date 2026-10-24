@@ -86,29 +86,35 @@ Figures are educational samples scaled to EIA / ISO / operator public ranges.
 
 ## Primary navigation
 
-Rail (hash in the URL):
+Rail (path in the URL). Older hash links redirect to the same page.
 
-| Label | Hash | View |
-|-------|------|------|
-| Map | `#map` | `GridMapApp` |
-| Demand | `#demand` | `DemandForecastMap` |
-| Balance | `#balance` | `AllSourcesBalanceMap` (`#sources` alias) |
-| USA | `#states` | `StatesCatalogPanel` |
-| Assets | `#portfolios` | `PortfoliosPanel` |
-| Fuels | `#fossil` | `FossilFuelsPanel` (`#gas` alias) |
-| Thesis | `#thesis` | `ThesisLibraryPanel` (`#research` alias) |
-| About | `#about` | About / How / Sources / Donate |
+| Label | Path | Hash alias | View |
+|-------|------|------------|------|
+| Map | `/map` | `#map`, `#overview` | `GridMapApp` |
+| Demand | `/demand` | `#demand` | `DemandForecastMap` |
+| Balance | `/balance` | `#balance`, `#sources` | `AllSourcesBalanceMap` |
+| USA | `/states` | `#states`, `#usa` | `StatesCatalogPanel` |
+| Assets | `/portfolios` | `#portfolios`, `#assets` | `PortfoliosPanel` |
+| Fuels | `/fossil` | `#fossil`, `#fuels`, `#gas` | `FossilFuelsPanel` |
+| Thesis | `/thesis` | `#thesis`, `#research` | `ThesisLibraryPanel` |
+| About | `/about` | `#about` | About / How / Sources / Donate |
 
-Hash-only (not on the rail):
+Also on path URLs, not on the rail:
 
-| Hash | View |
-|------|------|
-| `#policy` | Policy timeline |
-| `#scenario` / `#scenarios` | Scenario planner |
-| `#consistency` | Source consistency |
-| `#data` | Data engineering |
-| `#dev` | Developer panel |
-| `#state/XX` | State detail |
+| Path | Hash alias | View |
+|------|------------|------|
+| `/policy` | `#policy` | Policy timeline |
+| `/scenarios` | `#scenario`, `#scenarios` | Scenario planner |
+| `/consistency` | `#consistency` | Source consistency |
+| `/data` | `#data` | Data engineering |
+| `/developer` | `#dev` | Developer panel |
+| `/states/ca` | `#state/CA` | State detail |
+
+`/about/how`, `/about/sources`, and `/about/donate` are the About tabs.
+
+Crawl files: `robots.txt`, `sitemap.xml`, `llms.txt`, `llms-full.txt`. Live numbers for agents: `GET /api/key-figures` (CAISO parse only; SAMPLE catalogs are not included).
+
+Draft PR #3 adds `#timeline`. That path is not published on this branch.
 
 ### Map lenses (inside Map)
 

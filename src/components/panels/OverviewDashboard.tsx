@@ -229,7 +229,6 @@ export function OverviewDashboard() {
             size="sm"
             onClick={() => {
               setView('fossil')
-              window.history.replaceState(null, '', '#fossil')
             }}
           >
             Open fossil tracker
@@ -244,7 +243,6 @@ export function OverviewDashboard() {
               style={{ cursor: 'pointer' }}
               onClick={() => {
                 setView('fossil')
-                window.history.replaceState(null, '', '#fossil')
               }}
             >
               <span className="metric-label">
@@ -539,7 +537,6 @@ export function OverviewDashboard() {
             size="sm"
             onClick={() => {
               setView('states')
-              window.history.replaceState(null, '', '#states')
             }}
           >
             Full trade catalog
@@ -658,7 +655,6 @@ export function OverviewDashboard() {
           className="linkish"
           onClick={() => {
             setView('states')
-            window.history.replaceState(null, '', '#states')
           }}
         >
           USA catalog
