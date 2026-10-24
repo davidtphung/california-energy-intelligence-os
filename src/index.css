@@ -5064,3 +5064,34 @@ html[data-theme='dark'] .gmap-map-wrap:hover {
 .all-src .gmap-mode {
   flex-wrap: wrap;
 }
+
+a.brand {
+  text-decoration: none;
+}
+
+.crawl-doc {
+  max-width: 42rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 4rem;
+  line-height: 1.55;
+}
+
+.crawl-doc h1 {
+  font-size: 1.75rem;
+  line-height: 1.2;
+  margin: 0.4rem 0 0.8rem;
+}
+
+.crawl-doc h2 {
+  font-size: 1.05rem;
+  margin: 1.4rem 0 0.4rem;
+}
+
+.crawl-doc a {
+  color: inherit;
+  text-underline-offset: 0.15em;
+}
+
+html[data-theme='dark'] .crawl-doc {
+  color: #f3f3f3;
+}

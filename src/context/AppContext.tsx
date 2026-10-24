@@ -21,6 +21,8 @@ import {
   buildScenario,
   recomputeScenario,
 } from '../data/mockData'
+import { navigate } from '../seo/navigate'
+import { hashToPath, normalizePath, pathForView, resolvePath } from '../seo/pages'
 
 interface AppContextValue {
   theme: 'light' | 'dark'
@@ -28,10 +30,11 @@ interface AppContextValue {
   mode: AppMode
   setMode: (m: AppMode) => void
   view: AppView
+  pathname: string
   setView: (v: AppView) => void
   /** Two-letter state / PR abbr when viewing dedicated state page */
   selectedStateAbbr: string | null
-  /** Open dedicated state detail page (hash #state/CA) */
+  /** Open dedicated state detail page (/states/ca) */
   openStateDetail: (abbr: string) => void
   filters: Filters
   setFilters: (f: Partial<Filters>) => void
@@ -49,6 +52,16 @@ interface AppContextValue {
 }
 
 const AppContext = createContext<AppContextValue | null>(null)
+
+function initialRoute() {
+  if (typeof window === 'undefined') {
+    return { view: 'map' as AppView, abbr: null as string | null, path: '/' }
+  }
+  const hashPath = hashToPath(window.location.hash)
+  const requested = hashPath ?? normalizePath(window.location.pathname)
+  const match = resolvePath(requested)
+  return { view: match.view, abbr: match.abbr, path: match.redirectTo ?? match.path }
+}
 
 const defaultFilters: Filters = {
   year: 2025,
@@ -68,8 +81,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     return 'light'
   })
   const [mode, setMode] = useState<AppMode>('analyst')
-  const [view, setView] = useState<AppView>('map')
-  const [selectedStateAbbr, setSelectedStateAbbr] = useState<string | null>(null)
+  const initial = initialRoute()
+  const [view, setViewState] = useState<AppView>(initial.view)
+  const [pathname, setPathname] = useState(initial.path)
+  const [selectedStateAbbr, setSelectedStateAbbr] = useState<string | null>(initial.abbr)
   const [filters, setFiltersState] = useState<Filters>(defaultFilters)
   const [scenarios, setScenarios] = useState<Scenario[]>(PRESET_SCENARIOS)
   const [notes, setNotes] = useState<Note[]>(INITIAL_NOTES)
@@ -77,13 +92,44 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [drilldown, setDrilldown] = useState<string | null>(null)
 
   const openStateDetail = useCallback((abbr: string) => {
-    const a = abbr.toUpperCase()
-    setSelectedStateAbbr(a)
-    setView('state-detail')
-    setDrilldown(`state:${a}`)
-    window.history.replaceState(null, '', `#state/${a}`)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    navigate(`/states/${abbr.toLowerCase()}`)
   }, [])
+
+  const setView = useCallback((next: AppView) => {
+    navigate(pathForView(next))
+  }, [])
+
+  useEffect(() => {
+    const apply = () => {
+      const hashPath = hashToPath(window.location.hash)
+      const path = normalizePath(window.location.pathname)
+      if (hashPath && hashPath !== path) {
+        window.location.replace(hashPath + window.location.search)
+        return
+      }
+      const match = resolvePath(path)
+      if (match.redirectTo && match.redirectTo !== path) {
+        window.history.replaceState(null, '', match.redirectTo)
+      }
+      const pagePath = match.redirectTo ?? match.path
+      setPathname(pagePath)
+      setViewState(match.view)
+      if (match.abbr) {
+        setSelectedStateAbbr(match.abbr)
+        setDrilldown(`state:${match.abbr}`)
+      } else {
+        setSelectedStateAbbr(null)
+        setDrilldown((current) => (current?.startsWith('state:') ? null : current))
+      }
+    }
+    apply()
+    window.addEventListener('popstate', apply)
+    window.addEventListener('hashchange', apply)
+    return () => {
+      window.removeEventListener('popstate', apply)
+      window.removeEventListener('hashchange', apply)
+    }
+  }, [setDrilldown])
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
@@ -171,6 +217,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       mode,
       setMode,
       view,
+      pathname,
       setView,
       selectedStateAbbr,
       openStateDetail,
@@ -193,6 +240,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       toggleTheme,
       mode,
       view,
+      pathname,
       selectedStateAbbr,
       openStateDetail,
       filters,

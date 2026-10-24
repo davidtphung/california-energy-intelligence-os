@@ -1,7 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { Moon, Sun, Download } from 'lucide-react'
 import { useApp } from '../../context/AppContext'
-import type { AppView } from '../../types'
 import {
   getCapacityByTech,
   getGenerationBySource,
@@ -9,40 +8,10 @@ import {
   getKPIs,
 } from '../../data/mockData'
 import { exportJson } from '../../lib/utils'
+import { applyHead } from '../../seo/head'
+import { onSameOriginClick } from '../../seo/navigate'
+import { NAV_ITEMS, pageForPath } from '../../seo/pages'
 import { ViewCounter } from '../ViewCounter'
-
-/** Primary modes only. Policy / Scenario / Dev stay on hash. */
-const NAV: { id: AppView; label: string; hash: string }[] = [
-  { id: 'map', label: 'Map', hash: 'map' },
-  { id: 'demand', label: 'Demand', hash: 'demand' },
-  { id: 'balance', label: 'Balance', hash: 'balance' },
-  { id: 'states', label: 'USA', hash: 'states' },
-  { id: 'portfolios', label: 'Assets', hash: 'portfolios' },
-  { id: 'fossil', label: 'Fuels', hash: 'fossil' },
-  { id: 'thesis', label: 'Thesis', hash: 'thesis' },
-  { id: 'about', label: 'About', hash: 'about' },
-]
-
-const HASH_ALIASES: Record<string, AppView> = {
-  overview: 'map',
-  gas: 'fossil',
-  consistency: 'consistency',
-  research: 'thesis',
-  data: 'data-engineering',
-  dev: 'developer',
-  map: 'map',
-  demand: 'demand',
-  balance: 'balance',
-  sources: 'balance',
-  about: 'about',
-  'about/donate': 'about',
-  'about/how': 'about',
-  'about/sources': 'about',
-  thesis: 'thesis',
-  policy: 'policy',
-  scenario: 'scenarios',
-  scenarios: 'scenarios',
-}
 
 function LiveClock() {
   const [now, setNow] = useState(() => new Date())
@@ -58,41 +27,12 @@ function LiveClock() {
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
-  const { theme, toggleTheme, view, setView, filters, openStateDetail } = useApp()
-
-  const go = (id: AppView, hash: string) => {
-    setView(id)
-    window.history.replaceState(null, '', `#${hash}`)
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
+  const { theme, toggleTheme, view, pathname, filters } = useApp()
 
   useEffect(() => {
-    const applyHash = () => {
-      const raw = window.location.hash.replace('#', '') || 'map'
-      if (raw.startsWith('state/')) {
-        const abbr = raw.slice('state/'.length).split(/[/?#]/)[0]
-        if (abbr && abbr.length >= 2) {
-          openStateDetail(abbr)
-          return
-        }
-      }
-      if (raw in HASH_ALIASES) {
-        setView(HASH_ALIASES[raw])
-        return
-      }
-      const match = NAV.find((n) => n.hash === raw)
-      if (match) setView(match.id)
-      else if (raw === 'policy') setView('policy')
-      else if (raw === 'scenario' || raw === 'scenarios') setView('scenarios')
-      else if (raw === 'consistency') setView('consistency')
-      else if (raw === 'research') setView('research')
-      else if (raw === 'data') setView('data-engineering')
-      else if (raw === 'dev') setView('developer')
-    }
-    applyHash()
-    window.addEventListener('hashchange', applyHash)
-    return () => window.removeEventListener('hashchange', applyHash)
-  }, [setView, openStateDetail])
+    const page = pageForPath(pathname)
+    if (page) applyHead(page)
+  }, [pathname])
 
   const handleExport = () => {
     exportJson(
@@ -115,28 +55,29 @@ export function AppShell({ children }: { children: ReactNode }) {
       </a>
 
       <nav className="rail" aria-label="Primary">
-        <button type="button" className="brand" onClick={() => go('map', 'map')}>
+        <a href="/" className="brand" onClick={onSameOriginClick}>
           <span className="brand-mark">EIS</span>
           <span className="brand-dot">Energy Intelligence System</span>
-        </button>
+        </a>
 
         <ul className="menu-items">
-          {NAV.map((item) => {
+          {NAV_ITEMS.map((item) => {
             const active =
-              view === item.id ||
-              (view === 'overview' && item.id === 'map') ||
-              (view === 'state-detail' && item.id === 'states') ||
-              (view === 'gas' && item.id === 'fossil')
+              view === item.view ||
+              (view === 'overview' && item.view === 'map') ||
+              (view === 'state-detail' && item.view === 'states') ||
+              (view === 'gas' && item.view === 'fossil') ||
+              (item.view === 'about' && pathname.startsWith('/about'))
             return (
-              <li key={item.id}>
-                <button
-                  type="button"
+              <li key={item.path}>
+                <a
+                  href={item.path}
                   className={active ? 'active' : undefined}
-                  onClick={() => go(item.id, item.hash)}
+                  onClick={onSameOriginClick}
                   aria-current={active ? 'page' : undefined}
                 >
-                  {item.label}
-                </button>
+                  {item.navLabel}
+                </a>
               </li>
             )
           })}

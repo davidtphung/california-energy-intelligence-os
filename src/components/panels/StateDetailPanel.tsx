@@ -57,15 +57,12 @@ export function StateDetailPanel() {
   }, [trade])
 
   const goBack = () => {
-    setView('overview')
     setDrilldown(null)
-    window.history.replaceState(null, '', '#overview')
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    setView('map')
   }
 
   const goCatalog = () => {
     setView('states')
-    window.history.replaceState(null, '', '#states')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 

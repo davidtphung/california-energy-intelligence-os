@@ -1,4 +1,17 @@
 {
+  "trailingSlash": false,
+  "redirects": [
+    { "source": "/usa", "destination": "/states", "permanent": true },
+    { "source": "/assets", "destination": "/portfolios", "permanent": true },
+    { "source": "/fuels", "destination": "/fossil", "permanent": true },
+    { "source": "/gas", "destination": "/fossil", "permanent": true },
+    { "source": "/sources", "destination": "/balance", "permanent": true },
+    { "source": "/overview", "destination": "/map", "permanent": true },
+    { "source": "/research", "destination": "/thesis", "permanent": true },
+    { "source": "/scenario", "destination": "/scenarios", "permanent": true },
+    { "source": "/dev", "destination": "/developer", "permanent": true },
+    { "source": "/state/:abbr", "destination": "/states/:abbr", "permanent": true }
+  ],
   "rewrites": [
     {
       "source": "/api/live/caiso/:path*",
@@ -10,6 +23,13 @@
       "source": "/api/live/(.*)",
       "headers": [
         { "key": "Cache-Control", "value": "public, s-maxage=10, stale-while-revalidate=20" }
+      ]
+    },
+    {
+      "source": "/api/key-figures",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=30, s-maxage=30, stale-while-revalidate=30" },
+        { "key": "Access-Control-Allow-Origin", "value": "*" }
       ]
     }
   ]
